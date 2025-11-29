@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  base: '/saiteki-doc/',
   title: "React/TS Training",
   description: "New Engineer Training Portal",
   themeConfig: {
