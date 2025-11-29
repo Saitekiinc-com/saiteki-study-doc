@@ -59,7 +59,22 @@ React特有の「考え方」を身につけます。
 - [ ] 親コンポーネントが再レンダリングされたとき、子コンポーネントがどうなるか説明できる。
 - [ ] `useEffect` の依存配列（dependency array）の役割を説明できる。
 
-## 参考資料
-*   [MDN Web Docs](https://developer.mozilla.org/ja/)
-*   [React 公式ドキュメント (Thinking in React)](https://ja.react.dev/learn/thinking-in-react)
-*   [TypeScript ハンドブック](https://www.typescriptlang.org/docs/handbook/intro.html)
+## 推奨学習リソース
+
+### 動画教材 (Udemy)
+体系的に学びたい場合におすすめです。
+*   **[【React18対応】モダンJavaScriptの基礎から始める挫折しないためのReact入門](https://boldjp.udemy.com/course/modern_javascipt_react_beginner/)**
+    *   JavaScriptの基礎からReactの導入まで、挫折せずに学ぶための入門講座。
+*   **[【完全保存版】React Hooksを完全に理解するHooksマスター講座【React18~19対応】](https://www.udemy.com/course/react-hooks-complete-course/)**
+    *   `useState`, `useEffect` などのHooksを深く理解し、使いこなすための講座。
+*   **[【世界で7万人が受講】Understanding TypeScript 日本語版](https://www.udemy.com/course/understanding-typescript-jp/)**
+    *   TypeScriptの基礎から高度な型定義までを網羅的に学べるベストセラー講座。
+
+### 公式ドキュメント (必読)
+*   **[React公式: UIの記述 (Describing the UI)](https://ja.react.dev/learn/describing-the-ui)**
+    *   コンポーネント、JSX、Propsなど、ReactでUIを構築するための基本概念。
+*   **[TypeScript公式: Utility Types](https://www.typescriptlang.org/docs/handbook/utility-types.html)**
+    *   `Partial`, `Pick`, `Omit` など、型を便利に操作するための組み込み型。
+*   **[MDN Web Docs](https://developer.mozilla.org/ja/)**
+    *   Web標準（HTML/CSS/JS）の辞書として常に参照しましょう。
+
