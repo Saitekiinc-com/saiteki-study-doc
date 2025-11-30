@@ -1,6 +1,8 @@
 # Backend Training
 
-🚧 **Under Construction**
+バックエンドエンジニア向けの研修カリキュラムです。
 
-バックエンドエンジニア向けの研修カリキュラムは現在準備中です。
-API設計、データベース設計、セキュリティなどを扱う予定です。
+*   **[Lv.1 基礎 (Foundation)](/training/backend/level1_foundation)**: WebとHTTPの仕組み、データベース基礎。
+*   **[Lv.2 応用 (Application)](/training/backend/level2_application)**: API開発、CRUD、エラーハンドリング。
+*   **[Lv.3 発展 (Quality)](/training/backend/level3_quality)**: パフォーマンス、セキュリティ、テスト。
+*   **[Lv.4 エキスパート (Architecture)](/training/backend/level4_architecture)**: アーキテクチャ、マイクロサービス、DevOps。

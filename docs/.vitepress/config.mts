@@ -29,7 +29,10 @@ export default withMermaid({
         text: 'Backend',
         collapsed: true,
         items: [
-          { text: 'Overview', link: '/training/backend/index' },
+          { text: 'Lv.1 Foundation', link: '/training/backend/level1_foundation' },
+          { text: 'Lv.2 Application', link: '/training/backend/level2_application' },
+          { text: 'Lv.3 Quality', link: '/training/backend/level3_quality' },
+          { text: 'Lv.4 Architecture', link: '/training/backend/level4_architecture' },
         ]
       },
       {
