@@ -21,6 +21,7 @@ export default withMermaid({
           { text: 'AI Native Engineering', link: '/training/ai_native_guide' },
           { text: 'Data Flow & System Design', link: '/training/data_flow_guide' },
           { text: 'Lv.1 Foundation', link: '/training/curriculum/level1_foundation' },
+          { text: 'Lv.1 Workshop', link: '/training/curriculum/level1_workshop' },
           { text: 'Lv.2 Application', link: '/training/curriculum/level2_application' },
           { text: 'Lv.3 Quality', link: '/training/curriculum/level3_quality' },
           { text: 'Lv.4 Architecture', link: '/training/curriculum/level4_architecture' },
