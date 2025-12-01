@@ -19,6 +19,7 @@ export default withMermaid({
         collapsed: false,
         items: [
           { text: 'AI Native Engineering', link: '/training/ai_native_guide' },
+          { text: 'Data Flow & System Design', link: '/training/data_flow_guide' },
           { text: 'Lv.1 Knowledge', link: '/training/curriculum/level1_knowledge' },
           { text: 'Lv.2 Application', link: '/training/curriculum/level2_application' },
           { text: 'Lv.3 Quality', link: '/training/curriculum/level3_quality' },
