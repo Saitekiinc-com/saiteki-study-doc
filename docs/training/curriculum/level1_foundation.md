@@ -41,8 +41,8 @@ JavaScript/TypeScriptという言語を通じて、現代のプログラミン�
 - [ ] 型定義を見るだけで、その関数の「責務」と「使い方」を理解できるコードを書ける。
 
 ### 📚 推奨リソース
-*   **動画**: [What the heck is the event loop anyway?](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
-    *   イベントループの仕組みを視覚的に解説した伝説の講演（英語ですが、図を見るだけで理解できます）。
+*   **書籍**: [JavaScript Primer 迷わないための入門書](https://jsprimer.net/)
+    *   ES2015以降をベースにした現代的な入門書。「非同期処理」の章で、イベントループやPromiseの仕組みが丁寧に解説されています。
 *   **書籍**: [プロを目指す人のためのTypeScript入門](https://gihyo.jp/book/2022/978-4-297-12747-3)
     *   通称「ブルーベリー本」。型システムを「安全なコードを書くための契約」として学べる良書。
 
