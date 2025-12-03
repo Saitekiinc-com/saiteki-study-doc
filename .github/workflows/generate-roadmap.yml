@@ -72,6 +72,12 @@ jobs:
 
           cat roadmap_output.md
 
+      - name: Ensure Label Exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "learning-roadmap" --color "0E8A16" --description "Generated learning roadmap" || true
+
       - name: Create Issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
