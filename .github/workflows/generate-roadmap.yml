@@ -3,13 +3,20 @@ name: Generate Learning Roadmap (RAG)
 on:
   workflow_dispatch:
     inputs:
-      request_details:
-        description: 'ユーザー情報 (役割、経験年数、課題など)'
+      role:
+        description: '役割 (例: Frontend Engineer)'
         required: true
-        default: |
-          【役割】: Frontend Engineer
-          【経験年数】: 3年
-          【現在の課題/ゴール】: バックエンドの設計がわからず、APIの修正依頼ができない。BFFやDB設計を学びたい。
+        default: 'Frontend Engineer'
+        type: string
+      experience:
+        description: '経験年数 (例: 3年)'
+        required: true
+        default: '3年'
+        type: string
+      goal:
+        description: '現在の課題/ゴール'
+        required: true
+        default: 'バックエンドの設計がわからず、APIの修正依頼ができない。BFFやDB設計を学びたい。'
         type: string
 
 jobs:
@@ -39,7 +46,10 @@ jobs:
         id: generate
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          USER_REQUEST: ${{ inputs.request_details }}
+          USER_REQUEST: |
+            【役割】: ${{ inputs.role }}
+            【経験年数】: ${{ inputs.experience }}
+            【現在の課題/ゴール】: ${{ inputs.goal }}
         run: |
           # Run script and capture output to a temporary file
           node scripts/generate-roadmap.js > roadmap_output.md
@@ -70,6 +80,6 @@ jobs:
           sed -n '/--- Generated Roadmap ---/,$p' roadmap_output.md | tail -n +2 > issue_body.md
 
           gh issue create \
-            --title "学習ロードマップ: ${{ inputs.request_details }}" \
+            --title "学習ロードマップ: ${{ inputs.role }} (${{ inputs.experience }})" \
             --body-file issue_body.md \
             --label "learning-roadmap"
