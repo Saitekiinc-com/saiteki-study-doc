@@ -99,15 +99,35 @@ ${context}
     \`\`\`
 `;
 
-  const result = await generationModel.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
+  const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro", "gemini-pro"];
+  let generatedText = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.error(`Trying model: ${modelName}...`);
+      const generationModel = genAI.getGenerativeModel({ model: modelName });
+      const result = await generationModel.generateContent(prompt);
+      const response = await result.response;
+      generatedText = response.text();
+      console.error(`Success with model: ${modelName}`);
+      break;
+    } catch (error) {
+      console.error(`Failed with model: ${modelName}. Error: ${error.message}`);
+      // Continue to next model
+    }
+  }
+
+  if (!generatedText) {
+    console.error("All models failed.");
+    process.exit(1);
+  }
 
   console.error("\n--- Generated Roadmap ---\n");
-  console.log(text);
+  console.log(generatedText);
 
   // Output to a file for GitHub Actions to pick up if needed, or just stdout is fine for now.
   // We will likely capture stdout in the workflow.
 }
 
 main();
+```
