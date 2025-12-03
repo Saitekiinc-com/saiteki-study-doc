@@ -119,6 +119,21 @@ ${context}
 
   if (!generatedText) {
     console.error("All models failed.");
+
+    // Debug: List available models
+    try {
+      console.error("--- Debug: Listing Available Models ---");
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const data = await response.json();
+      if (data.models) {
+        data.models.forEach(m => console.error(`- ${m.name} (${m.supportedGenerationMethods.join(', ')})`));
+      } else {
+        console.error("No models found in list response:", JSON.stringify(data));
+      }
+    } catch (e) {
+      console.error("Failed to list models:", e);
+    }
+
     process.exit(1);
   }
 
