@@ -3,6 +3,11 @@ name: Generate Learning Roadmap (RAG)
 on:
   workflow_dispatch:
     inputs:
+      name:
+        description: 'お名前 (例: 山田太郎)'
+        required: true
+        default: '山田太郎'
+        type: string
       role:
         description: '役割 (例: Frontend Engineer)'
         required: true
@@ -47,6 +52,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           USER_REQUEST: |
+            【お名前】: ${{ inputs.name }}
             【役割】: ${{ inputs.role }}
             【経験年数】: ${{ inputs.experience }}
             【現在の課題/ゴール】: ${{ inputs.goal }}
