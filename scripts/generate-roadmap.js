@@ -62,20 +62,34 @@ async function main() {
   // 4. Generate Roadmap
   const context = topK.map(v => `File: ${v.id}\nContent:\n${v.content}`).join('\n---\n');
 
+  // Read Learning Policy Guide
+  const guidePath = 'docs/training/personalization/guide.md';
+  let guideContent = '';
+  if (fs.existsSync(guidePath)) {
+    guideContent = fs.readFileSync(guidePath, 'utf-8');
+  } else {
+    console.warn(`Warning: Learning policy guide not found at ${guidePath}`);
+  }
+
   const prompt = `
 あなたはエンジニアリングマネージャーです。
-以下の「チームメンバーによる読書感想文（ナレッジベース）」と「ユーザーのバックグラウンド」を元に、このユーザーに最適な学習ロードマップを作成してください。
+以下の「組織の学習方針」、「チームメンバーによる読書感想文（ナレッジベース）」、「ユーザーのバックグラウンド」を元に、このユーザーに最適な学習ロードマップを作成してください。
 
 ## ユーザー情報
 ${userRequest}
+
+## 組織の学習方針 (Learning Policy)
+${guideContent}
 
 ## ナレッジベース (チームメンバーの声)
 ${context}
 
 ## 指示
+## 指示
 1. **日本語**で出力してください。
-2. ユーザーの課題解決に役立つ書籍を推奨してください。
-3. 推奨する際は、ナレッジベースにある**「チームメンバーの感想（Positive/Negative）」を引用**し、「〇〇という意見もあるため、ここは重点的に読むと良いでしょう」といった具体的なアドバイスを含めてください。
+2. **組織の学習方針に基づき、ユーザーのキャリアパス（例: InfraならPlatform Architectへの進化、PMならProduct Architectへの進化）を意識したアドバイス**を行ってください。
+3. ユーザーの課題解決に役立つ書籍を推奨してください。
+4. 推奨する際は、ナレッジベースにある**「チームメンバーの感想（Positive/Negative）」を引用**し、「〇〇という意見もあるため、ここは重点的に読むと良いでしょう」といった具体的なアドバイスを含めてください。
 4. 出力形式は **GitHub Issue** の本文としてそのまま使えるMarkdown形式にしてください。
 5. 各タスクには、以下の「読書感想文テンプレート」を含めてください。
 
