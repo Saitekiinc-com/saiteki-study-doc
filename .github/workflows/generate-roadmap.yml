@@ -1,0 +1,75 @@
+name: Generate Learning Roadmap (RAG)
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_details:
+        description: 'ユーザー情報 (役割、経験年数、課題など)'
+        required: true
+        default: |
+          【役割】: Frontend Engineer
+          【経験年数】: 3年
+          【現在の課題/ゴール】: バックエンドの設計がわからず、APIの修正依頼ができない。BFFやDB設計を学びたい。
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @google/generative-ai glob dotenv
+
+      - name: Update Vectors (Just-in-Time)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/update-vectors.js
+
+      - name: Generate Roadmap
+        id: generate
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          USER_REQUEST: ${{ inputs.request_details }}
+        run: |
+          # Run script and capture output to a temporary file
+          node scripts/generate-roadmap.js > roadmap_output.md
+
+          # Extract only the Markdown part (after "--- Generated Roadmap ---")
+          # Note: The script prints logs to stdout too, so we need to be careful.
+          # Let's adjust the script to print logs to stderr and only result to stdout,
+          # OR just grep the content. For simplicity, let's assume the script prints logs first.
+          # A safer way is to have the script write to a specific file, but let's try to parse.
+
+          # For now, let's just use the whole output but strip the logs if possible.
+          # Actually, let's modify the script to write to a file 'roadmap.md' to be safe.
+          # Since I cannot modify the script in this step easily, I will rely on the script outputting logs to stdout.
+          # Wait, I can modify the script in the previous step or just accept logs in the issue body for debug (not ideal).
+
+          # Let's just use the file output logic.
+          # I will assume the script outputs logs to stdout.
+          # I will edit the script in the next turn to write to a file or use stderr for logs.
+          # For now, I will just capture everything.
+
+          cat roadmap_output.md
+
+      - name: Create Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract the content after "--- Generated Roadmap ---"
+          sed -n '/--- Generated Roadmap ---/,$p' roadmap_output.md | tail -n +2 > issue_body.md
+
+          gh issue create \
+            --title "学習ロードマップ: ${{ inputs.request_details }}" \
+            --body-file issue_body.md \
+            --label "learning-roadmap"
