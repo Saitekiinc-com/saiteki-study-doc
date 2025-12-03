@@ -1,0 +1,45 @@
+name: Ingest Book Report
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'book-report')
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create Book Report Markdown
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: node scripts/ingest-book-report.js
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: add book report from issue #${{ github.event.issue.number }}"
+          title: "feat: add book report '${{ github.event.issue.title }}'"
+          body: |
+            This PR adds a new book report generated from Issue #${{ github.event.issue.number }}.
+
+            Original Issue: ${{ github.event.issue.html_url }}
+          branch: "book-report/issue-${{ github.event.issue.number }}"
+          base: main
+          labels: "documentation"
