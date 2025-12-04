@@ -46,12 +46,16 @@ jobs:
             const name = extractValue('お名前');
             const role = extractValue('役割 (Role)');
             const experience = extractValue('経験年数');
-            const goal = extractValue('現在の課題 / ゴール');
+            const current_understanding = extractValue('わかっていること \\(Current Understanding\\)');
+            const current_unknowns = extractValue('わかっていないこと \\(Current Challenges/Unknowns\\)');
+            const objective = extractValue('達成したい目標 \\(Objective / Goal\\)');
 
             core.setOutput('name', name);
             core.setOutput('role', role);
             core.setOutput('experience', experience);
-            core.setOutput('goal', goal);
+            core.setOutput('current_understanding', current_understanding);
+            core.setOutput('current_unknowns', current_unknowns);
+            core.setOutput('objective', objective);
 
       - name: Generate Roadmap
         env:
@@ -60,7 +64,9 @@ jobs:
             【お名前】: ${{ steps.parse.outputs.name }}
             【役割】: ${{ steps.parse.outputs.role }}
             【経験年数】: ${{ steps.parse.outputs.experience }}
-            【現在の課題/ゴール】: ${{ steps.parse.outputs.goal }}
+            【わかっていること】: ${{ steps.parse.outputs.current_understanding }}
+            【わかっていないこと】: ${{ steps.parse.outputs.current_unknowns }}
+            【達成したい目標】: ${{ steps.parse.outputs.objective }}
         run: |
           # Run script (writes to roadmap_body.md)
           node scripts/generate-roadmap.js

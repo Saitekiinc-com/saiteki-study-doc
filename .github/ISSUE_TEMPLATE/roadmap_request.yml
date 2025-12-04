@@ -37,14 +37,40 @@ body:
       required: true
 
   - type: textarea
-    id: goal
+    id: current_understanding
     attributes:
-      label: 現在の課題 / ゴール
+      label: わかっていること (Current Understanding)
       description: |
-        今困っていることや、将来どうなりたいかを具体的に書いてください。
-        詳しいほど、より的確なアドバイスが得られます。
+        現在理解している技術、概念、できることを書いてください。
+        例: Reactのコンポーネント作成、SQLの基本的なSELECT文、AWS EC2の起動など。
       placeholder: |
-        バックエンドの設計がわからず、APIの修正依頼ができない。
-        BFFやDB設計を学び、フルスタックに動けるようになりたい。
+        - React: コンポーネントの作成、Props/Stateの管理はできる。
+        - Backend: REST APIの概念は理解している。
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_unknowns
+    attributes:
+      label: わかっていないこと (Current Challenges/Unknowns)
+      description: |
+        現在抱えている課題、理解できていない部分、苦手なことを書いてください。
+        例: 非同期処理の仕組み、複雑なJOIN、インフラのネットワーク設計など。
+      placeholder: |
+        - React: useEffectの依存配列の挙動が怪しい。パフォーマンスチューニングがわからない。
+        - Backend: DBのインデックス設計やN+1問題の解決方法がわからない。
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 達成したい目標 (Objective / Goal)
+      description: |
+        具体的に作りたいものや、成し遂げたいことを書いてください。
+        例: 個人開発でメモアプリを作りたい、チームのCI/CDパイプラインを整備したい、など。
+      placeholder: |
+        自作のタスク管理アプリをAWS上にデプロイして公開したい。
+        そのために必要なインフラ知識と、バックエンドの実装力をつけたい。
     validations:
       required: true
