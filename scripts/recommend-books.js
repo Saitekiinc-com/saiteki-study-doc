@@ -105,20 +105,15 @@ ${context}
     *   **Step 1: 目標の定義 (全体像)**: ユーザーの「達成したい目標」を達成するために必要な知識・スキル・経験を網羅的にリストアップしてください（これを「100」とします）。
     *   **Step 2: 現状の除外 (引き算)**: ユーザーの「わかっていること」や「経験年数」から、既に持っている知識を Step 1 のリストから除外してください（例としてこれを「20」とします）。
     *   **Step 3: ギャップの特定 (残りの課題)**: Step 1 から Step 2 を引いて残った項目を、このユーザーが今埋めるべき具体的な「ギャップ」として定義してください（例としてこれが「80」です）。
-    *   **Step 4**: この「80（例）」のギャップを埋めるための書籍選定に移ってください。
+    *   **ステップ4**: この「80（例）」のギャップを埋めるための書籍選定に移ってください。
 5. **書籍の選定プロセス (重要)**:
-    *   **ステップ1 (Grounding検索)**: まず、ユーザーのギャップを埋めるのに**最も適した「商業出版された書籍」**をGoogle検索で見つけてください。
-        *   **【検索対象の変更】**: **必ず \`site:books.google.co.jp\` を付けて検索し、Googleブックス内の書籍情報を対象としてください。**
-        *   検索時は「site:books.google.co.jp {キーワード}」のように検索クエリを構築してください。
-    *   **ステップ2 (KB照合)**: 選んだ書籍が、提供された「ナレッジベース」に含まれているか確認してください。
-    *   **ステップ3 (出力)**:
-        *   **KBにある場合**: ナレッジベースの内容を引用し、**ポジティブな意見とネガティブな意見（もしあれば）の両面**を要約して紹介してください。セクション名は「**チームメンバーのレビュー (KB)**」としてください。
-        *   **KBにない場合**: Google検索（Grounding）で得られた情報を元に、**この書籍がどのようにギャップを埋めるのに役立つか**を要約してください。セクション名は「**レビュー**」としてください。**チームメンバーの意見として捏造することは絶対に避けてください。**
+    *   **ステップ1 (ツール使用)**: ユーザーのギャップを埋めるのに適した書籍を探すために、必ず提供されたツール **\`searchGoogleBooks\`** を使用してください。
+    *   **ステップ2**: ツールから返された書籍データ（タイトル、著者、説明、URL）を使って、書籍を推薦してください。
+        *   **注意**: ツールが返す情報は「実在する書籍」の確実な証拠です。**ツールが返さなかった書籍を勝手に捏造してはいけません。**
+        *   もし最初の検索で良い本が見つからなければ、キーワードを変えて何度か検索を行っても構いません。
 6. **書籍の紹介方法**:
-    *   書籍名には **GoogleブックスのページURL** をリンクさせてください。
-    *   形式: \`[{書籍名}](https://books.google.co.jp/...)\`
-        *   **重要**: Google検索で見つかった **Googleブックスの個別ページURL** を使用してください。
-        *   これが「実在確認（Grounding）」の証明となります。
+    *   書籍名には、ツールから取得した **GoogleブックスのページURL (\`infoLink\` または \`previewLink\`)** をリンクさせてください。
+    *   形式: \`[{書籍名}]({URL})\`
     *   各書籍について、**「どのギャップが埋まるのか」**を具体的に記述してください。
 7. 出力形式は **GitHub Issue** の本文としてそのまま使えるMarkdown形式にしてください。
 
@@ -149,33 +144,31 @@ ${context}
 
 ## 📚 推奨書籍 (Recommended Books)
 
-### 1. 📖 [{書籍名}]({GoogleブックスのURL})
+### 1. 📖 [{書籍名}]({URL})
+*   **著者**: {著者名}
+*   **ポイント**: {この本の選定理由と埋められるギャップ}
 
-**埋められるギャップ**:
-* ✅ {知識領域A}の{具体的な部分}
-
-**推奨理由**:
-{なぜこの本がこのギャップを埋めるのに最適なのか}
-
-**チームメンバーのレビュー (KB) or レビュー**:
-> **ポイント**: {KBの内容 または Web検索から得られた要約}
-
----
-
-### 2. 📖 [{書籍名}]({GoogleブックスのURL})
-
-*(同様の構成)*
-
-*(同様の構成)*
-
----
+**(以下同様)**
 `;
 
-  // Configure Grounding Tool
+  // Function Declaration for Google Books API
+  const searchGoogleBooksDeclaration = {
+    name: "searchGoogleBooks",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        query: {
+          type: "STRING",
+          description: "Search query for finding books (e.g., 'project management', 'javascript beginner')."
+        }
+      },
+      required: ["query"]
+    }
+  };
+
   const tools = [
     {
-      googleSearch: {},
-      urlContext: {}
+      functionDeclarations: [searchGoogleBooksDeclaration]
     }
   ];
 
@@ -184,168 +177,84 @@ ${context}
     tools: tools
   });
 
+  const chat = model.startChat({
+      history: [
+          {
+              role: "user",
+              parts: [{ text: prompt }]
+          }
+      ]
+  });
+
+  let generatedText = "";
+
   try {
-    console.error(`Generating content with model: gemini-2.5-flash...`);
-    const result = await model.generateContent(prompt);
+    console.error(`Starting chat with model: gemini-2.5-flash...`);
+    let result = await chat.sendMessage("おすすめの書籍を教えてください。");
+
+    // Handle specific function calls loop
+    // Note: The simple `generateContent` might not loop automatically for tools without recursion loop logic manually,
+    // but `startChat` + `sendMessage` usually handles function calling turns IF we provide the response.
+    // Let's implement a simple loop to handle function calls.
+
+    // Max turns to prevent infinite loops
+    let maxTurns = 5;
+    let turn = 0;
+
+    while (result.response.functionCalls() && turn < maxTurns) {
+        turn++;
+        const call = result.response.functionCalls()[0];
+        if (call.name === "searchGoogleBooks") {
+            const query = call.args.query;
+            console.error(`[Tool Call] Searching Google Books for: "${query}"`);
+
+            // Execute API Call
+            const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5&langRestrict=ja`);
+            const data = await apiRes.json();
+
+            const books = data.items ? data.items.map(item => ({
+                title: item.volumeInfo.title,
+                authors: item.volumeInfo.authors,
+                description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 200) + "..." : "No description",
+                infoLink: item.volumeInfo.infoLink
+            })) : [];
+
+            console.error(`[Tool Result] Found ${books.length} books.`);
+
+            // Send result back to model
+            result = await chat.sendMessage([
+                {
+                    functionResponse: {
+                        name: "searchGoogleBooks",
+                        response: { books: books }
+                    }
+                }
+            ]);
+        }
+    }
+
     const response = await result.response;
     generatedText = response.text();
     console.error(`Success!`);
+
   } catch (error) {
     console.error(`Failed to generate content. Error: ${error.message}`);
     process.exit(1);
   }
 
   if (!generatedText) {
-    console.error("All models failed.");
-
-    // Debug: List available models
-    try {
-      console.error("--- Debug: Listing Available Models ---");
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      const data = await response.json();
-      if (data.models) {
-        data.models.forEach(m => console.error(`- ${m.name} (${m.supportedGenerationMethods.join(', ')})`));
-      } else {
-        console.error("No models found in list response:", JSON.stringify(data));
-      }
-    } catch (e) {
-      console.error("Failed to list models:", e);
-    }
-
-    process.exit(1);
+     console.error("Failed to generate text after tool execution.");
+     process.exit(1);
   }
 
-  // 5. Verify URLs (Liveness Check)
-  console.error("--- Verifying URLs ---");
-  generatedText = await checkLinksInText(generatedText);
-
+  // No need for post-verification logic anymore!
   console.error("\n--- Generated Roadmap ---\n");
   console.log(generatedText);
 
   // Output to a file for GitHub Actions to pick up reliably
   fs.writeFileSync('roadmap_body.md', generatedText);
 }
+// Removed legacy checkLinksInText and isUrlAlive functions
 
-// Helper: Verify URLs and Filter Sections
-async function checkLinksInText(text) {
-  // 1. Split text into common parts and book sections
-  const splitPattern = /(?=### \d+\. 📖)/;
-  const chunks = text.split(splitPattern);
-
-  const processedChunks = await Promise.all(chunks.map(async (chunk, index) => {
-    // If it doesn't look like a book section, return as is (preamble and postscripts)
-    if (!chunk.trim().match(/^### \d+\. 📖/)) {
-        return chunk;
-    }
-
-    // It is a book section. Identify the "Title URL" (Google Books Page).
-    // Format: ### 1. 📖 [Book Title](https://...)
-    // Also capture the Book Title for fallback search link
-    const titleLinkMatch = chunk.match(/^### \d+\. 📖 \[(.*?)\]\((https?:\/\/[^\)]+)\)/);
-
-    if (titleLinkMatch) {
-        const bookTitle = titleLinkMatch[1];
-        const url = titleLinkMatch[2];
-
-        const checkResult = await isUrlAlive(url);
-
-        if (!checkResult.alive) {
-            console.error(`[Filtering Rule] Dropping book section due to Dead Title URL (Status ${checkResult.status}): ${url}`);
-            return '';
-        } else if (checkResult.status !== 200) {
-            // If strictly not 200 OK (e.g. 403, 503, 999 or even 404 if soft), fallback.
-            // Wait, checks above handle Hard 404.
-            // If soft 404 or blocked -> Fallback.
-            // Since we know Google Books blocks bots heavily (returning 404 often even for valid),
-            // a safer default here might be: "If we can't confirm it's 200 OK with valid content, Fallback".
-
-            console.warn(`[Filtering Rule] URL verification failed/blocked (Status ${checkResult.status}). Fallback to Google Books Search Link: ${url}`);
-
-            // Fallback to Google Books Search
-            // https://www.google.co.jp/search?tbm=bks&q={Title}
-            const searchUrl = `https://www.google.co.jp/search?tbm=bks&q=${encodeURIComponent(bookTitle)}`;
-
-            // Use regex replacement on the chunk
-            return chunk.replace(titleLinkMatch[0], `### 0. 📖 [${bookTitle}](${searchUrl})`);
-        }
-
-        console.error(`[Filtering Rule] Keeping book section. Title URL OK (Status ${checkResult.status}): ${url}`);
-    } else {
-        console.warn(`[Filtering Rule] No Title URL found in book section header. Keeping it, but this might be risky.`);
-    }
-
-    return chunk;
-  }));
-
-  // Rejoin and fix numbering
-  let finalJoined = processedChunks.join('');
-
-  // Renumbering pass
-  let bookCount = 1;
-  finalJoined = finalJoined.replace(/### \d+\. 📖/g, () => {
-      return `### ${bookCount++}. 📖`;
-  });
-
-  if (bookCount === 1 && chunks.length > 1) {
-       finalJoined += "\n\n(※ 提案された書籍のページが検証できなかったため、すべて除外されました。)\n";
-  }
-
-  return finalJoined;
-}
-
-async function isUrlAlive(url) {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(url, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8'
-        }
-    });
-    clearTimeout(timeout);
-
-    const status = res.status;
-    const text = await res.text();
-
-    // Google Books error check
-    if (text.includes("書籍が見つかりません") ||
-        text.includes("Error 404 (Not Found)!!1") ||
-        text.includes("この書籍は閲覧できません")) {
-         // This is a Soft 404/Block.
-         // Unlike Amazon where we wanted to remove non-existent books,
-         // here "Error 404" might just mean "Blocked for Bot" as seen in debug.
-         // To be safe: treat as BLOCKED (fallback to search) rather than DEAD (remove).
-         // UNLESS we are sure it's dead.
-         // The debug output "Error 404" appeared for VALID books too.
-         // So we CANNOT use 404 to assume dead. We must assume BLOCKED.
-         return { alive: true, status: 503 }; // Treat as blocked -> Fallback
-    }
-
-    if (res.ok) {
-        return { alive: true, status: 200 };
-    }
-
-    // Hard 404 from headers?
-    if (status === 404 || status === 410) {
-        // As seen in debug, Google might return 404 header for valid books too?
-        // "Status: 404" was logged in debug script.
-        // So even hard 404 might be a block.
-        // This makes "Strict Filtering" (removing hallucinations) very hard.
-        // BUT, we want to prioritize user experience (no broken links).
-        // If we get 404, we can't link to it. So we MUST fallback to search.
-        // We shouldn't remove it, because it might exist.
-        return { alive: true, status: 503 }; // Treat as blocked -> Fallback
-    }
-
-    return { alive: true, status: status };
-  } catch (e) {
-    console.error(`Check failed for ${url}: ${e.message}`);
-    return { alive: true, status: 503 };
-  }
-}
 
 main();
