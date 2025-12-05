@@ -239,26 +239,37 @@ async function checkLinksInText(text) {
     }
 
     // It is a book section. Identify the "Title URL" (Amazon Product Page).
-    // Format: ### 1. � [Book Title](https://...)
-    const titleLinkMatch = chunk.match(/^### \d+\. � \[.*?\]\((https?:\/\/[^\)]+)\)/);
+    // Format: ### 1. 📖 [Book Title](https://...)
+    // Also capture the Book Title for fallback search link
+    const titleLinkMatch = chunk.match(/^### \d+\. 📖 \[(.*?)\]\((https?:\/\/[^\)]+)\)/);
 
     if (titleLinkMatch) {
-        const url = titleLinkMatch[1];
+        const bookTitle = titleLinkMatch[1];
+        const url = titleLinkMatch[2];
 
-        const isAlive = await isUrlAlive(url);
-        if (!isAlive) {
-            console.error(`[Filtering Rule] Dropping book section due to Dead Title URL: ${url}`);
-            // Return empty string to remove section
+        const checkResult = await isUrlAlive(url);
+
+        if (!checkResult.alive) {
+            console.error(`[Filtering Rule] Dropping book section due to Dead Title URL (Status ${checkResult.status}): ${url}`);
             return '';
+        } else if (checkResult.status === 403 || checkResult.status === 503 || checkResult.status === 999) {
+            // Amazon blocked us. We cannot verify if the link is real or a hallucination.
+            // To be safe and avoid showing a 404 to the user, we FALLBACK to a Search Link.
+            console.warn(`[Filtering Rule] URL verification blocked (Status ${checkResult.status}). Fallback to Search Link: ${url}`);
+
+            // Replace the direct link with a search link
+            // Original: [Title](URL)
+            // New: [Title](https://www.amazon.co.jp/s?k=Title)
+            const searchUrl = `https://www.amazon.co.jp/s?k=${encodeURIComponent(bookTitle)}`;
+            const newHeader = `### ${index + 1}. 📖 [${bookTitle}](${searchUrl})`; // Note: index matches map index, might be off if we use this logic
+            // Use regex replacement on the chunk to be safe
+            return chunk.replace(titleLinkMatch[0], `### 0. 📖 [${bookTitle}](${searchUrl})`); // We fix numbering later
         }
-        console.error(`[Filtering Rule] Keeping book section. Title URL OK: ${url}`);
+
+        console.error(`[Filtering Rule] Keeping book section. Title URL OK (Status ${checkResult.status}): ${url}`);
     } else {
         console.warn(`[Filtering Rule] No Title URL found in book section header. Keeping it, but this might be risky.`);
     }
-
-    // We no longer need to check "Source URL" lines as they are removed from prompt.
-    // However, if there are other markdown links inside the body, we can optionally check them,
-    // but the main requirement is strict filtering based on the "Source" (now the title link).
 
     return chunk;
   }));
@@ -272,7 +283,6 @@ async function checkLinksInText(text) {
       return `### ${bookCount++}. 📖`;
   });
 
-  // If all books were removed...
   if (bookCount === 1 && chunks.length > 1) {
        finalJoined += "\n\n(※ 提案された書籍のAmazon商品ページが検証できなかったため、すべて除外されました。)\n";
   }
@@ -282,37 +292,39 @@ async function checkLinksInText(text) {
 
 async function isUrlAlive(url) {
   try {
-    // Try HEAD first
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(url, { method: 'HEAD', signal: controller.signal, headers: { 'User-Agent': 'Bot/1.0' } });
     clearTimeout(timeout);
 
-    if (res.ok) return true;
-    if (res.status === 404 || res.status === 410) return false;
+    if (res.ok) return { alive: true, status: res.status };
+    if (res.status === 404 || res.status === 410) return { alive: false, status: res.status };
 
-    // If 403 Forbidden or 503 Service Unavailable, it's likely bot protection (Amazon/Cloudflare).
-    // Treat as "Alive" (or at least "Not 404") to avoid false positives.
-    if (res.status === 403 || res.status === 503) return true;
-
-    // If 405 Method Not Allowed or other error, try GET
+    // If 405/403/etc, try GET
     if (res.status === 405 || res.status >= 400) {
        const controllerGet = new AbortController();
        const timeoutGet = setTimeout(() => controllerGet.abort(), 5000);
-       const resGet = await fetch(url, { method: 'GET', signal: controllerGet.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Bot/1.0)' } });
+       // Use a more realistic User-Agent to try and bypass simple blocks
+       const resGet = await fetch(url, { method: 'GET', signal: controllerGet.signal, headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' } });
        clearTimeout(timeoutGet);
 
-       if (resGet.ok) return true;
-       // Again, if GET returns 403/503, assume alive.
-       if (resGet.status === 403 || resGet.status === 503 || resGet.status === 999) return true;
-       if (resGet.status === 404 || resGet.status === 410) return false;
+       if (resGet.ok) return { alive: true, status: resGet.status };
+       if (resGet.status === 404 || resGet.status === 410) return { alive: false, status: resGet.status };
 
-       return true; // Default to true for other weird errors to be safe
+       // If blocked (403, 503, 999), return ALIVE but with status code so caller can decide
+       if (resGet.status === 403 || resGet.status === 503 || resGet.status === 999) {
+           return { alive: true, status: resGet.status };
+       }
+
+       // Other errors? Default to alive/unknown
+       return { alive: true, status: resGet.status };
     }
-    return true; // Assume ok if weird status but not 404
+    return { alive: true, status: res.status };
   } catch (e) {
     console.error(`Check failed for ${url}: ${e.message}`);
-    return false;
+    // Network error could mean anything. Let's assume Dead to be safe?
+    // Or return status 0 (Network Error).
+    return { alive: false, status: 0 };
   }
 }
 
