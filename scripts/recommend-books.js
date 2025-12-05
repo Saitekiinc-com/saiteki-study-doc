@@ -115,11 +115,10 @@ ${context}
         *   **KBにある場合**: ナレッジベースの内容を引用し、**ポジティブな意見とネガティブな意見（もしあれば）の両面**を要約して紹介してください。セクション名は「**チームメンバーのレビュー (KB)**」としてください。
         *   **KBにない場合**: Google検索（Grounding）で得られた情報を元に、**この書籍がどのようにギャップを埋めるのに役立つか**を要約してください。セクション名は「**レビュー**」としてください。**チームメンバーの意見として捏造することは絶対に避けてください。**
 6. **書籍の紹介方法**:
-    *   書籍名には必ず **Amazonの検索リンク** を付けてください。形式: \`[{書籍名}](https://www.amazon.co.jp/s?k={書籍名})\`
-    *   **【検証元情報の提示（重要）】**:
-        *   その書籍の実在確認や内容把握に使用した**具体的なWebページのURL（参照元URL）**を記載してください。
-        *   **ここには Google検索で見つけた \`amazon.co.jp\` の商品ページURLを記載してください。**
-    *   各書籍について、**「どのギャップが埋まるのか」**を具体的に記述してください。
+    *   書籍名には必ず **Amazonの個別商品ページURL** をリンクさせてください。
+    *   形式: \`[{書籍名}](https://www.amazon.co.jp/...)\`
+        *   **重要**: 検索結果一覧ページ (\`/s?k=...\`) ではなく、**Google検索で見つけた \`amazon.co.jp\` の具体的な商品ページ**にリンクしてください。
+        *   これが「実在確認（Grounding）」の証明となります。
     *   各書籍について、**「どのギャップが埋まるのか」**を具体的に記述してください。
 7. 出力形式は **GitHub Issue** の本文としてそのまま使えるMarkdown形式にしてください。
 
@@ -150,8 +149,7 @@ ${context}
 
 ## 📚 推奨書籍 (Recommended Books)
 
-### 1. 📖 [{書籍名}](https://www.amazon.co.jp/s?k={書籍名})
-**🔗 参照元URL (出版社など)**: {Google検索で発見した実在するURL}
+### 1. 📖 [{書籍名}]({Google検索で見つけたAmazon商品ページURL})
 
 **埋められるギャップ**:
 * ✅ {知識領域A}の{具体的な部分}
@@ -164,8 +162,9 @@ ${context}
 
 ---
 
-### 2. 📖 [{書籍名}](https://www.amazon.co.jp/s?k={書籍名})
-**🔗 参照元URL**: {情報源となったWebページのURL}
+### 2. 📖 [{書籍名}]({Google検索で見つけたAmazon商品ページURL})
+
+*(同様の構成)*
 
 *(同様の構成)*
 
@@ -230,42 +229,7 @@ ${context}
 // Helper: Verify URLs and Filter Sections
 async function checkLinksInText(text) {
   // 1. Split text into common parts and book sections
-  // Heuristic: Books start with "### \d+\. 📖"
-  // We need to capture the preamble (everything before the first book)
-  const bookHeaderRegex = /(### \d+\. 📖.*)/;
-  const parts = text.split(bookHeaderRegex);
-
-  // parts[0] is preamble. Subsequent parts depend on split behavior with capture group.
-  // split with capture group returns [preamble, match, rest, match, rest...] or similar depending on implementation.
-  // Let's use a manual approach for robustness.
-
-  const sections = [];
-  let currentPos = 0;
-  let match;
-  // Global regex for book headers
-  const headerRegexGlobal = /### \d+\. 📖/g;
-
-  let lastIndex = 0;
-  while ((match = headerRegexGlobal.exec(text)) !== null) {
-      // Push content before this match as a "preamble" or "interim" section
-      if (match.index > lastIndex) {
-          sections.push({ type: 'text', content: text.substring(lastIndex, match.index) });
-      }
-      // Determine where this section ends (at next header or end of string)
-      const start = match.index;
-      // We need to look ahead for the next match
-      const nextMatchIndex = text.indexOf('### ', start + 1); // Simple lookahead for next header (adjust regex if needed)
-      // Actually, let's just use the regex loop. The `lastIndex` of the regex object is updated after exec.
-      // But we need the content *between* headers.
-
-      // Simpler approach: Split by the header pattern but keep delimiters.
-  }
-
-  // Let's try an even simpler approach: Regex based splitting is tricky to keep structure.
-  // Let's use `split` but wrapped to handle the logic.
-
   const splitPattern = /(?=### \d+\. 📖)/;
-  // Lookahead split! logic: Splitting at the position where the pattern matches, keeping the pattern in the next chunk.
   const chunks = text.split(splitPattern);
 
   const processedChunks = await Promise.all(chunks.map(async (chunk, index) => {
@@ -274,46 +238,32 @@ async function checkLinksInText(text) {
         return chunk;
     }
 
-    // It is a book section. Identify the "Source URL".
-    // 🔗 参照元URL(出版社など): {URL}
-    const sourceUrlMatch = chunk.match(/🔗 参照元URL.*?: (https?:\/\/[^\s\n]+)/);
+    // It is a book section. Identify the "Title URL" (Amazon Product Page).
+    // Format: ### 1. � [Book Title](https://...)
+    const titleLinkMatch = chunk.match(/^### \d+\. � \[.*?\]\((https?:\/\/[^\)]+)\)/);
 
-    if (sourceUrlMatch) {
-        const url = sourceUrlMatch[1];
-        // Special check: If user typed "example.com" or standard placeholders, ignore or fail?
-        // We assume valid URLs.
+    if (titleLinkMatch) {
+        const url = titleLinkMatch[1];
 
         const isAlive = await isUrlAlive(url);
         if (!isAlive) {
-            console.error(`[Filtering Rule] Dropping book section due to Dead Source URL: ${url}`);
-            // Return empty string strings effectively removing the section.
-            // We might want to return a strict placeholder? No, user wants it gone.
+            console.error(`[Filtering Rule] Dropping book section due to Dead Title URL: ${url}`);
+            // Return empty string to remove section
             return '';
         }
-        console.error(`[Filtering Rule] Keeping book section. Source URL OK: ${url}`);
+        console.error(`[Filtering Rule] Keeping book section. Title URL OK: ${url}`);
     } else {
-        console.warn(`[Filtering Rule] No Source URL found in book section. Keeping it, but this might be risky.`);
+        console.warn(`[Filtering Rule] No Title URL found in book section header. Keeping it, but this might be risky.`);
     }
 
-    // Secondary check: Are there ANY dead Amazon links in the title?
-    // If the title link is dead, but source is OK... we might just strip the link?
-    // User asked "Don't introduce books that don't exist".
-    // If Source URL exists, book likely exists. If Amazon link is dead, it's just a bad link.
-    // Let's run the previous logic to annotate broken internal links just in case,
-    // BUT specific to this chunk.
-
-    // We can reuse a mini-version of the link checker here if needed,
-    // but the main requirement is dropping the book if the SOURCE is bad.
+    // We no longer need to check "Source URL" lines as they are removed from prompt.
+    // However, if there are other markdown links inside the body, we can optionally check them,
+    // but the main requirement is strict filtering based on the "Source" (now the title link).
 
     return chunk;
   }));
 
   // Rejoin and fix numbering
-  // If we removed book #2, book #3 should probably become #2?
-  // Or current prompt output numbers them hardcoded?
-  // If we drop #1, and #2 remains... it might look weird "### 2. ...".
-  // Let's try to re-number.
-
   let finalJoined = processedChunks.join('');
 
   // Renumbering pass
@@ -322,10 +272,9 @@ async function checkLinksInText(text) {
       return `### ${bookCount++}. 📖`;
   });
 
-  // If all books were removed... we should probably say "No books found".
+  // If all books were removed...
   if (bookCount === 1 && chunks.length > 1) {
-       // chunks > 1 means we had potential books, but bookCount stayed 1 means we dropped all.
-       finalJoined += "\n\n(※ 提案された書籍の参照元URLが検証できなかったため、すべて除外されました。検索条件を見直してください。)\n";
+       finalJoined += "\n\n(※ 提案された書籍のAmazon商品ページが検証できなかったため、すべて除外されました。)\n";
   }
 
   return finalJoined;
