@@ -124,9 +124,24 @@ async function main() {
     }
   };
 
+  // Function Declaration for Knowledge Base Discovery
+  const searchInternalReviewsDeclaration = {
+    name: "searchInternalReviews",
+    parameters: {
+        type: "OBJECT",
+        properties: {
+            topic: {
+                type: "STRING",
+                description: "Topic or gap to search for in the knowledge base (e.g., 'team building', 'negotiation')."
+            }
+        },
+        required: ["topic"]
+    }
+  };
+
   const tools = [
     {
-      functionDeclarations: [searchGoogleBooksDeclaration, searchKnowledgeBaseDeclaration]
+      functionDeclarations: [searchGoogleBooksDeclaration, searchKnowledgeBaseDeclaration, searchInternalReviewsDeclaration]
     }
   ];
 
@@ -151,8 +166,12 @@ ${userRequest}
 
 ## 手順
 1. ユーザーのプロファイルを分析し、目標と現状のギャップを特定する。
-2. そのギャップを埋めるのに最適な書籍を \`searchGoogleBooks\` ツールを使って探す（複数回検索しても良い）。
-3. 書籍が見つかったら、\`searchKnowledgeBase\` で社内レビューがあるか確認する。
+2. 書籍の探索:
+    *   \`searchGoogleBooks\` を使って広く一般書籍を探す。
+    *   **同時に** \`searchInternalReviews\` を使って、ユーザーの課題に関連する「社内の読書感想文」がないかも探す。
+3. これらを組み合わせて、最適な書籍リストを作成する。
+    *   社内レビューがあった本は積極的に採用する。
+    *   選ばれた本について、\`searchKnowledgeBase\` で再度詳細を確認しても良い（任意）。
 4. 検索結果を元に、**System Instructionで指定されたフォーマットに従って**出力する。
 `;
 
@@ -280,6 +299,47 @@ ${userRequest}
                            response: { error: "Search failed" }
                        }
                    });
+                }
+            } else if (call.name === "searchInternalReviews") {
+                const topic = call.args.topic;
+                console.error(`[Tool Call] Searching Internal Reviews for topic: "${topic}"`);
+
+                try {
+                     const embResult = await embeddingModel.embedContent(topic);
+                     const queryVec = embResult.embedding.values;
+
+                     // Score all vectors
+                     const scored = vectors.map(vec => ({
+                         ...vec,
+                         score: cosineSimilarity(queryVec, vec.embedding)
+                     }));
+
+                     // Sort and take top 3
+                     scored.sort((a, b) => b.score - a.score);
+                     const topMatches = scored.slice(0, 3).filter(v => v.score > 0.6); // Threshold
+
+                     console.error(`[Tool Result] Found ${topMatches.length} internal reviews.`);
+
+                     functionResponses.push({
+                         functionResponse: {
+                             name: "searchInternalReviews",
+                             response: {
+                                 reviews: topMatches.map(m => ({
+                                     filename: m.id,
+                                     summary: m.content.substring(0, 800), // Longer context for discovery
+                                     score: m.score
+                                 }))
+                             }
+                         }
+                     });
+                } catch (e) {
+                     console.error("Internal Review Search Failed:", e);
+                     functionResponses.push({
+                         functionResponse: {
+                             name: "searchInternalReviews",
+                             response: { error: "Search failed" }
+                         }
+                     });
                 }
             }
         }
