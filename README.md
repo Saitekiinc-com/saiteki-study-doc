@@ -107,5 +107,14 @@ sequenceDiagram
 | **実行環境** | GitHub Actions | 無料枠内 (Public Repos) | **$0** |
 
 **合計予測**: 月間 **$0.1 (約15円) 以下** で運用可能です。
-※Gemini APIの無料枠（Rate Limitあり）を利用すれば、コストは完全無料（$0）になります。
+
+### 🆓 無料枠 (Free Tier) の活用
+Gemini 2.5 Flash APIには以下の無料枠（Free Tier）が設定されています（※ユーザー情報に基づく）。
+これを超えない範囲であれば、コストは **完全無料 ($0)** です。
+
+*   **10 RPM** (Requests Per Minute): 1分間に10回まで
+*   **250,000 TPM** (Tokens Per Minute): 1分間に25万トークンまで
+*   **250 RPD** (Requests Per Day): 1日に250回まで
+
+本システム（書籍推薦）の利用頻度が「1日250回以下」であれば、課金は発生しません。
 
