@@ -41,115 +41,9 @@ async function main() {
       console.warn('Warning: Some user request fields appear to be empty. Check issue parsing logic.');
   }
 
+
+
   const genAI = new GoogleGenerativeAI(apiKey);
-  const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
-
-  // 1. Load Vectors
-  if (!fs.existsSync(VECTORS_FILE)) {
-    console.error(`Error: ${VECTORS_FILE} not found. Run update-vectors.js first.`);
-    process.exit(1);
-  }
-  const vectors = JSON.parse(fs.readFileSync(VECTORS_FILE, 'utf-8'));
-
-  // 2. Embed Query
-  const queryEmbeddingResult = await embeddingModel.embedContent(userRequest);
-  const queryVector = queryEmbeddingResult.embedding.values;
-
-  // 3. Vector Search
-  const scoredVectors = vectors.map(vec => ({
-    ...vec,
-    score: cosineSimilarity(queryVector, vec.embedding)
-  }));
-
-  // Sort by score descending and take top K
-  scoredVectors.sort((a, b) => b.score - a.score);
-  const topK = scoredVectors.slice(0, 3); // Top 3 relevant reports
-
-  console.error("--- Relevant Reports Found ---");
-  topK.forEach(v => console.error(`[${v.score.toFixed(3)}] ${v.id}`));
-
-  // 4. Generate Roadmap
-  const context = topK.map(v => `File: ${v.id}\nContent:\n${v.content}`).join('\n---\n');
-
-  // Read Learning Policy Guide - DISABLED
-  const guideContent = '';
-  // const guidePath = 'docs/training/personalization/guide.md';
-  // if (fs.existsSync(guidePath)) {
-  //   guideContent = fs.readFileSync(guidePath, 'utf-8');
-  // } else {
-  //   console.warn(`Warning: Learning policy guide not found at ${guidePath}`);
-  // }
-
-  // List available documentation for linking - DISABLED
-  const docList = '';
-  // const docFiles = glob.sync('docs/**/*.md');
-  // const docList = docFiles.map(f => `- ${f}`).join('\n');
-
-  const prompt = `
-あなたはエンジニアリングマネージャーです。
-以下の「チームメンバーによる読書感想文（ナレッジベース）」、「ユーザーのバックグラウンド」を元に、このユーザーに最適な**書籍**を提案してください。
-
-## ユーザー情報
-${userRequest}
-
-## ナレッジベース
-${context}
-
-## 指示
-1. **日本語**で出力してください。
-2. **【最重要】ユーザー情報の優先**:
-    *   提案は**必ず**上記の「ユーザー情報」に基づいて行ってください。
-3. **ステップ0: ユーザープロファイルの確認**:
-    *   回答の冒頭で、あなたが認識した「ユーザーの役割」、「経験年数」、「達成したい目標」、「わかっていること」「わかっていないこと」を復唱してください。
-4. **ギャップ分析 (引き算方式)**:
-    *   **Step 1: 目標の定義 (全体像)**: ユーザーの「達成したい目標」を達成するために必要な知識・スキル・経験を網羅的にリストアップしてください（これを「100」とします）。
-    *   **Step 2: 現状の除外 (引き算)**: ユーザーの「わかっていること」や「経験年数」から、既に持っている知識を Step 1 のリストから除外してください（例としてこれを「20」とします）。
-    *   **Step 3: ギャップの特定 (残りの課題)**: Step 1 から Step 2 を引いて残った項目を、このユーザーが今埋めるべき具体的な「ギャップ」として定義してください（例としてこれが「80」です）。
-    *   **ステップ4**: この「80（例）」のギャップを埋めるための書籍選定に移ってください。
-5. **書籍の選定プロセス (重要)**:
-    *   **ステップ1 (ツール使用)**: ユーザーのギャップを埋めるのに適した書籍を探すために、必ず提供されたツール **\`searchGoogleBooks\`** を使用してください。
-    *   **ステップ2**: ツールから返された書籍データ（タイトル、著者、説明、URL）を使って、書籍を推薦してください。
-        *   **注意**: ツールが返す情報は「実在する書籍」の確実な証拠です。**ツールが返さなかった書籍を勝手に捏造してはいけません。**
-        *   もし最初の検索で良い本が見つからなければ、キーワードを変えて何度か検索を行っても構いません。
-6. **書籍の紹介方法**:
-    *   書籍名には、ツールから取得した **GoogleブックスのページURL (\`infoLink\` または \`previewLink\`)** をリンクさせてください。
-    *   形式: \`[{書籍名}]({URL})\`
-    *   各書籍について、**「どのギャップが埋まるのか」**を具体的に記述してください。
-7. 出力形式は **GitHub Issue** の本文としてそのまま使えるMarkdown形式にしてください。
-
-## 出力フォーマット例
-# 📚 書籍提案: {達成したい目標}編
-
-## 👤 ユーザープロファイル確認
-* **役割**: {認識した役割}
-* **経験年数**: {認識した経験年数}
-* **目標**: {認識した目標}
-* **わかっていること**: {認識したわかっていること}
-* **わかっていないこと**: {認識したわかっていないこと}
-
-## 🎯 目標 (Objective)
-**{ユーザーの目標}**
-
-## 📊 ギャップ分析 (Gap Analysis)
-**目標達成に必要な要素 (全体像)**:
-* {要素1}
-* {要素2}
-
-**現状の理解 (除外項目)**:
-* {理解していること}
-
-**埋めるべきギャップ (課題)**:
-1. **{知識領域A}**: {具体的な不足内容}
-2. **{知識領域B}**: {具体的な不足内容}
-
-## 📚 推奨書籍 (Recommended Books)
-
-### 1. 📖 [{書籍名}]({URL})
-*   **著者**: {著者名}
-*   **ポイント**: {この本の選定理由と埋められるギャップ}
-
-**(以下同様)**
-`;
 
   // Function Declaration for Google Books API
   const searchGoogleBooksDeclaration = {
@@ -173,7 +67,8 @@ ${context}
 
 **絶対的なルール**:
 1. 提供されたツール \`searchGoogleBooks\` を必ず使用して、実在する書籍情報のみを使用すること。
-2. 以下の「出力フォーマット（Markdown）」を**一言一句違わず遵守**すること。勝手な見出しや挨拶文を追加しないこと。
+2. 書籍が見つかったら、必ずツール \`searchKnowledgeBase\` を使用して、社内のナレッジベース（読書感想文など）にその本に関する情報がないか確認すること。
+3. 以下の「出力フォーマット（Markdown）」を**一言一句違わず遵守**すること。勝手な見出しや挨拶文を追加しないこと。
 
 ## 出力フォーマット
 # 📚 書籍提案: {達成したい目標}編
@@ -203,13 +98,29 @@ ${context}
 ### 1. 📖 [{書籍名}]({URL})
 *   **著者**: {著者名}
 *   **ポイント**: {この本の選定理由と埋められるギャップ}
+*   **チームメンバーのレビュー**: {searchKnowledgeBaseで見つかった場合にのみ記述。見つからなければこの行ごと削除}
 
 **(以下同様に3冊程度)**
 `;
 
+  // Function Declaration for Knowledge Base Search
+  const searchKnowledgeBaseDeclaration = {
+    name: "searchKnowledgeBase",
+    parameters: {
+        type: "OBJECT",
+        properties: {
+            bookTitle: {
+                type: "STRING",
+                description: "Title of the book to search in the knowledge base."
+            }
+        },
+        required: ["bookTitle"]
+    }
+  };
+
   const tools = [
     {
-      functionDeclarations: [searchGoogleBooksDeclaration]
+      functionDeclarations: [searchGoogleBooksDeclaration, searchKnowledgeBaseDeclaration]
     }
   ];
 
@@ -229,7 +140,8 @@ ${userRequest}
 ## 手順
 1. ユーザーのプロファイルを分析し、目標と現状のギャップを特定する。
 2. そのギャップを埋めるのに最適な書籍を \`searchGoogleBooks\` ツールを使って探す（複数回検索しても良い）。
-3. 検索結果を元に、**System Instructionで指定されたフォーマットに従って**出力する。
+3. 書籍が見つかったら、\`searchKnowledgeBase\` で社内レビューがあるか確認する。
+4. 検索結果を元に、**System Instructionで指定されたフォーマットに従って**出力する。
 `;
 
   const chat = model.startChat({
@@ -243,49 +155,125 @@ ${userRequest}
 
   let generatedText = "";
 
+
+
+  // Load vectors if available
+  let vectors = [];
+  try {
+      if (fs.existsSync('vectors.json')) {
+          vectors = JSON.parse(fs.readFileSync('vectors.json', 'utf8'));
+          console.error(`Loaded ${vectors.length} vectors from vectors.json`);
+      } else {
+          console.warn("vectors.json not found. KB search will return empty.");
+      }
+  } catch (e) {
+      console.error("Failed to load vectors.json:", e);
+  }
+
+  // Embedding Model for KB Search
+  const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
+
   try {
     console.error(`Starting chat with model: gemini-2.5-flash...`);
     let result = await chat.sendMessage("おすすめの書籍を教えてください。");
 
-    // Handle specific function calls loop
-    // Note: The simple `generateContent` might not loop automatically for tools without recursion loop logic manually,
-    // but `startChat` + `sendMessage` usually handles function calling turns IF we provide the response.
-    // Let's implement a simple loop to handle function calls.
-
-    // Max turns to prevent infinite loops
-    let maxTurns = 10;
+    let maxTurns = 15; // Increased for multiple checks
     let turn = 0;
 
     while (result.response.functionCalls() && turn < maxTurns) {
         turn++;
-        const call = result.response.functionCalls()[0];
-        if (call.name === "searchGoogleBooks") {
-            const query = call.args.query;
-            console.error(`[Tool Call] Searching Google Books for: "${query}"`);
+        const calls = result.response.functionCalls();
+        const functionResponses = [];
 
-            // Execute API Call
-            const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5&langRestrict=ja`);
-            const data = await apiRes.json();
+        for (const call of calls) {
+            if (call.name === "searchGoogleBooks") {
+                const query = call.args.query;
+                console.error(`[Tool Call] Searching Google Books for: "${query}"`);
 
-            const books = data.items ? data.items.map(item => ({
-                title: item.volumeInfo.title,
-                authors: item.volumeInfo.authors,
-                description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 200) + "..." : "No description",
-                infoLink: item.volumeInfo.infoLink
-            })) : [];
+                // Execute Google Books API Call
+                try {
+                    const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5&langRestrict=ja`);
+                    const data = await apiRes.json();
 
-            console.error(`[Tool Result] Found ${books.length} books.`);
-
-            // Send result back to model
-            result = await chat.sendMessage([
-                {
-                    functionResponse: {
-                        name: "searchGoogleBooks",
-                        response: { books: books }
-                    }
+                    const books = data.items ? data.items.map(item => ({
+                        title: item.volumeInfo.title,
+                        authors: item.volumeInfo.authors,
+                        description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 200) + "..." : "No description",
+                        infoLink: item.volumeInfo.infoLink
+                    })) : [];
+                    console.error(`[Tool Result] Found ${books.length} books.`);
+                    functionResponses.push({
+                        functionResponse: {
+                            name: "searchGoogleBooks",
+                            response: { books: books }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Google Books Search Failed:", e);
+                     functionResponses.push({
+                        functionResponse: {
+                            name: "searchGoogleBooks",
+                            response: { error: "Search failed" }
+                        }
+                    });
                 }
-            ]);
+            } else if (call.name === "searchKnowledgeBase") {
+                const bookTitle = call.args.bookTitle;
+                console.error(`[Tool Call] Searching KB for: "${bookTitle}"`);
+
+                try {
+                    // Embed query
+                    const embResult = await embeddingModel.embedContent(bookTitle);
+                    const queryVec = embResult.embedding.values;
+
+                    // Find best match
+                    let bestMatch = null;
+                    let maxScore = -1;
+
+                    for (const vec of vectors) {
+                        const score = cosineSimilarity(queryVec, vec.embedding);
+                        if (score > maxScore) {
+                            maxScore = score;
+                            bestMatch = vec;
+                        }
+                    }
+
+                    // Threshold (e.g., 0.65 for semantic match)
+                    if (maxScore > 0.65 && bestMatch) {
+                        console.error(`[Tool Result] KB Match Found: ${bestMatch.id} (Score: ${maxScore.toFixed(3)})`);
+                        functionResponses.push({
+                            functionResponse: {
+                                name: "searchKnowledgeBase",
+                                response: {
+                                    found: true,
+                                    score: maxScore,
+                                    summary: bestMatch.content.substring(0, 500) // Truncate content for context
+                                }
+                            }
+                        });
+                    } else {
+                        console.error(`[Tool Result] No KB Match (Max Score: ${maxScore.toFixed(3)})`);
+                        functionResponses.push({
+                             functionResponse: {
+                                name: "searchKnowledgeBase",
+                                response: { found: false }
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("KB Search Failed:", e);
+                    functionResponses.push({
+                        functionResponse: {
+                           name: "searchKnowledgeBase",
+                           response: { error: "Search failed" }
+                       }
+                   });
+                }
+            }
         }
+
+        // Send all results back
+        result = await chat.sendMessage(functionResponses);
     }
 
     // Check if the loop ended because of tool call limit but model still wants to call tool
