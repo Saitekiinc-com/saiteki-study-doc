@@ -108,16 +108,16 @@ ${context}
     *   **Step 4**: この「80（例）」のギャップを埋めるための書籍選定に移ってください。
 5. **書籍の選定プロセス (重要)**:
     *   **ステップ1 (Grounding検索)**: まず、ユーザーのギャップを埋めるのに**最も適した「商業出版された書籍」**をGoogle検索で見つけてください。
-        *   **【検索対象の厳格化】**: **必ず \`site:amazon.co.jp\` を付けて検索し、Amazon.co.jp 内の書籍のみを対象としてください。**
-        *   検索時は「site:amazon.co.jp {キーワード} 書籍」のように検索クエリを構築してください。
+        *   **【検索対象の変更】**: **必ず \`site:books.google.co.jp\` を付けて検索し、Googleブックス内の書籍情報を対象としてください。**
+        *   検索時は「site:books.google.co.jp {キーワード}」のように検索クエリを構築してください。
     *   **ステップ2 (KB照合)**: 選んだ書籍が、提供された「ナレッジベース」に含まれているか確認してください。
     *   **ステップ3 (出力)**:
         *   **KBにある場合**: ナレッジベースの内容を引用し、**ポジティブな意見とネガティブな意見（もしあれば）の両面**を要約して紹介してください。セクション名は「**チームメンバーのレビュー (KB)**」としてください。
         *   **KBにない場合**: Google検索（Grounding）で得られた情報を元に、**この書籍がどのようにギャップを埋めるのに役立つか**を要約してください。セクション名は「**レビュー**」としてください。**チームメンバーの意見として捏造することは絶対に避けてください。**
 6. **書籍の紹介方法**:
-    *   書籍名には必ず **Amazonの個別商品ページURL** をリンクさせてください。
-    *   形式: \`[{書籍名}](https://www.amazon.co.jp/...)\`
-        *   **重要**: 検索結果一覧ページ (\`/s?k=...\`) ではなく、**Google検索で見つけた \`amazon.co.jp\` の具体的な商品ページ**にリンクしてください。
+    *   書籍名には **GoogleブックスのページURL** をリンクさせてください。
+    *   形式: \`[{書籍名}](https://books.google.co.jp/...)\`
+        *   **重要**: Google検索で見つかった **Googleブックスの個別ページURL** を使用してください。
         *   これが「実在確認（Grounding）」の証明となります。
     *   各書籍について、**「どのギャップが埋まるのか」**を具体的に記述してください。
 7. 出力形式は **GitHub Issue** の本文としてそのまま使えるMarkdown形式にしてください。
@@ -149,7 +149,7 @@ ${context}
 
 ## 📚 推奨書籍 (Recommended Books)
 
-### 1. 📖 [{書籍名}]({Google検索で見つけたAmazon商品ページURL})
+### 1. 📖 [{書籍名}]({GoogleブックスのURL})
 
 **埋められるギャップ**:
 * ✅ {知識領域A}の{具体的な部分}
@@ -162,7 +162,7 @@ ${context}
 
 ---
 
-### 2. 📖 [{書籍名}]({Google検索で見つけたAmazon商品ページURL})
+### 2. 📖 [{書籍名}]({GoogleブックスのURL})
 
 *(同様の構成)*
 
@@ -238,7 +238,7 @@ async function checkLinksInText(text) {
         return chunk;
     }
 
-    // It is a book section. Identify the "Title URL" (Amazon Product Page).
+    // It is a book section. Identify the "Title URL" (Google Books Page).
     // Format: ### 1. 📖 [Book Title](https://...)
     // Also capture the Book Title for fallback search link
     const titleLinkMatch = chunk.match(/^### \d+\. 📖 \[(.*?)\]\((https?:\/\/[^\)]+)\)/);
@@ -252,18 +252,21 @@ async function checkLinksInText(text) {
         if (!checkResult.alive) {
             console.error(`[Filtering Rule] Dropping book section due to Dead Title URL (Status ${checkResult.status}): ${url}`);
             return '';
-        } else if (checkResult.status === 403 || checkResult.status === 503 || checkResult.status === 999) {
-            // Amazon blocked us. We cannot verify if the link is real or a hallucination.
-            // To be safe and avoid showing a 404 to the user, we FALLBACK to a Search Link.
-            console.warn(`[Filtering Rule] URL verification blocked (Status ${checkResult.status}). Fallback to Search Link: ${url}`);
+        } else if (checkResult.status !== 200) {
+            // If strictly not 200 OK (e.g. 403, 503, 999 or even 404 if soft), fallback.
+            // Wait, checks above handle Hard 404.
+            // If soft 404 or blocked -> Fallback.
+            // Since we know Google Books blocks bots heavily (returning 404 often even for valid),
+            // a safer default here might be: "If we can't confirm it's 200 OK with valid content, Fallback".
 
-            // Replace the direct link with a search link
-            // Original: [Title](URL)
-            // New: [Title](https://www.amazon.co.jp/s?k=Title)
-            const searchUrl = `https://www.amazon.co.jp/s?k=${encodeURIComponent(bookTitle)}`;
-            const newHeader = `### ${index + 1}. 📖 [${bookTitle}](${searchUrl})`; // Note: index matches map index, might be off if we use this logic
-            // Use regex replacement on the chunk to be safe
-            return chunk.replace(titleLinkMatch[0], `### 0. 📖 [${bookTitle}](${searchUrl})`); // We fix numbering later
+            console.warn(`[Filtering Rule] URL verification failed/blocked (Status ${checkResult.status}). Fallback to Google Books Search Link: ${url}`);
+
+            // Fallback to Google Books Search
+            // https://www.google.co.jp/search?tbm=bks&q={Title}
+            const searchUrl = `https://www.google.co.jp/search?tbm=bks&q=${encodeURIComponent(bookTitle)}`;
+
+            // Use regex replacement on the chunk
+            return chunk.replace(titleLinkMatch[0], `### 0. 📖 [${bookTitle}](${searchUrl})`);
         }
 
         console.error(`[Filtering Rule] Keeping book section. Title URL OK (Status ${checkResult.status}): ${url}`);
@@ -284,7 +287,7 @@ async function checkLinksInText(text) {
   });
 
   if (bookCount === 1 && chunks.length > 1) {
-       finalJoined += "\n\n(※ 提案された書籍のAmazon商品ページが検証できなかったため、すべて除外されました。)\n";
+       finalJoined += "\n\n(※ 提案された書籍のページが検証できなかったため、すべて除外されました。)\n";
   }
 
   return finalJoined;
@@ -293,9 +296,7 @@ async function checkLinksInText(text) {
 async function isUrlAlive(url) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
-    // Always use GET with a realistic User-Agent to avoid "Bot Check" false positives (which return 200 OK)
-    // and to catch "Soft 404" pages (which return 200 OK but say "Page Not Found").
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(url, {
         method: 'GET',
         signal: controller.signal,
@@ -308,46 +309,41 @@ async function isUrlAlive(url) {
     clearTimeout(timeout);
 
     const status = res.status;
+    const text = await res.text();
 
-    // 1. Hard 404/410 -> Dead
-    if (status === 404 || status === 410) return { alive: false, status: status };
+    // Google Books error check
+    if (text.includes("書籍が見つかりません") ||
+        text.includes("Error 404 (Not Found)!!1") ||
+        text.includes("この書籍は閲覧できません")) {
+         // This is a Soft 404/Block.
+         // Unlike Amazon where we wanted to remove non-existent books,
+         // here "Error 404" might just mean "Blocked for Bot" as seen in debug.
+         // To be safe: treat as BLOCKED (fallback to search) rather than DEAD (remove).
+         // UNLESS we are sure it's dead.
+         // The debug output "Error 404" appeared for VALID books too.
+         // So we CANNOT use 404 to assume dead. We must assume BLOCKED.
+         return { alive: true, status: 503 }; // Treat as blocked -> Fallback
+    }
 
-    // 2. Blocked status codes -> Fallback Candidate
-    if (status === 403 || status === 503 || status === 999) return { alive: true, status: status };
-
-    // 3. 200 OK? We must check the content for Soft 404s or Captchas.
     if (res.ok) {
-        const text = await res.text();
-
-        // Amazon Soft 404 checks
-        if (text.includes("ページが見つかりません") ||
-            text.includes("Amazon.co.jp | Page Not Found") ||
-            text.includes("申し訳ございません。入力されたウェブアドレスは当社サイトの有効なページではないか") ||
-            text.includes("Looking for something?")) {
-            console.error(`[Soft 404 Detected] Content indicates page not found: ${url}`);
-            return { alive: false, status: 404 };
-        }
-
-        // Amazon Captcha/Robot Check (often returns 200 OK)
-        if (text.includes("Enter the characters you see below") ||
-            text.includes("Amazon.co.jp - Robot Check") ||
-            text.includes("ロボット確認")) {
-            console.warn(`[Content Block Detected] Content indicates Robot Check: ${url}`);
-            // Treat as "Blocked" so we fallback to Search Link
-            return { alive: true, status: 503 };
-        }
-
-        // Looks real
         return { alive: true, status: 200 };
     }
 
-    // Default for other codes (e.g. 500 server error) -> Treat as blocking -> fallback.
-    if (status >= 500) return { alive: true, status: 503 };
+    // Hard 404 from headers?
+    if (status === 404 || status === 410) {
+        // As seen in debug, Google might return 404 header for valid books too?
+        // "Status: 404" was logged in debug script.
+        // So even hard 404 might be a block.
+        // This makes "Strict Filtering" (removing hallucinations) very hard.
+        // BUT, we want to prioritize user experience (no broken links).
+        // If we get 404, we can't link to it. So we MUST fallback to search.
+        // We shouldn't remove it, because it might exist.
+        return { alive: true, status: 503 }; // Treat as blocked -> Fallback
+    }
 
     return { alive: true, status: status };
   } catch (e) {
     console.error(`Check failed for ${url}: ${e.message}`);
-    // Network error could mean anything. Let's assume Blocked/Transient -> Fallback Search Link
     return { alive: true, status: 503 };
   }
 }
