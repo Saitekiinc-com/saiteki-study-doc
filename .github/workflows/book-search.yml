@@ -80,8 +80,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           USER_NAME: ${{ steps.parse.outputs.name }}
+          OBJECTIVE: ${{ steps.parse.outputs.objective }}
         run: |
-          gh issue edit "$ISSUE_NUMBER" --title "🗺 ロードマップ依頼: ${USER_NAME}さん"
+          gh issue edit "$ISSUE_NUMBER" --title "📚 書籍探索: ${OBJECTIVE} (${USER_NAME}さん)"
 
       - name: Post Comment
         env:
