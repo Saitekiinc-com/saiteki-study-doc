@@ -63,13 +63,9 @@ async function main() {
 
   // Read Context Files
   let aiNativeGuide = "";
-  let personalizationGuide = "";
   try {
     if (fs.existsSync('docs/training/ai_native_guide.md')) {
         aiNativeGuide = fs.readFileSync('docs/training/ai_native_guide.md', 'utf-8');
-    }
-    if (fs.existsSync('docs/training/personalization/guide.md')) {
-        personalizationGuide = fs.readFileSync('docs/training/personalization/guide.md', 'utf-8');
     }
   } catch (e) {
       console.warn("Failed to read context guides:", e);
@@ -82,11 +78,8 @@ async function main() {
 ## 組織のコンテキスト (Organization Context)
 以下の指針を**深く理解し、遵守**してください。書籍選定の際は、これらの指針に合致するものを高く評価してください。
 
-### 1. AI Native Engineering Guide
+### AI Native Engineering Guide & Role Evolution
 ${aiNativeGuide}
-
-### 2. Training Personalization Guide
-${personalizationGuide}
 
 **絶対的なルール**:
 1. 提供されたツール \`searchGoogleBooks\` を必ず使用して、実在する書籍情報のみを使用すること。
