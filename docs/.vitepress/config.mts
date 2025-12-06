@@ -47,6 +47,12 @@ export default withMermaid({
         items: [
           { text: 'Guide', link: '/training/personalization/guide' },
         ]
+      },
+      {
+        text: 'Guides',
+        items: [
+          { text: 'Book Features', link: '/guide/book-features' },
+        ]
       }
     ],
 
