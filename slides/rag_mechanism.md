@@ -151,29 +151,40 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
   <div class="source-doc">
     <div class="icon">📄</div>
     <div class="label">読書感想文</div>
-    <div class="sub">1つの記事</div>
+    <div class="sub">（全文）</div>
   </div>
   <div class="split-arrow">
     <div class="scissors">✂️</div>
     <div class="arrow-line">➡</div>
+    <div class="reason-label">検索用に<br>切り分け</div>
   </div>
   <div class="cards">
-    <div class="card card-objective">
-      <div class="card-icon">😫</div>
-      <div class="card-title">悩みカード</div>
-      <div class="card-desc">「〜〜で困ってる」</div>
+    <div class="card-group">
+      <div class="card card-objective">
+        <div class="card-icon">😫</div>
+        <div class="card-content">
+          <div class="card-title">悩みカード</div>
+          <div class="card-desc">「〜〜で困っている」</div>
+        </div>
+      </div>
+      <div class="match-arrow">⬅ <strong>「困った...」</strong> で検索した時にヒット</div>
     </div>
-    <div class="card card-solution">
-      <div class="card-icon">💡</div>
-      <div class="card-title">解決策カード</div>
-      <div class="card-desc">「〜〜が効く！」</div>
+    <div class="card-group">
+      <div class="card card-solution">
+        <div class="card-icon">💡</div>
+        <div class="card-content">
+          <div class="card-title">解決策カード</div>
+          <div class="card-desc">「〜〜が効果的だ」</div>
+        </div>
+      </div>
+      <div class="match-arrow">⬅ <strong>「知りたい！」</strong> で検索した時にヒット</div>
     </div>
   </div>
 </div>
 
 <div class="caption">
-  AIは感想文を<strong>「悩み」</strong>と<strong>「解決策」</strong>に切り分けて保存します。<br>
-  これにより、ピンポイントな検索が可能になります。
+  <span class="reason-highlight">理由: 検索意図に合わせるため</span><br>
+  「悩み」と「解決策」を分けることで、ノイズのない検索が可能になります。
 </div>
 
 <style>
@@ -181,8 +192,8 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 30px; /* ギャップを広げる */
+  margin-top: 10px;
 }
 .source-doc {
   background: #fdfefe;
@@ -190,27 +201,39 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
   padding: 20px;
   border-radius: 8px;
   text-align: center;
-  width: 150px;
+  width: 140px;
   box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  flex-shrink: 0;
 }
 .split-arrow {
   text-align: center;
   font-size: 30px;
   color: #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+.reason-label { font-size: 14px; color: #666; font-weight: bold; margin-top: -10px;}
 .scissors { font-size: 40px; }
 .cards {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+.card-group {
+  display: flex;
+  align-items: center;
   gap: 15px;
 }
 .card {
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 15px;
+  padding: 10px 20px;
   border-radius: 12px;
-  width: 300px;
+  width: auto; /* 幅を自動調整 */
+  min-width: 320px; /* 最低幅を確保 */
+  white-space: nowrap; /* 改行禁止 */
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-left: 8px solid;
   background: #fff;
@@ -218,14 +241,28 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
 .card-objective { border-color: #e74c3c; background: #fdedec; }
 .card-solution { border-color: #2ecc71; background: #eafaf1; }
 
+.match-arrow {
+  font-size: 18px;
+  color: #555;
+  background: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 .card-icon { font-size: 30px; }
 .card-title { font-weight: bold; font-size: 20px; color: #333; }
-.card-desc { font-size: 16px; color: #555; }
+.card-desc { font-size: 18px; color: #555; margin-left: auto; } /* 説明を右寄せ */
 .caption {
   text-align: center;
   margin-top: 20px;
   font-size: 20px;
   color: #555;
+}
+.reason-highlight {
+  color: #d63384;
+  font-weight: bold;
+  border-bottom: 2px solid #d63384;
 }
 </style>
 
