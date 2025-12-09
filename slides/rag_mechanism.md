@@ -179,7 +179,6 @@ Issueには、以下の2点を**具体的に**書いてください。これが�
 <div class="card-desc">「〜〜で困っている」</div>
 </div>
 </div>
-<div class="match-arrow up-arrow">⬆ <strong>「困った...」</strong> でヒット</div>
 </div>
 <div class="card-group vertical-group">
 <div class="card card-solution">
@@ -189,7 +188,6 @@ Issueには、以下の2点を**具体的に**書いてください。これが�
 <div class="card-desc">「〜〜が効果的だ」</div>
 </div>
 </div>
-<div class="match-arrow up-arrow">⬆ <strong>「知りたい！」</strong> でヒット</div>
 </div>
 </div>
 </div>
@@ -202,39 +200,38 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 <style>
 .split-container {
   display: flex;
-  flex-direction: column; /* 縦並び */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px; /* Gap削減 */
-  margin-top: 0px;
-  transform: scale(0.85); /* 全体を縮小 */
+  gap: 10px;
+  margin-top: 30px; /* 余白追加 */
+  transform: scale(0.9);
   transform-origin: top center;
 }
 .actor-flow {
   display: flex;
-  flex-direction: column; /* アクターも縦並び */
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 }
 .actor {
   display: flex;
-  align-items: center; /* 横長にする */
-  padding: 5px 20px 5px 20px; /* Padding削減, padding-bottom追加 */
+  align-items: center;
+  padding: 10px 20px;
   background: #fff;
   border-radius: 12px;
   border: 2px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  width: auto;
-  min-width: 150px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 250px; /* 幅をカードに合わせる */
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
   position: relative;
 }
-.actor-icon { font-size: 36px; } /* アイコンサイズ縮小 */
-.actor-label { font-weight: bold; font-size: 20px; color: #333; margin-top: 0; }
+.actor-icon { font-size: 40px; }
+.actor-label { font-weight: bold; font-size: 24px; color: #333; margin-top: 0; }
 
 .doc-icon, .scissors-action {
-  font-size: 20px;
+  font-size: 24px;
   position: absolute;
   top: -10px;
   right: -10px;
@@ -245,7 +242,7 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 }
 
 .flow-arrow.vertical {
-  font-size: 18px;
+  font-size: 24px;
   color: #ccc;
   font-weight: bold;
   margin: 0;
@@ -253,50 +250,49 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 
 .cards.horizontal-cards {
   display: flex;
-  flex-direction: row; /* カードは横並び */
-  gap: 15px;
-  margin-top: 5px;
+  flex-direction: row;
+  gap: 20px;
+  margin-top: 10px;
 }
 
 .card-group.vertical-group {
   display: flex;
-  flex-direction: column; /* カードと説明は縦並び */
+  flex-direction: column;
   align-items: center;
-  gap: 2px;
 }
 
+/* Rich Card Styling */
 .card {
-  /* 既存のスタイルを維持しつつ調整 */
-  padding: 8px 12px;
-  min-width: 240px; /* 少し狭く */
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  border-radius: 16px; /* 丸みを強く */
+  min-width: 250px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1); /* 強い影 */
+  border: 1px solid rgba(0,0,0,0.05); /* 薄い枠線 */
+  position: relative;
+  overflow: hidden;
 }
 
-.match-arrow.up-arrow {
-  font-size: 16px;
-  margin-top: 5px;
+/* Gradient Backgrounds */
+.card-objective {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffeceb 100%);
+  border-left: 6px solid #e74c3c;
 }
-</style>
-
-<style>
-/* ... (Existing styles maintained implicitly? No, I need to provide the full replacement for the target block) */
-/* Actually, I will insert the missing styles BEFORE the closing tag and remove the text AFTER it */
-
-.card-objective { border-color: #e74c3c; background: #fdedec; }
-.card-solution { border-color: #2ecc71; background: #eafaf1; }
-
-.match-arrow {
-  font-size: 18px;
-  color: #555;
-  background: #f0f0f0;
-  padding: 5px 10px;
-  border-radius: 4px;
-  white-space: nowrap;
+.card-solution {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 6px solid #2ecc71;
 }
 
-.card-icon { font-size: 30px; }
+.card-icon { font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+.card-content { display: flex; flex-direction: column; }
+.card-title { font-weight: bold; font-size: 20px; color: #333; }
+.card-desc { font-size: 16px; color: #666; margin-top: 2px; }
+
 .caption {
   text-align: center;
-  margin-top: 10px; /* マージン縮小 */
+  margin-top: 20px;
   font-size: 18px;
   color: #555;
 }
