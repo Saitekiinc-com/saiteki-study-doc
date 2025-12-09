@@ -263,6 +263,8 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
     </div>
   </div>
 
+  <div class="arrow">➡️</div>
+
   <!-- Processing Phase -->
   <div class="phase processing">
     <div class="phase-label">2. ベクトル化 (AI)</div>
