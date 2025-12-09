@@ -408,7 +408,114 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 
 ---
 
-## 4. 🤝 助ける：書籍探索依頼
+## 4. 🤝 助ける：組織課題の分析 (全体)
+
+蓄積された「悩みカード」をAIで**類似検索**することで、チーム全体の**「隠れたボトルネック」**を発見できます。
+
+<div class="analysis-visual">
+  <div class="search-phase">
+    <div class="search-box">🔍 "最近、みんな何に困ってる？"</div>
+    <div class="ai-process">
+      <div class="ai-icon">🤖</div>
+      <div class="process-arrow">類似した悩みを収集...</div>
+    </div>
+  </div>
+
+  <div class="result-phase">
+    <div class="result-cluster">
+      <div class="cluster-label">🚨 傾向を発見！</div>
+      <div class="cards-cluster">
+        <div class="mini-card">😫 テストが難しい...</div>
+        <div class="mini-card">😫 テストが終わらない...</div>
+        <div class="mini-card">😫 テスト環境が重い...</div>
+      </div>
+      <div class="insight-box">
+        課題は<strong>「テスト環境」</strong>にありそうです！
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.analysis-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+  background: #fdfefe;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.search-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+.search-box {
+  background: #fff;
+  border: 2px solid #555;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  color: #333;
+}
+.ai-process { display: flex; flex-direction: column; align-items: center; }
+.ai-icon { font-size: 50px; }
+.process-arrow { font-size: 16px; color: #666; font-weight: bold; margin-top: 5px; }
+
+.result-phase {
+  background: #fff;
+  border: 3px solid #e74c3c;
+  padding: 20px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+  position: relative;
+}
+.cluster-label {
+  color: #e74c3c;
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.cards-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #fdedec;
+  border-radius: 8px;
+}
+.mini-card {
+  background: #fff;
+  border: 1px solid #e74c3c;
+  padding: 8px 12px;
+  font-size: 18px;
+  border-radius: 6px;
+  color: #c0392b;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.insight-box {
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+  color: #333;
+  line-height: 1.4;
+}
+.insight-box strong { color: #e74c3c; border-bottom: 3px solid #e74c3c; }
+</style>
+
+---
+
+## 5. 🤝 助ける：書籍探索依頼
 
 困ったときは、**Issue** でAI司書に相談できます。
 
@@ -421,7 +528,7 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 
 ---
 
-## 5. 🤝 助ける：仲間を救う (実例)
+## 6. 🤝 助ける：仲間を救う (実例)
 
 例えば、後輩のエンジニアが...
 「コードが複雑になりすぎて、改修が怖いです...」
