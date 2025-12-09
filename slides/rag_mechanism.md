@@ -109,7 +109,7 @@ style: |
 
 ## 0. 📖 読む：目的意識を持つ
 
-ただ漫然と読むのではなく、**「自分は何を解決したいのか？」**を意識して読みましょう。
+ただ漫然と読むのではなく、 **「自分は何を解決したいのか？」** を意識して読みましょう。
 
 *   **課題解決のための読書**:
     *   ❌ 「なんとなく有名だから読む」
@@ -307,7 +307,7 @@ AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong
 
 ## 3-2. 活用例：なぜ分けるのか？
 
-「カード」に分けることで、目的に応じて使い分けることができます。
+感想文を**2つのカード**に分けることで、目的に応じて使い分けることができます。
 
 <div class="use-cases">
   <div class="use-case case-analysis">
@@ -439,13 +439,44 @@ AIは、あなたが過去に書いた **『プリンシプル オブ プログ�
 <!-- _class: lead -->
 ## まとめ
 
-### 読んだら、書こう。
-### 書けば、誰かが助かる。
+<div class="summary-box">
+  <div class="summary-line">「読む」を<strong>資産</strong>に。</div>
+  <div class="summary-line">「書く」を<strong>救い</strong>に。</div>
+</div>
 
-あなたの1冊が、チームの課題を解決する鍵になります。
+<div class="summary-sub">
+  あなたの1冊が、いつかチームの課題を解決する鍵になります。<br>
+  ぜひ、積極的なアウトプットをお願いします！
+</div>
 
-**「あなたの悩み」は、いつか「誰かの悩み」になります。**
-
-ぜひ、積極的なアウトプットをお願いします！
+<style>
+.summary-box {
+  background: #f8f9fa;
+  border-left: 10px solid #0066cc;
+  padding: 30px;
+  margin: 40px auto;
+  width: 80%;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.summary-line {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.4;
+}
+.summary-line strong {
+  color: #0066cc;
+  border-bottom: 4px solid #aaccff;
+}
+.summary-sub {
+  text-align: center;
+  font-size: 24px;
+  color: #666;
+  line-height: 1.6;
+}
+</style>
 
 
