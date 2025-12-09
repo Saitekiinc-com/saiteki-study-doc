@@ -263,7 +263,7 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
     </div>
   </div>
 
-  <div class="arrow">⬇ 解析 & 分割</div>
+  <div class="arrow">➡️</div>
 
   <!-- Processing Phase -->
   <div class="phase processing">
@@ -280,7 +280,7 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
     </div>
   </div>
 
-  <div class="arrow">⬇ 保存</div>
+  <div class="arrow">➡️</div>
 
   <!-- Output Phase -->
   <div class="phase output">
@@ -292,14 +292,14 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
 
 <div class="caption">
 <span class="reason-highlight">仕組み:</span>
-感想文を **「悩みコンテキスト」** と **「解決策コンテキスト」** に分割し、それぞれを数値（ベクトル）化。<br>
+感想文を <strong>「悩みコンテキスト」</strong> と <strong>「解決策コンテキスト」</strong> に分割し、それぞれを数値（ベクトル）化。<br>
 これにより、「言葉が違っても意味が似ている」ものを探せるようになります。
 </div>
 
 <style>
 .pipeline-container {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch; /* Height align */
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
@@ -314,10 +314,10 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
   flex-direction: column;
   align-items: center;
   min-height: 250px;
-  width: 26%;
+  flex: 1; /* Equal width */
 }
 .input { border-color: #3498db; background: #ebf5fb; }
-.processing { border-color: #9b59b6; background: #f5eef8; width: 38%; }
+.processing { border-color: #9b59b6; background: #f5eef8; }
 .output { border-color: #2ecc71; background: #eafaf1; }
 
 .phase-label {
