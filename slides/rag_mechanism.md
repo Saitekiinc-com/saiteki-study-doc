@@ -299,7 +299,7 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
 <style>
 .pipeline-container {
   display: flex;
-  align-items: stretch; /* Height align */
+  align-items: stretch; /* Make all boxes same height */
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
@@ -313,6 +313,7 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* Center content vertically */
   min-height: 250px;
   flex: 1; /* Equal width */
 }
@@ -360,15 +361,18 @@ AIが、あなたの感想文を読み取り、検索可能な**ベクトルデ�
 .desc { font-size: 12px; color: #666; text-align: center; }
 
 .arrow {
-  align-self: center;
-  font-weight: bold;
-  font-size: 20px;
-  color: #ccc;
-  transform: rotate(-90deg); /* Horizontal arrow */
-  margin-top: 100px; /* Vertical align adjustment */
+  align-self: center; /* Center vertically relative to container */
+  margin: 0 5px;
+  color: #666;
+  white-space: nowrap;
+  font-size: 24px;
 }
-/* Adjust arrow for responsive/Marp aspect if simpler */
-.arrow { transform: none; margin: 0; padding-top: 120px; color: #666; white-space: nowrap; }
+.caption {
+  text-align: center;
+  margin-top: 40px; /* Added space */
+  font-size: 18px;
+  color: #555;
+}
 </style>
 
 
