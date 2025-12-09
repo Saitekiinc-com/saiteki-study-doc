@@ -329,8 +329,9 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
   position: relative;
 }
 .card-stack {
-  width: 200px;
-  padding: 10px;
+  width: auto;
+  min-width: 180px;
+  padding: 10px 20px;
   border-radius: 8px;
   text-align: center;
   color: #c0392b;
@@ -339,17 +340,20 @@ Issueを書くとき、以下の2つが重要な「検索キー」になりま�
   margin-top: -35px; /* 重ねる */
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   font-weight: bold;
+  white-space: nowrap; /* 改行禁止 */
 }
 .card-stack:first-child { margin-top: 0; }
 .card-single {
-  width: 200px;
-  padding: 15px;
+  width: auto;
+  min-width: 180px;
+  padding: 15px 20px;
   border-radius: 8px;
   text-align: center;
   color: #27ae60;
   background: #eafaf1;
   border: 2px solid #2ecc71;
   font-weight: bold;
+  white-space: nowrap; /* 改行禁止 */
 }
 .query-box {
   background: #eee;
