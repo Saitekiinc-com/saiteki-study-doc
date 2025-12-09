@@ -57,10 +57,12 @@ style: |
 .cycle-container {
   display: grid;
   grid-template-columns: 1fr 50px 1fr;
-  grid-template-rows: 1fr 50px 1fr;
+  grid-template-rows: 1fr 40px 1fr; /* 縦幅を縮小 */
   gap: 10px;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 10px; /* マージンを削減 */
+  transform: scale(0.9); /* 全体を少し縮小して見切れ防止 */
+  transform-origin: top center;
 }
 .step {
   border: 4px solid #e0e0e0;
@@ -107,7 +109,7 @@ style: |
 
 ## 0. 📖 読む：目的意識を持つ
 
-ただ漫然と読むのではなく、**「自分は何を解決したいのか？」**を意識して読みましょう。
+ただ漫然と読むのではなく、 **「自分は何を解決したいのか？」** を意識して読みましょう。
 
 *   **課題解決のための読書**:
     *   ❌ 「なんとなく有名だから読む」
@@ -127,7 +129,7 @@ style: |
 3.  **「📚 読書感想文 (Book Report)」** テンプレートを選択
 4.  フォームに沿って、「目的」「学び」などを入力してSubmit！
 
-✅ 自動的にドキュメントサイトに変換され、AIの知識として登録されます。
+✅ Submitするだけで、あなたの学びが **チームの知識 (Knowledge Base)** として蓄積されます。
 
 ---
 
