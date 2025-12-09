@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const config = require('./book-report-config');
 
 const REPORTS_DIR = 'docs/knowledge_base/book_reports';
 
@@ -14,7 +15,9 @@ function sanitizeFilename(title) {
 }
 
 function extractField(body, label) {
-  const regex = new RegExp(`### ${label}\\s+([\\s\\S]*?)(?=(?:###|$))`);
+  // Escaping label for regex just in case it contains special chars
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`### ${escapedLabel}\\s+([\\s\\S]*?)(?=(?:###|$))`);
   const match = body.match(regex);
   return match ? match[1].trim() : null;
 }
@@ -36,12 +39,15 @@ function main() {
     fs.mkdirSync(REPORTS_DIR, { recursive: true });
   }
 
-  // Extract real book title from the body
-  let bookTitle = extractField(issueBody, '書籍名');
+  // Extract Metadata using Config
+  let bookTitle = extractField(issueBody, config.metaFields.title.issueLabel);
   if (!bookTitle) {
-      console.warn("Could not extract '書籍名' from body. Using Issue Title.");
+      console.warn(`Could not extract '${config.metaFields.title.issueLabel}' from body. Using Issue Title.`);
       bookTitle = issueTitle;
   }
+  const author = extractField(issueBody, config.metaFields.author.issueLabel) || 'Unknown';
+  const link = extractField(issueBody, config.metaFields.link.issueLabel) || '';
+
 
   // Output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
@@ -54,23 +60,33 @@ function main() {
   const filename = `${date}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);
 
-  // Add frontmatter or header
-  const fileContent = `---
+  // Construct Standardized Markdown Content
+  let fileContent = `---
 title: "${bookTitle}"
 author: ${issueAuthor}
 issue_url: ${issueUrl}
 date: ${date}
+labels: ["book-report"]
 ---
 
-# ${bookTitle}
+# 📚 ${bookTitle}
 
 *   **Original Issue**: [${issueUrl}](${issueUrl})
 *   **Author**: @${issueAuthor}
+*   **Book Author**: ${author}
+${link ? `*   **Link**: ${link}` : ''}
 
 ---
 
-${issueBody}
 `;
+
+  // Append fields using Standardized Headers from Config
+  for (const field of config.fields) {
+      const content = extractField(issueBody, field.issueLabel);
+      if (content) {
+          fileContent += `${field.markdownHeader}\n\n${content}\n\n`;
+      }
+  }
 
   fs.writeFileSync(filepath, fileContent);
   console.log(`Successfully created report: ${filepath}`);

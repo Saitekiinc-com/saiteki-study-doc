@@ -1,0 +1,29 @@
+[
+  {
+    "docId": "2025-12-05-書籍名-読書感想文-66.md",
+    "filename": "2025-12-05-書籍名-読書感想文-66.md",
+    "content": "---\ntitle: \"📚 [書籍名] 読書感想文\"\nauthor: koxtuichi\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66\ndate: 2025-12-05\n---\n\n# 📚 [書籍名] 読書感想文\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66)\n*   **Author**: @koxtuichi\n\n---\n\n### 書籍名\n\nLangChainとLangGraphによるRAG・AIエージェント［実践］入門 エンジニア選書\n\n### 著者\n\n西見 公宏 (著), 吉田 真吾 (著), 大嶋 勇樹 (著)\n\n### リンク\n\nhttps://www.amazon.co.jp/dp/4297145308?ref=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&ref_=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&social_share=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&bestFormat=true\n\n### 読む前の目的 (Objective)\n\nRAGを構築したかった\n\n### 得られた知識・気づき (Key Takeaways)\n\nRAGの知識があがり、構築に必要な手順や、どのように活用できるかが見えてきた\n\n### 👍 Positive (良かった点・学び)\n\n活用方法が多く記載されていたので、参考になった\n書籍自体のボリュームも大きい\n\n### 👎 Negative (難しかった点・合わなかった点)\n\nコードを記載しているが（How）、まずはどのような課題解決ができるのかを書いていて欲しかった\n\n### 💡 どんな人におすすめ？\n\nRAGを構築したい人\nAIのプロンプトエンジニアリングやコンテキストエンジニアリングの次のステップを探している人\n",
+    "metadata": {
+      "title": "LangChainとLangGraphによるRAG・AIエージェント［実践］入門 エンジニア選書",
+      "source": "docs/knowledge_base/book_reports/2025-12-05-書籍名-読書感想文-66.md"
+    }
+  },
+  {
+    "docId": "2025-12-03-ai駆動開発の教科書-読書感想文-12.md",
+    "filename": "2025-12-03-ai駆動開発の教科書-読書感想文-12.md",
+    "content": "---\ntitle: \"📚 [AI駆動開発の教科書] 読書感想文\"\nauthor: koxtuichi\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/12\ndate: 2025-12-03\n---\n\n# 📚 [AI駆動開発の教科書] 読書感想文\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/12](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/12)\n*   **Author**: @koxtuichi\n\n---\n\n# 📚 [書籍名]\n\n## 概要\n*   **書籍名**: AI駆動開発の教科書\n*   **著者**:  堀井大砂 (著), 瀬戸敏博 (著), 早川隆治 (著), 中野敬太 (著), 田中菜摘 (著)\n*   **リンク**: https://amzn.asia/d/aySMt6O\n\n## レビュー\n\n### 👍 Positive (良かった点・学び)\n*   **[ポイント1]**: 網羅的なのでこの本だけである程度AIについてわかる\n*   **[ポイント2]**: AI導入に関して６章以降が面白かった。特にこれまで開発経験がある人にとってはどうやって導入していけばいいのかが書かれていて参考になった。\n\n### 👎 Negative (難しかった点・合わなかった点)\n*   **[ポイント1]**: 使っているAIツールが古かった\n\n### 💡 どんな人におすすめ？\n*   なんとなく転職してsaitekiに入ってくる人向け？開発経験がある人向けなのかなと思った。\n*   ただ新卒でいうと、入ってくる人はもしかしたら自分の手でコーディングしてこない人が多いかもと思っていて、そうした場合にはこの本はおすすめはできないかなと思った。\n\n",
+    "metadata": {
+      "title": "📚 [AI駆動開発の教科書] 読書感想文",
+      "source": "docs/knowledge_base/book_reports/2025-12-03-ai駆動開発の教科書-読書感想文-12.md"
+    }
+  },
+  {
+    "docId": "2025-12-03-ai時代に強い質問力-読書感想文-10.md",
+    "filename": "2025-12-03-ai時代に強い質問力-読書感想文-10.md",
+    "content": "---\ntitle: \"📚 [AI時代に強い質問力] 読書感想文\"\nauthor: koxtuichi\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/10\ndate: 2025-12-03\n---\n\n# 📚 [AI時代に強い質問力] 読書感想文\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/10](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/10)\n*   **Author**: @koxtuichi\n\n---\n\n# 📚 [書籍名]\n\n## 概要\n*   **書籍名**: AI時代に強い質問力\n*   **著者**: マツダミヒロ\n*   **リンク**: https://www.amazon.co.jp/dp/4866633085?ref=ppx_yo2ov_dt_b_fed_asin_title\n\n## レビュー\n\n### 👍 Positive (良かった点・学び)\n*   **[ポイント1]**: エンジニアを含めた全社員向けに読んでもらう価値は一応ある本だと思う\n*   **[ポイント2]**: 「AIに聞けばなんでも答えてくれると思ってるだろうけど、それはいい質問が設計できてるからだよ？」っていうのを丁寧に教えてくれる本って感じ。\n\n### 👎 Negative (難しかった点・合わなかった点)\n*   **[ポイント1]**: レベルは低いかなという印象。Howの本ではない。\n\n### 💡 どんな人におすすめ？\n*   AIに頼めば全部やってくれるんでしょ？と思ってる人には読んでもらいたいね！\n*  新人やAIの経験が少ない人。AIはチャットしか使ってなくてプロンプトは使ってないよって人とかかな。\n\n",
+    "metadata": {
+      "title": "📚 [AI時代に強い質問力] 読書感想文",
+      "source": "docs/knowledge_base/book_reports/2025-12-03-ai時代に強い質問力-読書感想文-10.md"
+    }
+  }
+]

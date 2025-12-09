@@ -4,6 +4,7 @@ require('dotenv').config();
 const glob = require('glob');
 
 const VECTORS_FILE = 'vectors.json';
+const DOCUMENTS_FILE = 'documents.json';
 
 // Simple Cosine Similarity
 function cosineSimilarity(vecA, vecB) {
@@ -41,8 +42,6 @@ async function main() {
       console.warn('Warning: Some user request fields appear to be empty. Check issue parsing logic.');
   }
 
-
-
   const genAI = new GoogleGenerativeAI(apiKey);
 
   // Function Declaration for Google Books API
@@ -60,7 +59,6 @@ async function main() {
     }
   };
 
-
   // Read Context Files
   let aiNativeGuide = "";
   try {
@@ -73,7 +71,7 @@ async function main() {
 
   // 1. Define System Instruction (Role & Strict Format)
   const systemInstruction = `
-あなたは、企業の成長とメンバーの幸福を最大化するための学習ロードマップを作成する、世界最高の人材育成責任者（CLO）です。
+你是企業の成長とメンバーの幸福を最大化するための学習ロードマップを作成する、世界最高の人材育成責任者（CLO）です。
 
 ## 出力フォーマット (Output Format)
 以下のフォーマットを**一言一句違わず遵守**すること。勝手な見出しや挨拶文を追加しないこと。
@@ -205,20 +203,24 @@ ${userRequest}
 
   let generatedText = "";
 
-
-
-  // Load vectors if available
+  // Load vectors and documents
   let vectors = [];
+  let documents = [];
+
   try {
-      if (fs.existsSync('vectors.json')) {
-          vectors = JSON.parse(fs.readFileSync('vectors.json', 'utf8'));
-          console.error(`Loaded ${vectors.length} vectors from vectors.json`);
+      if (fs.existsSync(VECTORS_FILE) && fs.existsSync(DOCUMENTS_FILE)) {
+          vectors = JSON.parse(fs.readFileSync(VECTORS_FILE, 'utf8'));
+          documents = JSON.parse(fs.readFileSync(DOCUMENTS_FILE, 'utf8'));
+          console.error(`Loaded ${vectors.length} chunks from vectors.json and ${documents.length} docs from documents.json`);
       } else {
-          console.warn("vectors.json not found. KB search will return empty.");
+          console.warn("vectors.json or documents.json not found. KB search will return empty.");
       }
   } catch (e) {
-      console.error("Failed to load vectors.json:", e);
+      console.error("Failed to load KB files:", e);
   }
+
+  // Create a quick lookup map for documents by ID
+  const documentsMap = new Map(documents.map(doc => [doc.docId, doc]));
 
   // Embedding Model for KB Search
   const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
@@ -272,14 +274,13 @@ ${userRequest}
                 console.error(`[Tool Call] Searching KB for: "${bookTitle}"`);
 
                 try {
-                    // Embed query
                     const embResult = await embeddingModel.embedContent(bookTitle);
                     const queryVec = embResult.embedding.values;
 
-                    // Find best match
                     let bestMatch = null;
                     let maxScore = -1;
 
+                    // Match against all chunks (maybe prioritize specific type later?)
                     for (const vec of vectors) {
                         const score = cosineSimilarity(queryVec, vec.embedding);
                         if (score > maxScore) {
@@ -288,16 +289,19 @@ ${userRequest}
                         }
                     }
 
-                    // Threshold (e.g., 0.65 for semantic match)
                     if (maxScore > 0.65 && bestMatch) {
-                        console.error(`[Tool Result] KB Match Found: ${bestMatch.id} (Score: ${maxScore.toFixed(3)})`);
+                        // Retrieve full document using docId
+                        const doc = documentsMap.get(bestMatch.docId);
+
+                        console.error(`[Tool Result] KB Match Found: ${bestMatch.docId} (Chunk: ${bestMatch.chunkId}, Score: ${maxScore.toFixed(3)})`);
                         functionResponses.push({
                             functionResponse: {
                                 name: "searchKnowledgeBase",
                                 response: {
                                     found: true,
                                     score: maxScore,
-                                    summary: bestMatch.content.substring(0, 500) // Truncate content for context
+                                    // Return summary of FULL content
+                                    summary: doc ? doc.content.substring(0, 500) : "Content not found"
                                 }
                             }
                         });
@@ -327,15 +331,33 @@ ${userRequest}
                      const embResult = await embeddingModel.embedContent(topic);
                      const queryVec = embResult.embedding.values;
 
-                     // Score all vectors
+                     // Score chunks
                      const scored = vectors.map(vec => ({
                          ...vec,
                          score: cosineSimilarity(queryVec, vec.embedding)
                      }));
 
-                     // Sort and take top 3
+                     // Prioritize 'solution' chunks if searching for solutions, or 'objective' if searching for issues?
+                     // For now, let's just create a mixed ranking
                      scored.sort((a, b) => b.score - a.score);
-                     const topMatches = scored.slice(0, 3).filter(v => v.score > 0.6); // Threshold
+
+                     const topMatches = [];
+                     const seenDocIds = new Set();
+
+                     // Get top 3 unique documents
+                     for (const m of scored) {
+                         if (topMatches.length >= 3) break;
+                         if (m.score > 0.6 && !seenDocIds.has(m.docId)) {
+                             seenDocIds.add(m.docId);
+                             const doc = documentsMap.get(m.docId);
+                             topMatches.push({
+                                 filename: m.docId,
+                                 // Provide context from the matched chunk AND the full document summary
+                                 summary: `[Matched Chunk]: ${m.text}\n\n[Full Context]: ${doc ? doc.content.substring(0, 800) : ""}`,
+                                 score: m.score
+                             });
+                         }
+                     }
 
                      console.error(`[Tool Result] Found ${topMatches.length} internal reviews.`);
 
@@ -343,11 +365,7 @@ ${userRequest}
                          functionResponse: {
                              name: "searchInternalReviews",
                              response: {
-                                 reviews: topMatches.map(m => ({
-                                     filename: m.id,
-                                     summary: m.content.substring(0, 800), // Longer context for discovery
-                                     score: m.score
-                                 }))
+                                 reviews: topMatches
                              }
                          }
                      });
@@ -367,7 +385,6 @@ ${userRequest}
         result = await chat.sendMessage(functionResponses);
     }
 
-    // Check if the loop ended because of tool call limit but model still wants to call tool
     if (result.response.functionCalls()) {
         console.warn("Max tool turns reached. Forcing response generation.");
         result = await chat.sendMessage("検索はこれで十分です。ここまでに見つかった書籍情報だけを使って、今すぐ回答を作成してください。");
@@ -384,27 +401,14 @@ ${userRequest}
 
   if (!generatedText) {
      console.error("Failed to generate text after tool execution.");
-     console.error("--- DEBUG INFO ---");
-     try {
-         // Re-get the response object if possible, or we should have saved it?
-         // 'result' is inside try block. Let's move 'result' decl up or just guess.
-         // Actually, I can't access 'result' here easily without restructuring.
-         // But I can guess standard reasons.
-         // Let's assume FinishReason is the culprit.
-         console.error("Possible causes: Safety Filters or Recitation Check.");
-         console.error("Please check if the topic triggers restrictive safety filters.");
-     } catch (e) {}
      process.exit(1);
   }
 
-  // No need for post-verification logic anymore!
   console.error("\n--- Generated Roadmap ---\n");
   console.log(generatedText);
 
   // Output to a file for GitHub Actions to pick up reliably
   fs.writeFileSync('roadmap_body.md', generatedText);
 }
-// Removed legacy checkLinksInText and isUrlAlive functions
-
 
 main();
