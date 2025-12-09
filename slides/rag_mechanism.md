@@ -136,15 +136,112 @@ style: |
 ## 2. ✍️ 書く：未来の誰かのために (内容)
 
 Issueテンプレートには、以下の項目を入力します。
-特に **「目的」と「学び」** は、検索で活用される重要な項目です。
+**「目的」と「学び」** が検索のフック（鍵）となり、詳細な感想文全体を引き出します。
 
-*   **入力項目**:
-    *   📘 **書籍名** / ✍️ **著者** / 🔗 **リンク**
-    *   🎯 **読む前の目的**: ➡️ **「悩み」** の検索キー
-    *   💡 **得られた知識・気づき**: ➡️ **「解決策」** の検索キー
-    *   👍 **Positive** (良かった点・学び)
-    *   👎 **Negative** (難しかった点・合わなかった点)
-    *   💡 **どんな人におすすめ？**
+<div class="columns">
+  <div class="col-text">
+    <ul>
+      <li>基本情報 (書籍名 / 著者 / リンク)</li>
+      <li><span class="marker-key">🔑 読む前の目的</span> ➡️ <strong>「悩み」</strong>でヒット</li>
+      <li><span class="marker-key">🔑 得られた知識</span> ➡️ <strong>「解決策」</strong>でヒット</li>
+      <li>要約・Positive / Negative感想</li>
+      <li>どんな人におすすめ？</li>
+    </ul>
+  </div>
+
+  <div class="col-visual">
+    <div class="mechanism-box">
+      <div class="mech-keys">
+        <div class="key-item">🔑 目的</div>
+        <div class="key-item">🔑 知識</div>
+      </div>
+      <div class="mech-arrow">➡️ 検索ヒット ➡️</div>
+      <div class="mech-doc">
+        <div class="doc-header">📄 感想文 (全体)</div>
+        <div class="doc-body">
+          ・書籍情報<br>
+          ・要約<br>
+          ・良い点 / 悪い点<br>
+          ・おすすめユーザー
+        </div>
+      </div>
+    </div>
+    <div class="mech-caption">鍵で見つけて、中身を詳しく読む</div>
+  </div>
+</div>
+
+<style>
+.columns {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.col-text { flex: 1; font-size: 24px; }
+.col-text li { margin-bottom: 10px; list-style: none; }
+.marker-key {
+  background: #fff3cd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  border: 1px solid #ffeeba;
+}
+
+.col-visual { flex: 1; }
+.mechanism-box {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+.mech-keys { display: flex; flex-direction: column; gap: 8px; }
+.key-item {
+  background: #fff;
+  border: 2px solid #f1c40f;
+  padding: 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.mech-arrow {
+  color: #aaa;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 10px;
+  text-align: center;
+}
+.mech-doc {
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  flex: 1;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.doc-header {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+}
+.doc-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+.mech-caption {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-top: 10px;
+  font-weight: bold;
+}
+</style>
 
 
 ---
