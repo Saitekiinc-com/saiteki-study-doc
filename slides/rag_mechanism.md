@@ -293,7 +293,8 @@ Issueテンプレートには、以下の項目を入力します。
 
 <div class="caption">
 <span class="reason-highlight">理由: 検索意図に合わせるため</span><br>
-AIが感想文を受け取り、自動で<strong>「悩み」</strong>と<strong>「解決策」</strong>に切り分けて保存します。
+AIが感想文を<strong>ベクトル化（数値化）</strong>して保存。<br>
+これにより、キーワードだけでなく<strong>「意味」</strong>で探せる<strong>類似検索</strong>が可能になります。
 </div>
 
 <style>
