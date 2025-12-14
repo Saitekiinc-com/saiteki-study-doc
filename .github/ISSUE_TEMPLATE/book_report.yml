@@ -24,7 +24,7 @@ body:
   - type: input
     id: link
     attributes:
-      label: リンク
+      label: リンク (任意)
       description: Amazonや公式サイトのURL
       placeholder: "https://..."
     validations:
@@ -33,33 +33,40 @@ body:
   - type: textarea
     id: objective
     attributes:
-      label: 読む前の目的 (Objective)
+      label: 読む前の目的
       description: なぜこの本を読もうと思ったのか。何を解決したかったのか。
-      placeholder: "例: コードレビューの質を上げたかったため"
     validations:
       required: true
 
   - type: textarea
     id: takeaways
     attributes:
-      label: 得られた知識・気づき (Key Takeaways)
-      description: この本を読んで何がわかったか。読む前の目的は達成されたか。
+      label: 得られた知識
+      description: この本を読んで何がわかったか。
+    validations:
+      required: true
+
+  - type: textarea
+    id: next_action
+    attributes:
+      label: 実務における活用 (Next Action)
+      description: この本を読んで、明日から何を変えるか。すでに実施したこと。
     validations:
       required: true
 
   - type: textarea
     id: positive_review
     attributes:
-      label: 👍 Positive (良かった点・学び)
-      description: 詳細な感想。なぜ良かったのか、実務でどう役立ったかなど。
+      label: Positive (良かった点)
+      description: 詳細な感想。なぜ良かったのか。
     validations:
       required: true
 
   - type: textarea
     id: negative_review
     attributes:
-      label: 👎 Negative (難しかった点・合わなかった点)
-      description: どのレベルの読者には難しいか、読みづらかった点など（なければ「なし」）。
+      label: Negative (難しかった点・合わなかった点)
+      description: 読みづらかった点など（なければ「なし」）。
     validations:
       required: false
 

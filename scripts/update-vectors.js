@@ -100,6 +100,7 @@ async function main() {
     const negativeText = getText('negative');
 
     const takeawaysText = getText('takeaways');
+    const nextActionText = getText('next_action');
     const positiveText = getText('positive');
     const recommendText = getText('recommend');
 
@@ -107,7 +108,7 @@ async function main() {
     const objectiveChunkText = `【書籍名】: ${title}\n【課題・背景】:\n${objectiveText}\n${negativeText ? `\n【懸念点】:\n${negativeText}` : ''}`;
 
     // Chunk B: Solution / Value
-    const solutionChunkText = `【書籍名】: ${title}\n【学び・解決策】:\n${takeawaysText}\n${positiveText ? `\n【詳細レビュー】:\n${positiveText}` : ''}\n${recommendText ? `\n【おすすめ対象】:\n${recommendText}` : ''}`;
+    const solutionChunkText = `【書籍名】: ${title}\n【学び・解決策】:\n${takeawaysText}\n${nextActionText ? `\n【実務活用 (Next Action)】:\n${nextActionText}` : ''}\n${positiveText ? `\n【詳細レビュー】:\n${positiveText}` : ''}\n${recommendText ? `\n【おすすめ対象】:\n${recommendText}` : ''}`;
 
     try {
         // Embed Objective Chunk
@@ -125,7 +126,7 @@ async function main() {
         }
 
         // Embed Solution Chunk
-        if (takeawaysText || positiveText || recommendText) {
+        if (takeawaysText || nextActionText || positiveText || recommendText) {
             const resSol = await model.embedContent(solutionChunkText);
             vectors.push({
                 chunkId: `${docId}_solution`,

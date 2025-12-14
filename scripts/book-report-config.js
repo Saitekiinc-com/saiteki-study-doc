@@ -7,22 +7,27 @@ module.exports = {
   fields: [
     {
       key: 'objective',
-      issueLabel: '読む前の目的 (Objective)',
-      markdownHeader: '## Objective (読む前の目的)' // Standardized header for scripts
+      issueLabel: '読む前の目的',
+      markdownHeader: '## Objective (読む前の目的)'
     },
     {
       key: 'takeaways',
-      issueLabel: '得られた知識・気づき (Key Takeaways)',
+      issueLabel: '得られた知識',
       markdownHeader: '## Key Takeaways (得られた知識)'
     },
     {
+      key: 'next_action',
+      issueLabel: '実務における活用 (Next Action)',
+      markdownHeader: '## Next Action (実務活用)'
+    },
+    {
       key: 'positive',
-      issueLabel: '👍 Positive (良かった点・学び)',
+      issueLabel: 'Positive (良かった点)',
       markdownHeader: '## Positive (良かった点)'
     },
     {
       key: 'negative',
-      issueLabel: '👎 Negative (難しかった点・合わなかった点)',
+      issueLabel: 'Negative (難しかった点・合わなかった点)',
       markdownHeader: '## Negative (難しかった点)'
     },
     {
