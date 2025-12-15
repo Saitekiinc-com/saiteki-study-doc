@@ -1,5 +1,59 @@
 [
   {
+    "docId": "dummy-team-building.md",
+    "filename": "dummy-team-building.md",
+    "content": "---\ntitle: \"効果的なチームビルディング\"\nauthor: dummy-user-a\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/901\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 効果的なチームビルディング\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/901](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/901)\n*   **Author**: @dummy-user-a\n*   **Book Author**: John Doe\n*   **Link**: https://amazon.co.jp/example-team\n\n---\n\n## Objective (読む前の目的)\n\nチームの雰囲気が暗く、メンバー間のコミュニケーションが少ないと感じていたため。\n特にリモートワークになってから雑談が減り、お互いの状況が見えなくなっているという**悩み**があった。\n\n## Key Takeaways (得られた知識)\n\n心理的安全性の重要性と、それを高めるための具体的な手法（ザイオンス効果など）を学んだ。\n接触回数を増やすことが信頼関係構築の第一歩であると理解した。\n\n## Next Action (実務活用)\n\n**朝会を盛り上げたい**。\n具体的には、明日から朝会で「今日の一言スピーチ（1分間）」を導入し、業務外の話題で自己開示する時間を設ける。\nこれにより心理的安全性の向上を図る。\n\n## Positive (良かった点)\n\n具体的なアイスブレイク集が豊富で、すぐに実践できる内容が多かったのが良かった。\n\n## Negative (難しかった点)\n\n後半の理論パートは少し学術的で、実践への落とし込みが難しかった。\n\n## Recommend (おすすめ)\n\n新任のチームリーダーや、リモートワークでのチーム運営に悩んでいるマネージャー。\n特に「チームの雰囲気を変えたい」と思っている人におすすめ。\n",
+    "metadata": {
+      "title": "効果的なチームビルディング",
+      "source": "docs/knowledge_base/book_reports/dummy-team-building.md"
+    }
+  },
+  {
+    "docId": "dummy-team-building-5.md",
+    "filename": "dummy-team-building-5.md",
+    "content": "---\ntitle: \"効果的なチームビルディング\"\nauthor: dummy-user-grad\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/906\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 効果的なチームビルディング\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/906](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/906)\n*   **Author**: @dummy-user-grad\n*   **Book Author**: John Doe\n*   **Link**: https://amazon.co.jp/example-team\n\n---\n\n## Objective (読む前の目的)\n\n上司に言われて読んだ。\nチームとは何かを知るため。\n\n## Key Takeaways (得られた知識)\n\n皆で協力することが大事だとわかった。\n\n## Next Action (実務活用)\n\n**遅刻しないようにする**。\n\n## Positive (良かった点)\n\n文字が大きくて読みやすかった。\n\n## Negative (難しかった点)\n\nマネジメントの話はよくわからなかった。\n\n## Recommend (おすすめ)\n\nマネージャーになりたい人。\n",
+    "metadata": {
+      "title": "効果的なチームビルディング",
+      "source": "docs/knowledge_base/book_reports/dummy-team-building-5.md"
+    }
+  },
+  {
+    "docId": "dummy-team-building-4.md",
+    "filename": "dummy-team-building-4.md",
+    "content": "---\ntitle: \"効果的なチームビルディング\"\nauthor: dummy-user-exec\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/905\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 効果的なチームビルディング\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/905](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/905)\n*   **Author**: @dummy-user-exec\n*   **Book Author**: John Doe\n*   **Link**: https://amazon.co.jp/example-team\n\n---\n\n## Objective (読む前の目的)\n\n組織全体の生産性KPIを向上させるための、科学的なチーム組成論を学びたかった。\n経営層として、全社的な組織改編のヒントが欲しかった。\n\n## Key Takeaways (得られた知識)\n\n現場レベルの工夫が多く、**経営戦略としての組織論**には少し物足りなかった。\nあくまで「課長・係長クラス」のマネジメント本といった印象。\n\n## Next Action (実務活用)\n\n**部長陣にこの本を配る**。\n現場のことは現場で解決してもらうための共通言語として使う。\n\n## Positive (良かった点)\n\n読みやすい。\n\n## Negative (難しかった点)\n\nレイヤーが低い。経営課題の解決には直結しない。\n\n## Recommend (おすすめ)\n\n新任マネージャー。経営層には簡単すぎる。\n",
+    "metadata": {
+      "title": "効果的なチームビルディング",
+      "source": "docs/knowledge_base/book_reports/dummy-team-building-4.md"
+    }
+  },
+  {
+    "docId": "dummy-team-building-3.md",
+    "filename": "dummy-team-building-3.md",
+    "content": "---\ntitle: \"効果的なチームビルディング\"\nauthor: dummy-user-conflict\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/904\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 効果的なチームビルディング\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/904](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/904)\n*   **Author**: @dummy-user-conflict\n*   **Book Author**: John Doe\n*   **Link**: https://amazon.co.jp/example-team\n\n---\n\n## Objective (読む前の目的)\n\nメンバー同士の意見が対立し、**喧嘩のような雰囲気**になることが多いため。\n健全な衝突（コンフリクト）と、ただの争いの違いを知りたかった。\n\n## Key Takeaways (得られた知識)\n\nタックマンモデル（形成期→混乱期→統一期→機能期）を学び、今のチームは「混乱期」なのだと理解して安心した。\n雨降って地固まる、の精神で乗り越える。\n\n## Next Action (実務活用)\n\n**ドラッカー風エクササイズを実施する**。\nお互いの「期待すること」「期待しないこと」を明文化して、不要な衝突を防ぐ。\n\n## Positive (良かった点)\n\nチームの発達段階説が面白かった。\n\n## Negative (難しかった点)\n\nなし。\n\n## Recommend (おすすめ)\n\nチームの人間関係に疲れているリーダー。\n",
+    "metadata": {
+      "title": "効果的なチームビルディング",
+      "source": "docs/knowledge_base/book_reports/dummy-team-building-3.md"
+    }
+  },
+  {
+    "docId": "dummy-team-building-2.md",
+    "filename": "dummy-team-building-2.md",
+    "content": "---\ntitle: \"効果的なチームビルディング\"\nauthor: dummy-user-remote\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/903\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 効果的なチームビルディング\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/903](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/903)\n*   **Author**: @dummy-user-remote\n*   **Book Author**: John Doe\n*   **Link**: https://amazon.co.jp/example-team\n\n---\n\n## Objective (読む前の目的)\n\nリモートワークになってから、**Zoomでの会話が事務的になりすぎて**、心の距離を感じていたため。\n雑談をどう設計すればいいか不安だった。\n\n## Key Takeaways (得られた知識)\n\nオンラインでも「非同期コミュニケーション」と「同期コミュニケーション」を使い分ける重要性を学んだ。\nチャットでのスタンプ活用も立派なチームビルディングだとわかった。\n\n## Next Action (実務活用)\n\n**Slackの分報（Times）を導入する**。\n業務に関係ない「今の気持ち」をつぶやける場所を作り、心理的なつながりを維持する。\n\n## Positive (良かった点)\n\nリモート特有の悩みに対する事例が多くて助かった。\n\n## Negative (難しかった点)\n\n特になし。\n\n## Recommend (おすすめ)\n\nリモートワーク中心のチームマネージャー。\n",
+    "metadata": {
+      "title": "効果的なチームビルディング",
+      "source": "docs/knowledge_base/book_reports/dummy-team-building-2.md"
+    }
+  },
+  {
+    "docId": "dummy-react.md",
+    "filename": "dummy-react.md",
+    "content": "---\ntitle: \"React Deep Dive\"\nauthor: dummy-user-b\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/902\ndate: 2025-12-15\nlabels: [\"book-report\"]\n---\n\n# 📚 React Deep Dive\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/902](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/902)\n*   **Author**: @dummy-user-a\n*   **Book Author**: Jane Smith\n*   **Link**: https://amazon.co.jp/example-react\n\n---\n\n## Objective (読む前の目的)\n\nReactのレンダリングの仕組みを深く理解したかったため。\n特にuseEffectの依存配列の挙動で**悩んで**おり、パフォーマンスチューニングの勘所を知りたかった。\n\n## Key Takeaways (得られた知識)\n\n仮想DOMの差分検知ロジックと、Fiberアーキテクチャについて学んだ。\n不要な再レンダリングを防ぐためのメモ化の戦略（useMemo, useCallback）が明確になった。\n\n## Next Action (実務活用)\n\n**Reactの勉強**の成果として、現在関わっているプロジェクトの重いコンポーネントのリファクタリングを行う。\nまた、社内勉強会で「Reactの落とし穴」というテーマで発表する。\n\n## Positive (良かった点)\n\n図解が多く、内部挙動のイメージが湧きやすかった。\n\n## Negative (難しかった点)\n\n内容はかなり高度で、初学者には厳しいと思う。\n\n## Recommend (おすすめ)\n\nReactの実務経験が1年以上のフロントエンドエンジニア。\nパフォーマンス改善に興味がある人。\n",
+    "metadata": {
+      "title": "React Deep Dive",
+      "source": "docs/knowledge_base/book_reports/dummy-react.md"
+    }
+  },
+  {
     "docId": "2025-12-05-書籍名-読書感想文-66.md",
     "filename": "2025-12-05-書籍名-読書感想文-66.md",
     "content": "---\ntitle: \"📚 [書籍名] 読書感想文\"\nauthor: koxtuichi\nissue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66\ndate: 2025-12-05\n---\n\n# 📚 [書籍名] 読書感想文\n\n*   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/66)\n*   **Author**: @koxtuichi\n\n---\n\n### 書籍名\n\nLangChainとLangGraphによるRAG・AIエージェント［実践］入門 エンジニア選書\n\n### 著者\n\n西見 公宏 (著), 吉田 真吾 (著), 大嶋 勇樹 (著)\n\n### リンク\n\nhttps://www.amazon.co.jp/dp/4297145308?ref=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&ref_=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&social_share=cm_sw_r_ffobk_cso_cp_mwn_dp_EGMZ607S2KN1MHSSTYFN&bestFormat=true\n\n### 読む前の目的 (Objective)\n\nRAGを構築したかった\n\n### 得られた知識・気づき (Key Takeaways)\n\nRAGの知識があがり、構築に必要な手順や、どのように活用できるかが見えてきた\n\n### 👍 Positive (良かった点・学び)\n\n活用方法が多く記載されていたので、参考になった\n書籍自体のボリュームも大きい\n\n### 👎 Negative (難しかった点・合わなかった点)\n\nコードを記載しているが（How）、まずはどのような課題解決ができるのかを書いていて欲しかった\n\n### 💡 どんな人におすすめ？\n\nRAGを構築したい人\nAIのプロンプトエンジニアリングやコンテキストエンジニアリングの次のステップを探している人\n",

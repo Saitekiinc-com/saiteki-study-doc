@@ -1,75 +1,42 @@
 const fs = require('fs');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
-const glob = require('glob');
+const aiClient = require('./lib/ai-client');
+const store = require('./lib/store');
+const googleBooks = require('./lib/google-books');
+const vectorSearch = require('./lib/vector-search');
 
-const VECTORS_FILE = 'vectors.json';
-const DOCUMENTS_FILE = 'documents.json';
-
-// Simple Cosine Similarity
-function cosineSimilarity(vecA, vecB) {
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-  for (let i = 0; i < vecA.length; i++) {
-    dotProduct += vecA[i] * vecB[i];
-    normA += vecA[i] * vecA[i];
-    normB += vecB[i] * vecB[i];
-  }
-  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-}
-
+/**
+ * メイン処理
+ */
 async function main() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error('Error: GEMINI_API_KEY is not set.');
-    process.exit(1);
-  }
-
-  // User input from command line args or environment variable
+  // 1. 入力チェック
   const userRequest = process.env.USER_REQUEST || process.argv[2];
   if (!userRequest) {
-    console.error('Error: User request details are required.');
+    console.error('[Error] User request details are required.');
     process.exit(1);
   }
 
-  // Check for empty fields in the request string (simple heuristic)
   console.log("--- Debug: Received USER_REQUEST ---");
   console.log(userRequest);
   console.log("-----------------------------------");
 
-  if (userRequest.includes('【役割】: \n') || userRequest.includes('【達成したい目標】: \n')) {
-      console.warn('Warning: Some user request fields appear to be empty. Check issue parsing logic.');
+  if (userRequest.includes('【役割】: \n')) {
+      console.warn('[Warn] Input fields might be empty.');
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  // 2. ナレッジベースの読み込み
+  const { vectors, documentsMap } = store.loadKnowledgeBase();
 
-  // Function Declaration for Google Books API
-  const searchGoogleBooksDeclaration = {
-    name: "searchGoogleBooks",
-    parameters: {
-      type: "OBJECT",
-      properties: {
-        query: {
-          type: "STRING",
-          description: "Search query for finding books (e.g., 'project management', 'javascript beginner')."
-        }
-      },
-      required: ["query"]
-    }
-  };
-
-  // Read Context Files
+  // 3. コンテキストガイドの読み込み
   let aiNativeGuide = "";
   try {
     if (fs.existsSync('docs/training/ai_native_guide.md')) {
         aiNativeGuide = fs.readFileSync('docs/training/ai_native_guide.md', 'utf-8');
     }
   } catch (e) {
-      console.warn("Failed to read context guides:", e);
+      console.warn("[Warn] Failed to read context guides:", e);
   }
 
-  // 1. Define System Instruction (Role & Strict Format)
+  // 4. システムプロンプト定義
   const systemInstruction = `
 你是企業の成長とメンバーの幸福を最大化するための学習ロードマップを作成する、世界最高の人材育成責任者（CLO）です。
 
@@ -103,7 +70,10 @@ async function main() {
 ### 1. 📖 [{書籍名}]({URL})
 *   **著者**: {著者名}
 *   **ポイント**: {この本の選定理由と埋められるギャップ}
-*   **チームメンバーのレビュー**: {searchKnowledgeBaseで見つかったナレッジ（複数ある場合も含む）を、**今回のユーザーのプロファイル（役割・経験年数・目標）に照らし合わせて**統合・要約して記述してください。**ナレッジが見つからない場合は、この項目自体を絶対に表示しないでください。「なし」「見つかりませんでした」等の記述も禁止です。**}
+*   **チームメンバーのレビュー**:社内ナレッジ（読書感想文）が見つかった場合、**上位1〜2件に絞って**以下の形式で記述してください。
+    *   [レビューの要約] ({Original Issue URL})
+    *   (例: 「朝会のネタに困っていたが、この本のアイスブレイク集が役立った」 (https://github.com/.../issues/123))
+    **ナレッジが見つからない場合は、この項目自体を絶対に表示しないでください。**
 
 **(以下同様)**
 
@@ -126,112 +96,29 @@ ${aiNativeGuide}
 </organization_guide>
 `;
 
-  // Function Declaration for Knowledge Base Search
-  const searchKnowledgeBaseDeclaration = {
-    name: "searchKnowledgeBase",
-    parameters: {
-        type: "OBJECT",
-        properties: {
-            bookTitle: {
-                type: "STRING",
-                description: "Title of the book to search in the knowledge base."
-            }
-        },
-        required: ["bookTitle"]
-    }
-  };
-
-  // Function Declaration for Knowledge Base Discovery
-  const searchInternalReviewsDeclaration = {
-    name: "searchInternalReviews",
-    parameters: {
-        type: "OBJECT",
-        properties: {
-            topic: {
-                type: "STRING",
-                description: "Topic or gap to search for in the knowledge base (e.g., 'team building', 'negotiation')."
-            }
-        },
-        required: ["topic"]
-    }
-  };
-
-  const tools = [
-    {
-      functionDeclarations: [searchGoogleBooksDeclaration, searchKnowledgeBaseDeclaration, searchInternalReviewsDeclaration]
-    }
+  // 5. ツールの準備とチャット開始
+  const toolDeclarations = [
+    googleBooks.declaration,
+    vectorSearch.kbDeclaration,
+    vectorSearch.reviewDeclaration
   ];
 
-
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    tools: tools,
-    systemInstruction: systemInstruction,
-    safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-    ]
-  });
-
-  // 2. User Prompt (Task specific context)
-  const userPrompt = `
-以下のユーザーリクエストに基づいて、最適な学習ロードマップと書籍を提案してください。
-
-## ユーザーリクエスト
-${userRequest}
-
-## 手順
-1. ユーザーのプロファイルを分析し、目標と現状のギャップを特定する。
-2. 書籍の探索:
-    *   \`searchGoogleBooks\` を使って広く一般書籍を探す。
-    *   **同時に** \`searchInternalReviews\` を使って、ユーザーの課題に関連する「社内の読書感想文」がないかも探す。
-3. これらを組み合わせて、最適な書籍リストを作成する。
-    *   社内レビューがあった本は積極的に採用する。
-    *   選ばれた本について、\`searchKnowledgeBase\` で再度詳細を確認しても良い（任意）。
-4. 検索結果を元に、**System Instructionで指定されたフォーマットに従って**出力する。
-`;
-
-  const chat = model.startChat({
+  const chat = aiClient.getChatModel(toolDeclarations, systemInstruction).startChat({
       history: [
           {
               role: "user",
-              parts: [{ text: userPrompt }]
+              parts: [{ text: `以下のユーザーリクエストに基づいて、最適な学習ロードマップと書籍を提案してください。\n\n## ユーザーリクエスト\n${userRequest}\n\n## 手順\n1. プロファイル分析\n2. searchGoogleBooks と searchInternalReviews で書籍探索\n3. ギャップ分析と推奨リスト作成\n4. searchKnowledgeBase で詳細確認（任意）\n5. フォーマット通りに出力` }]
           }
       ]
   });
 
-  let generatedText = "";
-
-  // Load vectors and documents
-  let vectors = [];
-  let documents = [];
-
-  try {
-      if (fs.existsSync(VECTORS_FILE) && fs.existsSync(DOCUMENTS_FILE)) {
-          vectors = JSON.parse(fs.readFileSync(VECTORS_FILE, 'utf8'));
-          documents = JSON.parse(fs.readFileSync(DOCUMENTS_FILE, 'utf8'));
-          console.error(`Loaded ${vectors.length} chunks from vectors.json and ${documents.length} docs from documents.json`);
-      } else {
-          console.warn("vectors.json or documents.json not found. KB search will return empty.");
-      }
-  } catch (e) {
-      console.error("Failed to load KB files:", e);
-  }
-
-  // Create a quick lookup map for documents by ID
-  const documentsMap = new Map(documents.map(doc => [doc.docId, doc]));
-
-  // Embedding Model for KB Search
-  const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
-
+  // 6. メインループ (Tool Execution Loop)
   try {
     console.error(`Starting chat with model: gemini-2.5-flash...`);
     let result = await chat.sendMessage("おすすめの書籍を教えてください。");
-
-    let maxTurns = 15; // Increased for multiple checks
+    let maxTurns = 15;
     let turn = 0;
+    let generatedText = "";
 
     while (result.response.functionCalls() && turn < maxTurns) {
         turn++;
@@ -239,155 +126,32 @@ ${userRequest}
         const functionResponses = [];
 
         for (const call of calls) {
+            let response = {};
+            // ツールごとの処理を分岐
             if (call.name === "searchGoogleBooks") {
-                const query = call.args.query;
-                console.error(`[Tool Call] Searching Google Books for: "${query}"`);
-
-                // Execute Google Books API Call
-                try {
-                    const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20&langRestrict=ja`);
-                    const data = await apiRes.json();
-
-                    const books = data.items ? data.items.map(item => ({
-                        title: item.volumeInfo.title,
-                        authors: item.volumeInfo.authors,
-                        description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 200) + "..." : "No description",
-                        infoLink: item.volumeInfo.infoLink
-                    })) : [];
-                    console.error(`[Tool Result] Found ${books.length} books.`);
-                    functionResponses.push({
-                        functionResponse: {
-                            name: "searchGoogleBooks",
-                            response: { books: books }
-                        }
-                    });
-                } catch (e) {
-                    console.error("Google Books Search Failed:", e);
-                     functionResponses.push({
-                        functionResponse: {
-                            name: "searchGoogleBooks",
-                            response: { error: "Search failed" }
-                        }
-                    });
-                }
+                response = await googleBooks.searchBooks(call.args.query);
             } else if (call.name === "searchKnowledgeBase") {
-                const bookTitle = call.args.bookTitle;
-                console.error(`[Tool Call] Searching KB for: "${bookTitle}"`);
-
-                try {
-                    const embResult = await embeddingModel.embedContent(bookTitle);
-                    const queryVec = embResult.embedding.values;
-
-                    let bestMatch = null;
-                    let maxScore = -1;
-
-                    // Match against all chunks (maybe prioritize specific type later?)
-                    for (const vec of vectors) {
-                        const score = cosineSimilarity(queryVec, vec.embedding);
-                        if (score > maxScore) {
-                            maxScore = score;
-                            bestMatch = vec;
-                        }
-                    }
-
-                    if (maxScore > 0.65 && bestMatch) {
-                        // Retrieve full document using docId
-                        const doc = documentsMap.get(bestMatch.docId);
-
-                        console.error(`[Tool Result] KB Match Found: ${bestMatch.docId} (Chunk: ${bestMatch.chunkId}, Score: ${maxScore.toFixed(3)})`);
-                        functionResponses.push({
-                            functionResponse: {
-                                name: "searchKnowledgeBase",
-                                response: {
-                                    found: true,
-                                    score: maxScore,
-                                    // Return summary of FULL content
-                                    summary: doc ? doc.content.substring(0, 500) : "Content not found"
-                                }
-                            }
-                        });
-                    } else {
-                        console.error(`[Tool Result] No KB Match (Max Score: ${maxScore.toFixed(3)})`);
-                        functionResponses.push({
-                             functionResponse: {
-                                name: "searchKnowledgeBase",
-                                response: { found: false }
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.error("KB Search Failed:", e);
-                    functionResponses.push({
-                        functionResponse: {
-                           name: "searchKnowledgeBase",
-                           response: { error: "Search failed" }
-                       }
-                   });
-                }
+                response = await vectorSearch.searchKnowledgeBase(call.args.bookTitle, vectors, documentsMap);
             } else if (call.name === "searchInternalReviews") {
-                const topic = call.args.topic;
-                console.error(`[Tool Call] Searching Internal Reviews for topic: "${topic}"`);
-
-                try {
-                     const embResult = await embeddingModel.embedContent(topic);
-                     const queryVec = embResult.embedding.values;
-
-                     // Score chunks
-                     const scored = vectors.map(vec => ({
-                         ...vec,
-                         score: cosineSimilarity(queryVec, vec.embedding)
-                     }));
-
-                     // Prioritize 'solution' chunks if searching for solutions, or 'objective' if searching for issues?
-                     // For now, let's just create a mixed ranking
-                     scored.sort((a, b) => b.score - a.score);
-
-                     const topMatches = [];
-                     const seenDocIds = new Set();
-
-                     // Get top 3 unique documents
-                     for (const m of scored) {
-                         if (topMatches.length >= 3) break;
-                         if (m.score > 0.6 && !seenDocIds.has(m.docId)) {
-                             seenDocIds.add(m.docId);
-                             const doc = documentsMap.get(m.docId);
-                             topMatches.push({
-                                 filename: m.docId,
-                                 // Provide context from the matched chunk AND the full document summary
-                                 summary: `[Matched Chunk]: ${m.text}\n\n[Full Context]: ${doc ? doc.content.substring(0, 800) : ""}`,
-                                 score: m.score
-                             });
-                         }
-                     }
-
-                     console.error(`[Tool Result] Found ${topMatches.length} internal reviews.`);
-
-                     functionResponses.push({
-                         functionResponse: {
-                             name: "searchInternalReviews",
-                             response: {
-                                 reviews: topMatches
-                             }
-                         }
-                     });
-                } catch (e) {
-                     console.error("Internal Review Search Failed:", e);
-                     functionResponses.push({
-                         functionResponse: {
-                             name: "searchInternalReviews",
-                             response: { error: "Search failed" }
-                         }
-                     });
-                }
+                response = await vectorSearch.searchInternalReviews(call.args.topic, vectors, documentsMap);
             }
+
+            // 結果を詰める
+            functionResponses.push({
+                functionResponse: {
+                    name: call.name,
+                    response: response
+                }
+            });
         }
 
-        // Send all results back
+        // ツール結果をAIに返して次のターンへ
         result = await chat.sendMessage(functionResponses);
     }
 
+    // 規定回数を超えた場合の強制終了処理
     if (result.response.functionCalls()) {
-        console.warn("Max tool turns reached. Forcing response generation.");
+        console.warn("[Warn] Max tool turns reached. Forcing response generation.");
         result = await chat.sendMessage("検索はこれで十分です。ここまでに見つかった書籍情報だけを使って、今すぐ回答を作成してください。");
     }
 
@@ -395,21 +159,17 @@ ${userRequest}
     generatedText = response.text();
     console.error(`Success!`);
 
+    if (!generatedText) throw new Error("Generated text is empty.");
+
+    // 7. 結果出力
+    console.error("\n--- Generated Roadmap ---\n");
+    console.log(generatedText);
+    fs.writeFileSync('roadmap_body.md', generatedText);
+
   } catch (error) {
-    console.error(`Failed to generate content. Error: ${error.message}`);
+    console.error(`[Fatal Error] Failed to generate content: ${error.message}`);
     process.exit(1);
   }
-
-  if (!generatedText) {
-     console.error("Failed to generate text after tool execution.");
-     process.exit(1);
-  }
-
-  console.error("\n--- Generated Roadmap ---\n");
-  console.log(generatedText);
-
-  // Output to a file for GitHub Actions to pick up reliably
-  fs.writeFileSync('roadmap_body.md', generatedText);
 }
 
 main();
