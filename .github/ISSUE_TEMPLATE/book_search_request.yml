@@ -1,6 +1,6 @@
-name: 📚 書籍探索依頼 (Book Search Request)
+name: 📚 書籍の選定相談 (AI Recommendation)
 description: あなたの課題を解決する最適な書籍をAIが提案します。
-title: "📚 書籍探索依頼"
+title: "📚 書籍の選定相談"
 labels: ["book-search-request"]
 body:
   - type: markdown
