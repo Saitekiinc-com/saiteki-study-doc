@@ -22,6 +22,93 @@ style: |
 
 ---
 
+## 🔄 読書サイクルと購入補助ルール
+
+書籍購入補助を利用するための**必須フロー**です。
+1つのサイクルを完了させることで、次の申請が可能になります。
+
+<div class="cycle-flow">
+  <div class="flow-step">1. 読みたい</div>
+  <div class="flow-arrow">➡️</div>
+  <div class="flow-step">2. 依頼Issue</div>
+  <div class="flow-arrow">➡️</div>
+  <div class="flow-step">3. 本を探す</div>
+  <div class="flow-arrow">➡️</div>
+  <div class="flow-step">4. 申請・購入</div>
+  <div class="flow-arrow">⬇</div>
+  <div class="flow-step">8. Close</div>
+  <div class="flow-arrow">⬅</div>
+  <div class="flow-step">7. Merge</div>
+  <div class="flow-arrow">⬅</div>
+  <div class="flow-step">6. 感想PR</div>
+  <div class="flow-arrow">⬅</div>
+  <div class="flow-step">5. 読む</div>
+</div>
+
+<div class="flow-rules">
+  <ul>
+    <li>🚨 <strong>ワンタイム制</strong>: 「依頼Issue」は1人1つまで。完了するまで次は申請できません。</li>
+    <li>✅ <strong>自動連携</strong>: 「感想PR」がマージされると、依頼Issueは自動的にCloseされます(予定)。</li>
+    <li>💰 <strong>必須条件</strong>: 補助を受ける条件は「感想文のマージ」です。</li>
+  </ul>
+</div>
+
+<style>
+.cycle-flow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  font-size: 18px;
+  text-align: center;
+  align-items: center;
+  background: #fcfcfc;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+.flow-step {
+  background: #fff;
+  border: 2px solid #555;
+  border-radius: 8px;
+  padding: 10px 5px;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.flow-arrow { font-weight: bold; color: #aaa; }
+
+/* Grid Placement for Loop */
+.cycle-flow > :nth-child(1) { grid-column: 1; grid-row: 1; } /* 1 */
+.cycle-flow > :nth-child(2) { grid-column: 2; grid-row: 1; }
+.cycle-flow > :nth-child(3) { grid-column: 3; grid-row: 1; } /* 2 */
+.cycle-flow > :nth-child(4) { grid-column: 4; grid-row: 1; }
+.cycle-flow > :nth-child(5) { grid-column: 5; grid-row: 1; } /* 3 */
+.cycle-flow > :nth-child(6) { grid-column: 6; grid-row: 1; }
+.cycle-flow > :nth-child(7) { grid-column: 7; grid-row: 1; } /* 4 */
+
+.cycle-flow > :nth-child(8) { grid-column: 7; grid-row: 2; } /* Down */
+
+.cycle-flow > :nth-child(9)  { grid-column: 1; grid-row: 3; } /* 8 (Close) */
+.cycle-flow > :nth-child(10) { grid-column: 2; grid-row: 3; } /* Left */
+.cycle-flow > :nth-child(11) { grid-column: 3; grid-row: 3; } /* 7 (Merge) */
+.cycle-flow > :nth-child(12) { grid-column: 4; grid-row: 3; } /* Left */
+.cycle-flow > :nth-child(13) { grid-column: 5; grid-row: 3; } /* 6 (PR) */
+.cycle-flow > :nth-child(14) { grid-column: 6; grid-row: 3; } /* Left */
+.cycle-flow > :nth-child(15) { grid-column: 7; grid-row: 3; } /* 5 (Read) */
+
+.cycle-flow > :nth-child(3) { background: #e8f8f5; border-color: #1abc9c; } /* Issue */
+.cycle-flow > :nth-child(11) { background: #fef9e7; border-color: #f1c40f; } /* Merge */
+.cycle-flow > :nth-child(9) { background: #eaeded; border-color: #95a5a6; color: #555; } /* Close */
+
+.flow-rules {
+  margin-top: 20px;
+  font-size: 22px;
+}
+.flow-rules li { margin-bottom: 10px; }
+</style>
+
+---
+
 ## 🔄 読書感想文の「知識サイクル」
 
 このドキュメントサイトは、単なる「感想文置き場」ではありません。
