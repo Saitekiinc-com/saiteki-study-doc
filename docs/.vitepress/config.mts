@@ -40,6 +40,7 @@ export default withMermaid({
         text: 'Guides',
         items: [
           { text: 'Book Features', link: '/guide/book-features' },
+          { text: 'Book Purchase Flow', link: '/guide/book-purchase-rule' },
           { text: 'Knowledge Cycle (Slides)', link: '/guide/rag_mechanism_slide' },
         ]
       }
