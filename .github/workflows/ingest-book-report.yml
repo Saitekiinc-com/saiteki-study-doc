@@ -2,7 +2,7 @@ name: Ingest Book Report
 
 on:
   issues:
-    types: [opened, edited, labeled]
+    types: [opened, labeled]
 
 jobs:
   ingest:
