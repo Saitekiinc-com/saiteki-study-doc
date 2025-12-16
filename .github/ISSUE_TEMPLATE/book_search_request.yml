@@ -21,7 +21,7 @@ body:
   - type: input
     id: role
     attributes:
-      label: 役割 (Role)
+      label: 役割
       description: 現在の職種や役割を入力してください。
       placeholder: Frontend Engineer, SRE, Engineering Manager etc.
     validations:
@@ -39,7 +39,7 @@ body:
   - type: textarea
     id: objective
     attributes:
-      label: 達成したい目標 (Objective / Goal)
+      label: 達成したい目標
       description: |
         具体的に作りたいものや、成し遂げたいことを書いてください。
         例: 個人開発でメモアプリを作りたい、チームのCI/CDパイプラインを整備したい、など。
@@ -52,7 +52,7 @@ body:
   - type: textarea
     id: current_understanding
     attributes:
-      label: わかっていること (Current Understanding)
+      label: わかっていること
       description: |
         現在理解している技術、概念、できることを書いてください。
         例: Reactのコンポーネント作成、SQLの基本的なSELECT文、AWS EC2の起動など。
@@ -65,7 +65,7 @@ body:
   - type: textarea
     id: current_unknowns
     attributes:
-      label: わかっていないこと (Current Challenges/Unknowns)
+      label: わかっていないこと
       description: |
         現在抱えている課題、理解できていない部分、苦手なことを書いてください。
         例: 非同期処理の仕組み、複雑なJOIN、インフラのネットワーク設計など。

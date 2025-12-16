@@ -37,12 +37,18 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: "feat: add book report from issue #${{ github.event.issue.number }}"
           title: "feat: add book report '${{ steps.generator.outputs.book_title }}'"
-          body: |
             This PR adds a new book report generated from Issue #${{ github.event.issue.number }}.
 
             Original Issue: ${{ github.event.issue.html_url }}
 
             Closes #${{ github.event.issue.number }}
+
+            ## ✅ Next Actions (For Everyone)
+            非エンジニアの方も、以下の手順で進めてください：
+
+            - [ ] **内容の確認**: 生成されたファイル（Files changedタブ）を見て、文字化けや変な箇所がないか確認してください。
+            - [ ] **マージ**: 問題なければ、下の「Merge pull request」ボタンを押して完了させてください！
+            - [ ] **(任意) シェア**: マージ後、Slackなどでチームに共有しましょう。
           branch: "book-report/issue-${{ github.event.issue.number }}"
           base: main
           labels: "documentation"
