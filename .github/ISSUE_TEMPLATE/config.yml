@@ -1,8 +1,1 @@
 blank_issues_enabled: false
-contact_links:
-  - name: 📚 書籍の選定相談 (AI Recommendation)
-    url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/new?template=book_search_request.yml
-    about: あなたの課題を解決する最適な書籍をAIが提案します。
-  - name: 📚 読書感想文 (Book Report)
-    url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/new?template=book_report.yml
-    about: 読んだ本の感想・学びを共有して、ナレッジベースに追加します。
