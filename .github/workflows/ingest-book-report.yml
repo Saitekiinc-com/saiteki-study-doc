@@ -50,22 +50,24 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: "feat: add book report from issue #${{ github.event.issue.number }}"
           title: "feat: add book report '${{ steps.generator.outputs.book_title }}'"
-          body: |
-            This PR adds a new book report generated from Issue #${{ github.event.issue.number }}.
+            Issue #${{ github.event.issue.number }} から読書感想文を生成しました。
 
-            Original Issue: ${{ github.event.issue.html_url }}
+            元記事: ${{ github.event.issue.html_url }}
 
-            Closes #${{ github.event.issue.number }}
+            ## 次のアクション
 
-            ## ✅ Next Actions (For Everyone)
-            非エンジニアの方も、以下の手順で進めてください：
+            - [ ] **内容の確認** (担当: レビュアー)
+                - 読み物として学びがあるか
+                - 検索でヒットした際の解決策が具体的か
+                - 読む前の目的が明確に書かれているか
+                - 問題なければ「Files changed」タブから **Approve (承認)** をしてください。
 
-            - [ ] **内容の質の確認 (重要)**: 以下の3視点で価値があるか確認してください。
-                1. **読み物として**: メンバーが読んで学びがある内容か？
-                2. **検索でのヒット**: 「得られた知識/解決策」は具体的か？（ここが将来の検索精度に直結します）
-                3. **組織課題の分析**: 「読む前の目的/悩み」は正直に書かれているか？（ここが組織の課題分析に使われます）
-            - [ ] **マージ**: 問題なければ、下の「Merge pull request」ボタンを押して完了させてください！
-            - [ ] **(任意) シェア**: マージ後、Slackなどでチームに共有しましょう。
+            - [ ] **マージ** (担当: 投稿者本人)
+                - レビュアーから **1件以上のApprove** が付いていることを確認してください。
+                - 確認できたら「Merge pull request」ボタンを押して完了させてください。
+
+            - [ ] **自動共有**
+                - マージされると自動的にSlackへ通知されます。
           branch: "book-report/issue-${{ github.event.issue.number }}"
           base: main
           labels: "documentation"

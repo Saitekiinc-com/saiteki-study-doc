@@ -1,0 +1,40 @@
+name: Slack Notification
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/knowledge_base/book_reports/**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # To get commit message
+
+      - name: Get Commit Message and Author
+        id: info
+        run: |
+          echo "message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
+          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+          echo "url=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Send Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: Book Report Bot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: "📚 新しい読書感想文が追加されました！"
+          SLACK_MESSAGE: |
+            *タイトル*: ${{ steps.info.outputs.message }}
+            *投稿者*: ${{ steps.info.outputs.author }}
+            *リンク*: ${{ steps.info.outputs.url }}
+
+            チームのナレッジとして活用しましょう！
+          SLACK_COLOR: good
+          SLACK_FOOTER: "Saiteki Study Doc"
