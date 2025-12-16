@@ -1,85 +1,30 @@
 name: Slack Notification
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/knowledge_base/book_reports/**'
+  pull_request:
+    types: [closed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'book-report')
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2 # To get commit message
-
-      - name: Get Commit Message and Author
-        id: info
-        run: |
-          echo "message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
-          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
-          echo "url=https://github.com/${{ github.repository }}/commit/${{ github.sha }}" >> $GITHUB_OUTPUT
-
-      - name: Get Changed File and Content
-        id: content
-        run: |
-          # Find the added/modified markdown file in the specific directory
-          FILE=$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep 'docs/knowledge_base/book_reports/.*\.md' | head -n 1)
-
-          if [ -n "$FILE" ]; then
-            echo "Found file: $FILE"
-            # Read content, extract core sections (Objective, Takeaways, Next Action)
-            # Remove "---" frontmatter block
-            TEXT=$(sed '1,/^---$/d' "$FILE")
-
-            # Simple extraction of specific sections for Slack readability
-            # Using sed/awk to grab content under headers
-            OBJECTIVE=$(grep -A 5 "## Objective" "$FILE" | tail -n +2 | head -n 5)
-            TAKEAWAYS=$(grep -A 5 "## Key Takeaways" "$FILE" | tail -n +2 | head -n 5)
-            NEXT_ACTION=$(grep -A 5 "## Next Action" "$FILE" | tail -n +2 | head -n 5)
-            POSITIVE=$(grep -A 5 "## Positive" "$FILE" | tail -n +2 | head -n 5)
-
-            # Construct the message body
-            # We use EOF to handle multi-line string safely
-            {
-              echo "report_body<<EOF"
-              echo "*読む前の目的*:"
-              echo "$OBJECTIVE"
-              echo ""
-              echo "*得られた知識*:"
-              echo "$TAKEAWAYS"
-              echo ""
-              echo "*実務活用 (Next Action)*:"
-              echo "$NEXT_ACTION"
-              echo ""
-              echo "*良かった点*:"
-              echo "$POSITIVE"
-              echo "EOF"
-            } >> $GITHUB_OUTPUT
-          else
-            echo "No book report file found in this commit."
-            echo "report_body=詳細な内容はリンク先をご確認ください。" >> $GITHUB_OUTPUT
-          fi
-
       - name: Send Slack Notification
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_USERNAME: Book Report Bot
-          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_CHANNEL: random
+          SLACK_USERNAME: BookRepo Bot
+          SLACK_ICON_EMOJI: :books:
+          SLACK_COLOR: '#36a64f'
           SLACK_TITLE: "📚 新しい読書感想文が追加されました！"
           SLACK_MESSAGE: |
-            *タイトル*: ${{ steps.info.outputs.message }}
-            *投稿者*: ${{ steps.info.outputs.author }}
-            *リンク*: ${{ steps.info.outputs.url }}
+            *タイトル*: ${{ github.event.pull_request.title }}
+            *投稿者*: ${{ github.event.pull_request.user.login }}
+            *リンク*: ${{ github.event.pull_request.html_url }}
 
             --------------------------------------------------
-            ${{ steps.content.outputs.report_body }}
+            詳細な内容はリンク先をご確認ください。
             --------------------------------------------------
-
             チームのナレッジとして活用しましょう！
-          SLACK_COLOR: good
-          SLACK_FOOTER: "Saiteki Study Doc"
+          SLACK_FOOTER: "Saiteki Study Docs"

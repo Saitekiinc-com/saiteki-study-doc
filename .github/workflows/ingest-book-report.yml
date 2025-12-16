@@ -48,4 +48,4 @@ jobs:
             Closes #${{ github.event.issue.number }}
           branch: "book-report/issue-${{ github.event.issue.number }}"
           base: main
-          labels: "documentation"
+          labels: "documentation, book-report"
