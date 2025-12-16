@@ -9,6 +9,52 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'book-report')
     steps:
+      - name: Parse Book Report Content
+        id: parse
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body;
+            // Extract issue number from "Closes #123" or branch name
+            let issueNumber = null;
+            const match = prBody.match(/Closes #(\d+)/);
+            if (match) {
+              issueNumber = match[1];
+            } else {
+              // Fallback to branch parsing "book-report/issue-123"
+              const branchMatch = context.payload.pull_request.head.ref.match(/issue-(\d+)/);
+              if (branchMatch) issueNumber = branchMatch[1];
+            }
+
+            if (!issueNumber) {
+              console.log('No linked issue found.');
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const body = issue.body;
+
+            function extract(label) {
+              const regex = new RegExp(`### ${label}[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))`);
+              const m = body.match(regex);
+              return m ? m[1].trim() : 'なし';
+            }
+
+            const objective = extract('読む前の目的 \\(Objective\\)');
+            const takeaways = extract('得られた知識・気づき \\(Key Takeaways\\)');
+            const positive = extract('👍 Positive \\(良かった点・学び\\)');
+            const recommend = extract('💡 どんな人におすすめ？');
+
+            core.setOutput('objective', objective);
+            core.setOutput('takeaways', takeaways);
+            core.setOutput('positive', positive);
+            core.setOutput('recommend', recommend);
+
       - name: Send Slack Notification
         uses: rtCamp/action-slack-notify@v2
         env:
@@ -24,7 +70,17 @@ jobs:
             *リンク*: ${{ github.event.pull_request.html_url }}
 
             --------------------------------------------------
-            詳細な内容はリンク先をご確認ください。
+            *【読む前の目的】*
+            ${{ steps.parse.outputs.objective }}
+
+            *【得られた知識・気づき】*
+            ${{ steps.parse.outputs.takeaways }}
+
+            *【良かった点・学び】*
+            ${{ steps.parse.outputs.positive }}
+
+            *【どんな人におすすめ？】*
+            ${{ steps.parse.outputs.recommend }}
             --------------------------------------------------
             チームのナレッジとして活用しましょう！
           SLACK_FOOTER: "Saiteki Study Docs"
