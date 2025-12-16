@@ -51,7 +51,7 @@ body:
   - type: textarea
     id: next_action
     attributes:
-      label: 実務における活用 (Next Action)
+      label: 実務における活用
       description: この本を読んで、明日から何を変えるか。すでに実施したこと。
     validations:
       required: true
@@ -59,7 +59,7 @@ body:
   - type: textarea
     id: positive_review
     attributes:
-      label: Positive (良かった点)
+      label: 良かった点
       description: 詳細な感想。なぜ良かったのか。
     validations:
       required: true
@@ -67,10 +67,10 @@ body:
   - type: textarea
     id: negative_review
     attributes:
-      label: Negative (難しかった点・合わなかった点)
+      label: 難しかった点・合わなかった点
       description: 読みづらかった点など（なければ「なし」）。
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: recommend_to

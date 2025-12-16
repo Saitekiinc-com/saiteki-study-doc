@@ -17,17 +17,17 @@ module.exports = {
     },
     {
       key: 'next_action',
-      issueLabel: '実務における活用 (Next Action)',
+      issueLabel: '実務における活用',
       markdownHeader: '## Next Action (実務活用)'
     },
     {
       key: 'positive',
-      issueLabel: 'Positive (良かった点)',
+      issueLabel: '良かった点',
       markdownHeader: '## Positive (良かった点)'
     },
     {
       key: 'negative',
-      issueLabel: 'Negative (難しかった点・合わなかった点)',
+      issueLabel: '難しかった点・合わなかった点',
       markdownHeader: '## Negative (難しかった点)'
     },
     {
