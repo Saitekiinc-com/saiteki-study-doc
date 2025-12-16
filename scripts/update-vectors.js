@@ -24,18 +24,15 @@ function extractSection(content, header) {
 }
 
 /**
- * ファイルからタイトルを取得する（Frontmatter優先）
+ * Frontmatterから指定したキーの値を取得する
  * @param {string} content
- * @param {string} filename
- * @returns {string}
+ * @param {string} key
+ * @returns {string|null}
  */
-function getTitle(content, filename) {
-    // 1. Frontmatter check
-    const fmMatch = content.match(/title:\s*"(.*?)"/);
-    if (fmMatch) return fmMatch[1];
-
-    // 2. Fallback to filename
-    return filename;
+function getFrontmatter(content, key) {
+    const regex = new RegExp(`${key}:\\s*(.*)`);
+    const match = content.match(regex);
+    return match ? match[1].trim().replace(/^"|"$/g, '') : null;
 }
 
 async function main() {
@@ -50,14 +47,19 @@ async function main() {
     const filename = path.basename(file);
     const docId = filename;
 
-    const title = getTitle(content, filename);
+    const title = getFrontmatter(content, 'title') || filename;
+    const issueUrl = getFrontmatter(content, 'issue_url') || '';
 
     // 1. ドキュメント本体の保存
     documents.push({
         docId: docId,
         filename: filename,
         content: content,
-        metadata: { title: title, source: file }
+        metadata: {
+            title: title,
+            source: file,
+            issueUrl: issueUrl
+        }
     });
 
     // 2. configに基づいて各フィールドを抽出

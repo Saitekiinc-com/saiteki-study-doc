@@ -112,7 +112,8 @@ async function searchInternalReviews(topic, vectors, documentsMap) {
           filename: m.docId,
           // Chunkの部分一致と、全体テキストの要約（文脈）を両方渡す
           summary: `[Matched Chunk]: ${m.text}\n\n[Full Context]: ${doc ? doc.content.substring(0, 800) : ""}`,
-          score: m.score
+          score: m.score,
+          url: doc && doc.metadata ? doc.metadata.issueUrl : "" // metadataからURLを渡す
         });
       }
     }

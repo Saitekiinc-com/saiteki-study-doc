@@ -21,13 +21,21 @@ jobs:
             const issue_number = context.payload.issue.number;
 
             // Search for open issues by the same author with the same label
-            const query = `repo:${owner}/${repo} is:issue is:open author:${author} label:"book-search-request" -issue:${issue_number}`;
-            const result = await github.rest.search.issuesAndPullRequests({
-              q: query
+            // Search for open issues by the same author with the same label
+            // Using listForRepo for better consistency than search API
+            const issues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              creator: author,
+              labels: 'book-search-request'
             });
 
-            if (result.data.total_count > 0) {
-              const existingIssue = result.data.items[0];
+            // Filter out the current issue itself
+            const existingIssues = issues.data.filter(i => i.number !== issue_number);
+
+            if (existingIssues.length > 0) {
+              const existingIssue = existingIssues[0];
               const comment = `👋 @${author} さん\n\n現在、進行中の書籍探索依頼 (#${existingIssue.number}) が既に存在するため、このIssueは自動的にクローズされます。\n\n**Saiteki書籍購入補助ルール**: 依頼は1人につき1件までです。前のサイクル（感想文の提出・マージまで）が完了してから、再度ご依頼ください。`;
 
               await github.rest.issues.createComment({
