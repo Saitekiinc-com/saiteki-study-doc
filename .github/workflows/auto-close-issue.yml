@@ -20,57 +20,42 @@ jobs:
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
 
-            // 1. Find linked issue (The Book Report Issue) from PR body
-            // Looks for "Closes #123" or similar keywords
-            const closingRefRegex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+(?:#|https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/)(\d+)/i;
-            const match = pr.body ? pr.body.match(closingRefRegex) : null;
+            // 1. Identify the User (PR Author)
+            const author = pr.user.login;
+            console.log(`PR merged by @${author}. Checking for open Search Requests...`);
 
-            if (!match) {
-              console.log("No linked issue found in PR body. Skipping.");
-              return;
-            }
-
-            const reportIssueNumber = match[1];
-            console.log(`Found linked Book Report Issue: #${reportIssueNumber}`);
-
-            // 2. Fetch the Book Report Issue to find the Parent Search Request URL
-            const reportIssue = await github.rest.issues.get({
+            // 2. Find OPEN Book Search Request by this author
+            // We assume the "One Request Rule" is enforced, so there should be at most one.
+            const issues = await github.rest.issues.listForRepo({
               owner,
               repo,
-              issue_number: reportIssueNumber
+              state: 'open',
+              creator: author,
+              labels: 'book-search-request'
             });
 
-            const body = reportIssue.data.body || "";
+            if (issues.data.length > 0) {
+              const searchIssue = issues.data[0];
+              console.log(`Found open Search Request: #${searchIssue.number}`);
 
-            // Extract URL from "関連する書籍探索依頼のURL" field
-            // The template uses specific header or label. We look for the URL pattern after the localized label.
-            // Assumption: The user puts the URL in the input field which renders in body.
-            // Regex to find github issue url after the label
-            const urlRegex = /関連する書籍探索依頼のURL.*?(https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/(\d+))/s;
-            const urlMatch = body.match(urlRegex);
+              // 3. Close it!
+              const comment = `🎉 読書感想文 (PR #${pr.number}) がマージされたため、この探索依頼は自動的に完了とします。\n\nお疲れ様でした！このIssueは自動的にクローズされます。`;
 
-            if (urlMatch) {
-              const searchRequestUrl = urlMatch[1];
-              const searchIssueNumber = urlMatch[2];
-
-              console.log(`Found Parent Search Request Issue: #${searchIssueNumber}`);
-
-              // 3. Close the Search Request Issue
               await github.rest.issues.createComment({
                 owner,
                 repo,
-                issue_number: searchIssueNumber,
-                body: `🎉 読書感想文 ( #${reportIssueNumber} ) がマージされたため、この探索依頼は自動的に完了とします。\n\nお疲れ様でした！次のサイクルも楽しんでください。`
+                issue_number: searchIssue.number,
+                body: comment
               });
 
               await github.rest.issues.update({
                 owner,
                 repo,
-                issue_number: searchIssueNumber,
+                issue_number: searchIssue.number,
                 state: 'closed'
               });
 
-              console.log(`Successfully closed Search Request #${searchIssueNumber}.`);
+              console.log(`Successfully closed Search Request #${searchIssue.number}.`);
             } else {
-              console.log("No parent Search Request URL found in the Book Report Issue body.");
+              console.log(`No open Search Request found for @${author}. Nothing to close.`);
             }

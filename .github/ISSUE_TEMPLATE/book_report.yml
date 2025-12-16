@@ -30,16 +30,7 @@ body:
     validations:
       required: false
 
-  - type: input
-    id: related_issue_url
-    attributes:
-      label: 関連する書籍探索依頼のURL (任意)
-      description: |
-        この本を読むきっかけになった書籍探索依頼のIssue URLがあれば入力してください。
-        入力すると、この感想文のマージ時に探索依頼が自動的にクローズされます。
-      placeholder: "https://github.com/Saitekiinc-com/saiteki-study-doc/issues/..."
-    validations:
-      required: false
+
 
   - type: textarea
     id: objective
