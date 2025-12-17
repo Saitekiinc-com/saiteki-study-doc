@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('./book-report-config');
 
 const REPORTS_DIR = 'docs/knowledge_base/book_reports';
 
@@ -15,9 +14,7 @@ function sanitizeFilename(title) {
 }
 
 function extractField(body, label) {
-  // Escaping label for regex just in case it contains special chars
-  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(`### ${escapedLabel}\\s+([\\s\\S]*?)(?=(?:###|$))`);
+  const regex = new RegExp(`### ${label}\\s+([\\s\\S]*?)(?=(?:###|$))`);
   const match = body.match(regex);
   return match ? match[1].trim() : null;
 }
@@ -39,19 +36,36 @@ function main() {
     fs.mkdirSync(REPORTS_DIR, { recursive: true });
   }
 
-  // Extract Metadata using Config
-  let bookTitle = extractField(issueBody, config.metaFields.title.issueLabel);
+  // Extract real book title from the body
+  let bookTitle = extractField(issueBody, '書籍名');
   if (!bookTitle) {
-      console.warn(`Could not extract '${config.metaFields.title.issueLabel}' from body. Using Issue Title.`);
+      console.warn("Could not extract '書籍名' from body. Using Issue Title.");
       bookTitle = issueTitle;
   }
-  const author = extractField(issueBody, config.metaFields.author.issueLabel) || 'Unknown';
-  const link = extractField(issueBody, config.metaFields.link.issueLabel) || '';
 
+  // Extract other fields for PR summary
+  const objective = extractField(issueBody, '読む前の目的 \\(Objective\\)') || 'なし';
+  const takeaways = extractField(issueBody, '得られた知識・気づき \\(Key Takeaways\\)') || 'なし';
+  const recommend = extractField(issueBody, '💡 どんな人におすすめ？') || 'なし';
+
+  const bookSummary = `
+## 📖 書籍: ${bookTitle}
+
+### 🎯 読む前の目的
+${objective}
+
+### 💡 得られた知識・気づき
+${takeaways}
+
+### 👤 おすすめの読者
+${recommend}
+`;
 
   // Output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
       fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_title=${bookTitle}\n`);
+      // Multiline output for summary
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_summary<<EOF\n${bookSummary}\nEOF\n`);
   }
 
   // Generate filename: YYYY-MM-DD-{sanitized_title}.md
@@ -60,33 +74,23 @@ function main() {
   const filename = `${date}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);
 
-  // Construct Standardized Markdown Content
-  let fileContent = `---
+  // Add frontmatter or header
+  const fileContent = `---
 title: "${bookTitle}"
 author: ${issueAuthor}
 issue_url: ${issueUrl}
 date: ${date}
-labels: ["book-report"]
 ---
 
-# 📚 ${bookTitle}
+# ${bookTitle}
 
 *   **Original Issue**: [${issueUrl}](${issueUrl})
 *   **Author**: @${issueAuthor}
-*   **Book Author**: ${author}
-${link ? `*   **Link**: ${link}` : ''}
 
 ---
 
+${issueBody}
 `;
-
-  // Append fields using Standardized Headers from Config
-  for (const field of config.fields) {
-      const content = extractField(issueBody, field.issueLabel);
-      if (content) {
-          fileContent += `${field.markdownHeader}\n\n${content}\n\n`;
-      }
-  }
 
   fs.writeFileSync(filepath, fileContent);
   console.log(`Successfully created report: ${filepath}`);

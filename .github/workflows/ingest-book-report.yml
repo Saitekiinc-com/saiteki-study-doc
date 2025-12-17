@@ -42,6 +42,8 @@ jobs:
 
             Original Issue: ${{ github.event.issue.html_url }}
 
+            ${{ steps.generator.outputs.book_summary }}
+
             - [ ] 内容を確認しました
             - [ ] マージします
 
