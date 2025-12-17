@@ -102,4 +102,86 @@ describe('統合テスト: AI検索ループ', () => {
             exitMock.mock.restore();
         }
     });
+
+    it('AIがツール実行（Google Books）を要求した場合、ツールが実行されループすること', async () => {
+        // process.exit のモック
+        const exitMock = mock.method(process, 'exit', (code) => {
+            throw new Error(`Process exited with code ${code}`);
+        });
+
+        // 1. fetch のモック (Google Books API)
+        const mockFetch = mock.method(global, 'fetch', async (url) => {
+            if (url.includes('googleapis.com')) {
+                return {
+                    json: async () => ({
+                        items: [{ volumeInfo: { title: "Mocked Book", authors: ["Mock Author"], infoLink: "http://mock" } }]
+                    })
+                };
+            }
+            return { json: async () => ({}) };
+        });
+
+        // 2. GenAIの応答モック (Multi-turn)
+        // 1回目: ツール呼び出し要求 (functionCalls が配列を返す)
+        const firstTurnResponse = {
+            text: () => "Let me check Google Books.",
+            functionCalls: () => [{ name: "searchGoogleBooks", args: { query: "Test Query" } }]
+        };
+        // 2回目: 最終回答 (functionCalls が undefined または空)
+        const secondTurnResponse = {
+            text: () => "I found 'Mocked Book'.",
+            functionCalls: () => undefined
+        };
+
+        let mockCallCount = 0;
+        const sendMessageMock = mock.fn(() => {
+            mockCallCount++;
+            if (mockCallCount === 1) {
+                return Promise.resolve({ response: firstTurnResponse });
+            } else {
+                return Promise.resolve({ response: secondTurnResponse });
+            }
+        });
+
+        const mockModel = {
+            startChat: mock.fn(() => ({
+                sendMessage: sendMessageMock
+            }))
+        };
+
+        const mockGenAI = {
+            getGenerativeModel: mock.fn(() => mockModel)
+        };
+
+        // 環境変数
+        process.env.USER_REQUEST = "【役割】: Test Role";
+        // コンソール出力抑制
+        const originalLog = console.log;
+        const originalError = console.error;
+        // console.log = () => {};
+        // console.error = () => {};
+
+        try {
+            await main(mockGenAI);
+        } finally {
+            console.log = originalLog;
+            console.error = originalError;
+            exitMock.mock.restore();
+            mockFetch.mock.restore();
+        }
+
+        // 検証
+        // 1. startChat は1回呼ばれる
+        assert.strictEqual(mockModel.startChat.mock.callCount(), 1);
+        // 2. sendMessage は2回呼ばれる (1回目: ユーザー入力, 2回目: ツール結果)
+        assert.strictEqual(sendMessageMock.mock.callCount(), 2, 'sendMessageはツール結果報告のために2回呼ばれるべきです');
+
+        // 3. 2回目の呼び出し引数にツール実行結果が含まれているか確認
+        const secondCallArgs = sendMessageMock.mock.calls[1].arguments;
+        // arguments[0] は functionResponses の配列のはず
+        assert.ok(Array.isArray(secondCallArgs[0]), '2回目の送信は配列（ツール結果）であるべき');
+        assert.strictEqual(secondCallArgs[0][0].functionResponse.name, 'searchGoogleBooks');
+        // 結果の中身も確認できる
+        assert.strictEqual(secondCallArgs[0][0].functionResponse.response.books[0].title, 'Mocked Book');
+    });
 });
