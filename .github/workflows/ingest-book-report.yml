@@ -46,22 +46,33 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.issue.body;
-            // Match "### 関連する書籍探索課題 (Book Search Issue)" followed by content
-            const regex = /### 関連する書籍探索課題 \(Book Search Issue\)[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))/;
-            const match = body.match(regex);
-            if (!match) return;
+            const nodeId = context.payload.issue.node_id;
+            const query = `
+              query($nodeId: ID!) {
+                node(id: $nodeId) {
+                  ... on Issue {
+                    trackedInIssues(first: 1) {
+                      nodes {
+                        number
+                      }
+                    }
+                  }
+                }
+              }
+            `;
 
-            const content = match[1].trim();
-            // Try to find an issue number (either #123 or /issues/123)
-            const numberMatch = content.match(/(?:#|\/issues\/)(\d+)/);
-
-            if (numberMatch) {
-              const parentNum = numberMatch[1];
-              console.log(`Found parent issue: #${parentNum}`);
-              core.setOutput('number', parentNum);
-            } else {
-              console.log('No parent issue number found in content:', content);
+            try {
+              const result = await github.graphql(query, { nodeId });
+              const parents = result.node.trackedInIssues.nodes;
+              if (parents && parents.length > 0) {
+                const parentNum = parents[0].number;
+                console.log(`Found parent issue via Tasklist: #${parentNum}`);
+                core.setOutput('number', parentNum);
+              } else {
+                console.log('No parent tracked issue found.');
+              }
+            } catch (error) {
+              console.error('Failed to fetch parent issue:', error);
             }
 
       - name: Create Pull Request
