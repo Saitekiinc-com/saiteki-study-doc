@@ -39,12 +39,12 @@ function main() {
   // Extract fields (using new labels)
   const bookTitleReal = extractField(issueBody, '書籍名') || issueTitle;
   const author = extractField(issueBody, '著者') || 'Unknown';
-  const objective = extractField(issueBody, '読む前の目的 \\(Objective\\)');
-  const takeaways = extractField(issueBody, '得られた知識・気づき \\(Key Takeaways\\)');
-  const application = extractField(issueBody, '実務における活用 \\(Application\\)');
-  const positive = extractField(issueBody, '良かった点・学び \\(Positive\\)');
-  const negative = extractField(issueBody, '難しかった点・合わなかった点 \\(Negative\\)');
-  const recommend = extractField(issueBody, 'どんな人におすすめ？');
+  const objective = extractField(issueBody, '読む前の目的');
+  const takeaways = extractField(issueBody, '得られた知識');
+  const application = extractField(issueBody, '実務における活用');
+  const positive = extractField(issueBody, '良かった点');
+  const negative = extractField(issueBody, '難しかった点・合わなかった点');
+  const recommend = extractField(issueBody, '💡 どんな人におすすめ？');
 
   // Output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
