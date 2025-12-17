@@ -2,11 +2,12 @@ name: Slack Notification
 
 on:
   pull_request:
-    types: [closed, labeled]
+    types: [closed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'book-report')
     steps:
       - name: Debug Context
         run: |
