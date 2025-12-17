@@ -1,38 +1,84 @@
 name: Slack Notification
 
 on:
-  pull_request:
-    types: [closed]
+  workflow_run:
+    workflows: ["Deploy VitePress site to Pages"]
+    types: [completed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'book-report')
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Debug Context
-        run: |
-          echo "Merged: ${{ github.event.pull_request.merged }}"
-          echo "Labels: ${{ toJson(github.event.pull_request.labels) }}"
-          echo "Action: ${{ github.event.action }}"
+      - name: Find Recent Book Report PR
+        id: find_pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find the most recent merged PR with book-report label
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 10
+            });
+
+            const bookReportPR = prs.find(pr =>
+              pr.merged_at &&
+              pr.labels.some(l => l.name === 'book-report')
+            );
+
+            if (!bookReportPR) {
+              console.log('No recent book-report PR found.');
+              core.setOutput('found', 'false');
+              return;
+            }
+
+            // Check if this PR was merged in the last 5 minutes (avoid duplicate notifications)
+            const mergedAt = new Date(bookReportPR.merged_at);
+            const now = new Date();
+            const diffMinutes = (now - mergedAt) / 1000 / 60;
+
+            if (diffMinutes > 5) {
+              console.log('PR was merged more than 5 minutes ago. Skipping to avoid duplicate.');
+              core.setOutput('found', 'false');
+              return;
+            }
+
+            core.setOutput('found', 'true');
+            core.setOutput('pr_number', bookReportPR.number);
+            core.setOutput('pr_title', bookReportPR.title);
+            core.setOutput('pr_author', bookReportPR.user.login);
+            core.setOutput('pr_url', bookReportPR.html_url);
+            core.setOutput('pr_body', bookReportPR.body || '');
+            core.setOutput('pr_head_ref', bookReportPR.head.ref);
+
       - name: Parse Book Report Content
+        if: steps.find_pr.outputs.found == 'true'
         id: parse
         uses: actions/github-script@v7
         with:
           script: |
-            const prBody = context.payload.pull_request.body;
-            // Extract issue number from "Closes #123" or branch name
+            const prBody = `${{ steps.find_pr.outputs.pr_body }}`;
+            const prHeadRef = `${{ steps.find_pr.outputs.pr_head_ref }}`;
+            const prNumber = `${{ steps.find_pr.outputs.pr_number }}`;
+
+            // Extract issue number from branch name "book-report/issue-123"
             let issueNumber = null;
-            const match = prBody.match(/Closes #(\d+)/);
-            if (match) {
-              issueNumber = match[1];
-            } else {
-              // Fallback to branch parsing "book-report/issue-123"
-              const branchMatch = context.payload.pull_request.head.ref.match(/issue-(\d+)/);
-              if (branchMatch) issueNumber = branchMatch[1];
-            }
+            const branchMatch = prHeadRef.match(/issue-(\d+)/);
+            if (branchMatch) issueNumber = branchMatch[1];
 
             if (!issueNumber) {
-              console.log('No linked issue found.');
+              console.log('No linked issue found from branch.');
+              core.setOutput('page_url', '');
+              core.setOutput('objective', 'なし');
+              core.setOutput('takeaways', 'なし');
+              core.setOutput('application', 'なし');
+              core.setOutput('positive', 'なし');
+              core.setOutput('negative', 'なし');
+              core.setOutput('recommend', 'なし');
               return;
             }
 
@@ -50,16 +96,15 @@ jobs:
               return m ? m[1].trim() : 'なし';
             }
 
+            // Get files from PR to find the book report path
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
+              pull_number: prNumber
             });
             const reportFile = files.find(f => f.filename.startsWith('docs/knowledge_base/book_reports/') && f.filename.endsWith('.md'));
             let pageUrl = '';
             if (reportFile) {
-              // file: docs/knowledge_base/book_reports/2025-12-17-title-123.md
-              // url: https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/2025-12-17-title-123.html
               const relativePath = reportFile.filename.replace(/^docs\//, '').replace(/\.md$/, '.html');
               pageUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/${relativePath}`;
             }
@@ -80,6 +125,7 @@ jobs:
             core.setOutput('page_url', pageUrl);
 
       - name: Send Slack Notification
+        if: steps.find_pr.outputs.found == 'true'
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
@@ -88,5 +134,5 @@ jobs:
           SLACK_ICON_EMOJI: ':books:'
           SLACK_COLOR: '#36a64f'
           SLACK_TITLE: '📚 新しい読書感想文が追加されました！'
-          SLACK_MESSAGE: "タイトル: ${{ github.event.pull_request.title }}\n投稿者: ${{ github.event.pull_request.user.login }}\nリンク: ${{ github.event.pull_request.html_url }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【実務における活用】\n${{ steps.parse.outputs.application }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【難しかった点・合わなかった点】\n${{ steps.parse.outputs.negative }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
+          SLACK_MESSAGE: "タイトル: ${{ steps.find_pr.outputs.pr_title }}\n投稿者: ${{ steps.find_pr.outputs.pr_author }}\nリンク: ${{ steps.find_pr.outputs.pr_url }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【実務における活用】\n${{ steps.parse.outputs.application }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【難しかった点・合わなかった点】\n${{ steps.parse.outputs.negative }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
           SLACK_FOOTER: 'Saiteki Study Docs'
