@@ -50,6 +50,8 @@ jobs:
           body: |
             Issue #${{ github.event.issue.number }} から新しい読書感想文を追加しました。
 
+            Closes #${{ github.event.issue.number }}
+
             元Issue: ${{ github.event.issue.html_url }}
 
             - [ ] 内容を確認しました

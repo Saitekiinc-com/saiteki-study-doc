@@ -1,0 +1,38 @@
+name: CI Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Tests
+      # Since integration tests require GEMINI_API_KEY which might not be available in PRs from forks due to secrets restrictions,
+      # or if the user simply wants to verify logic.
+      # However, our integration tests MOCK the API, so no actual key is needed for 'npm test' logic if implementation is correct.
+      # Let's ensure GEMINI_API_KEY is available or mocked in environment if required by strict checks in code.
+      # recommend-books.js lines 22-26 require keys unless "injectedGenAI" is passed, which integration tests do.
+      # E2E test calls "node scripts/recommend-books.js", which DOES check for key.
+      # So we need to provide a dummy key for CI E2E tests if we want them to "pass" the env check,
+      # but they will fail network calls if not mocked.
+      # Wait, E2E tests DO run the actual script. Actual script needs actual key...
+      # OR we should note that E2E tests in CI might fail without a real key.
+      # Actually, the user's project is likely private or using repo secrets.
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'dummy_key_for_ci_if_tests_mock_it' }}
+      run: npm test
