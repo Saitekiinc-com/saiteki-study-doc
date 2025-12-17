@@ -22,3 +22,5 @@
 - [Test Book Notification 8 (Issue 112)](./book_reports/2025-12-17-test-book-notification-8-112.md)
 - [Test Book Notification 9 (Issue 114)](./book_reports/2025-12-17-test-book-notification-9-114.md)
 - [Test Book Notification 98 (Issue 98)](./book_reports/2025-12-17-test-book-notification-98.md)
+
+- [Test Book Notification 12 (Issue 120)](./book_reports/2025-12-17-test-book-notification-12-120.md)
