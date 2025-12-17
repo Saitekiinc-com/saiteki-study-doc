@@ -22,10 +22,7 @@ AI時代に求められるエンジニアの役割とスキルについての指
 ### ☁️ [AWS / Infra](/training/aws/index)
 *   (準備中) AWS基礎、IaCなど
 
-### 🤝 [Management](/training/management/progress_tracker)
-メンターと研修生のためのツールです。
-*   **進捗管理シート**: スキルチェックと週次振り返り。
-*   **メンタリングガイド**: 効果的な指導のための指針。
+
 
 
 

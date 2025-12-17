@@ -35,14 +35,7 @@ export default withMermaid({
           { text: 'Introduction', link: '/training/aws/index' },
         ]
       },
-      {
-        text: 'Management',
-        items: [
-          { text: 'GitHub Management Flow', link: '/training/management/github_flow' },
-          { text: 'Progress Tracker', link: '/training/management/progress_tracker' },
-          { text: 'Mentoring Guide', link: '/training/management/mentoring_guide' },
-        ]
-      },
+
 
       {
         text: 'Guides',
