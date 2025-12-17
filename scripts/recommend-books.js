@@ -291,13 +291,17 @@ ${userRequest}
                     // Threshold (e.g., 0.65 for semantic match)
                     if (maxScore > 0.65 && bestMatch) {
                         console.error(`[Tool Result] KB Match Found: ${bestMatch.id} (Score: ${maxScore.toFixed(3)})`);
+                        // Generate GitHub Pages URL from filename
+                        const filename = bestMatch.id.replace('.md', '');
+                        const pageUrl = `https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/${filename}.html`;
                         functionResponses.push({
                             functionResponse: {
                                 name: "searchKnowledgeBase",
                                 response: {
                                     found: true,
                                     score: maxScore,
-                                    summary: bestMatch.content.substring(0, 500) // Truncate content for context
+                                    summary: bestMatch.content.substring(0, 500), // Truncate content for context
+                                    pageUrl: pageUrl
                                 }
                             }
                         });
@@ -343,11 +347,16 @@ ${userRequest}
                          functionResponse: {
                              name: "searchInternalReviews",
                              response: {
-                                 reviews: topMatches.map(m => ({
-                                     filename: m.id,
-                                     summary: m.content.substring(0, 800), // Longer context for discovery
-                                     score: m.score
-                                 }))
+                                 reviews: topMatches.map(m => {
+                                     const filename = m.id.replace('.md', '');
+                                     const pageUrl = `https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/${filename}.html`;
+                                     return {
+                                         filename: m.id,
+                                         summary: m.content.substring(0, 800), // Longer context for discovery
+                                         score: m.score,
+                                         pageUrl: pageUrl
+                                     };
+                                 })
                              }
                          }
                      });
