@@ -44,7 +44,7 @@ jobs:
             const body = issue.body;
 
             function extract(label) {
-              const regex = new RegExp(`### ${label}[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))`);
+              const regex = new RegExp("### " + label + "[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))");
               const m = body.match(regex);
               return m ? m[1].trim() : 'なし';
             }
