@@ -25,7 +25,10 @@ export function getSidebarBooks({
     const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m)
     const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
 
-    const title = titleMatch ? titleMatch[1] : path.basename(file, '.md')
+    let title = titleMatch ? titleMatch[1] : path.basename(file, '.md')
+    // Normalize title: remove generic book icon and leading spaces
+    title = title.replace(/^📚\s*/, '')
+
     let authorId = authorMatch ? authorMatch[1].trim() : 'Other'
 
     // Normalize authorId if needed (e.g. remove @)
