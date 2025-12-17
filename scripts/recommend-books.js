@@ -18,16 +18,19 @@ function cosineSimilarity(vecA, vecB) {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-async function main() {
+async function main(injectedGenAI = null) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey && !injectedGenAI) { // Allow skipping key check if mocked client provided
     console.error('Error: GEMINI_API_KEY is not set.');
     process.exit(1);
   }
 
   // User input from command line args or environment variable
   const userRequest = process.env.USER_REQUEST || process.argv[2];
-  if (!userRequest) {
+  if (!userRequest && !injectedGenAI) { // Be lenient for test instantiation if needed, or stick to req
+      // Actually strictly requiring userRequest is fine even for tests
+  }
+  if (!userRequest) { // Keep strict check
     console.error('Error: User request details are required.');
     process.exit(1);
   }
@@ -43,7 +46,7 @@ async function main() {
 
 
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const genAI = injectedGenAI || new GoogleGenerativeAI(apiKey);
 
   // Function Declaration for Google Books API
   const searchGoogleBooksDeclaration = {
@@ -417,4 +420,11 @@ ${userRequest}
 // Removed legacy checkLinksInText and isUrlAlive functions
 
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  cosineSimilarity,
+  main
+};

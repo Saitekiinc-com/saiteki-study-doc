@@ -108,4 +108,14 @@ ${recommend || 'なし'}
   }
 }
 
-main();
+
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  sanitizeFilename,
+  extractField,
+  main
+};
