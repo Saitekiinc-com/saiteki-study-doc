@@ -41,6 +41,29 @@ jobs:
           ISSUE_AUTHOR: ${{ steps.author.outputs.name }}
         run: node scripts/ingest-book-report.js
 
+      - name: Extract Parent Issue
+        id: parent_issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+            // Match "### 関連する書籍探索課題 (Book Search Issue)" followed by content
+            const regex = /### 関連する書籍探索課題 \(Book Search Issue\)[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))/;
+            const match = body.match(regex);
+            if (!match) return;
+
+            const content = match[1].trim();
+            // Try to find an issue number (either #123 or /issues/123)
+            const numberMatch = content.match(/(?:#|\/issues\/)(\d+)/);
+
+            if (numberMatch) {
+              const parentNum = numberMatch[1];
+              console.log(`Found parent issue: #${parentNum}`);
+              core.setOutput('number', parentNum);
+            } else {
+              console.log('No parent issue number found in content:', content);
+            }
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
@@ -51,6 +74,7 @@ jobs:
             Issue #${{ github.event.issue.number }} から新しい読書感想文を追加しました。
 
             Closes #${{ github.event.issue.number }}
+            ${{ steps.parent_issue.outputs.number && format('Closes #{0}', steps.parent_issue.outputs.number) || '' }}
 
             元Issue: ${{ github.event.issue.html_url }}
 

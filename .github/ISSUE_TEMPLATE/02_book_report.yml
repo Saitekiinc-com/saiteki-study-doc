@@ -30,6 +30,15 @@ body:
     validations:
       required: false
 
+  - type: input
+    id: search_issue
+    attributes:
+      label: 関連する書籍探索課題 (Book Search Issue)
+      description: この本を見つけた元の「書籍探索課題」のURLまたはIssue番号があれば入力してください（自動でクローズされます）。
+      placeholder: "#123 or https://github.com/..."
+    validations:
+      required: false
+
 
 
   - type: textarea
