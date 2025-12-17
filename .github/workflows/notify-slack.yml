@@ -134,12 +134,52 @@ jobs:
         if: steps.find_pr.outputs.found == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          PR_TITLE: ${{ steps.find_pr.outputs.pr_title }}
+          PR_AUTHOR: ${{ steps.find_pr.outputs.pr_author }}
+          PAGE_URL: ${{ steps.parse.outputs.page_url }}
+          OBJECTIVE: ${{ steps.parse.outputs.objective }}
+          TAKEAWAYS: ${{ steps.parse.outputs.takeaways }}
+          APPLICATION: ${{ steps.parse.outputs.application }}
+          POSITIVE: ${{ steps.parse.outputs.positive }}
+          NEGATIVE: ${{ steps.parse.outputs.negative }}
+          RECOMMEND: ${{ steps.parse.outputs.recommend }}
         run: |
-          curl -X POST "$SLACK_WEBHOOK" \
-            -H 'Content-type: application/json' \
-            --data '{
-              "channel": "#random",
-              "username": "BookRepo Bot",
-              "icon_emoji": ":books:",
-              "text": "📚 *新しい読書感想文が追加されました！*\n\nタイトル: ${{ steps.find_pr.outputs.pr_title }}\n投稿者: ${{ steps.find_pr.outputs.pr_author }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n*【読む前の目的】*\n${{ steps.parse.outputs.objective }}\n\n*【得られた知識・気づき】*\n${{ steps.parse.outputs.takeaways }}\n\n*【実務における活用】*\n${{ steps.parse.outputs.application }}\n\n*【良かった点・学び】*\n${{ steps.parse.outputs.positive }}\n\n*【難しかった点・合わなかった点】*\n${{ steps.parse.outputs.negative }}\n\n*【どんな人におすすめ？】*\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
-            }'
+          MESSAGE=$(cat <<EOF
+          📚 *新しい読書感想文が追加されました！*
+
+          タイトル: ${PR_TITLE}
+          投稿者: ${PR_AUTHOR}
+
+          📖 読みやすいページで見る:
+          ${PAGE_URL}
+
+          --------------------------------------------------
+          *【読む前の目的】*
+          ${OBJECTIVE}
+
+          *【得られた知識・気づき】*
+          ${TAKEAWAYS}
+
+          *【実務における活用】*
+          ${APPLICATION}
+
+          *【良かった点・学び】*
+          ${POSITIVE}
+
+          *【難しかった点・合わなかった点】*
+          ${NEGATIVE}
+
+          *【どんな人におすすめ？】*
+          ${RECOMMEND}
+          --------------------------------------------------
+          チームのナレッジとして活用しましょう！
+          EOF
+          )
+
+          jq -n \
+            --arg text "$MESSAGE" \
+            '{channel: "#random", username: "BookRepo Bot", icon_emoji: ":books:", text: $text}' | \
+            curl -X POST "$SLACK_WEBHOOK" \
+              -H 'Content-type: application/json' \
+              --data @-
+
