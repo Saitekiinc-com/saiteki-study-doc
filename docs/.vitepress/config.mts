@@ -58,13 +58,6 @@ export default withMermaid({
             { text: 'AI駆動開発の教科書', link: '/knowledge_base/book_reports/2025-12-03-ai駆動開発の教科書-読書感想文-12' },
             { text: 'GCP入門', link: '/knowledge_base/book_reports/2025-12-16-プログラマのためのgoogle-cloud-platform入門-サービスの全体像からクラウドネイテ-80' },
           ]
-        },
-        {
-          text: 'テストユーザー',
-          collapsed: true,
-          items: [
-            { text: 'Test Book 12-14', link: '/knowledge_base/' },
-          ]
         }
       ]
     },
