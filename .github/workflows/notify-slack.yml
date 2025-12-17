@@ -7,8 +7,12 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'book-report')
     steps:
+      - name: Debug Context
+        run: |
+          echo "Merged: ${{ github.event.pull_request.merged }}"
+          echo "Labels: ${{ toJson(github.event.pull_request.labels) }}"
+          echo "Action: ${{ github.event.action }}"
       - name: Parse Book Report Content
         id: parse
         uses: actions/github-script@v7
