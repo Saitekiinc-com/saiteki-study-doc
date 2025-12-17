@@ -10,6 +10,8 @@ export default withMermaid({
       { text: 'AI Doc', link: '/' },
       { text: 'Books Review', link: '/knowledge_base/' },
     ],
+    // ... rest of config ...
+
 
     sidebar: {
       // Default sidebar for AI Doc pages
@@ -54,9 +56,8 @@ export default withMermaid({
           text: '杉本 光一',
           collapsed: true,
           items: [
-            { text: 'AI時代に強い質問力', link: '/knowledge_base/book_reports/2025-12-03-ai時代に強い質問力-読書感想文-10' },
+            { text: 'AI時代に強い質問力', link: '/knowledge_base/book_reports/2025-12-17-ai時代に強い質問力-138' },
             { text: 'AI駆動開発の教科書', link: '/knowledge_base/book_reports/2025-12-03-ai駆動開発の教科書-読書感想文-12' },
-            { text: 'GCP入門', link: '/knowledge_base/book_reports/2025-12-16-プログラマのためのgoogle-cloud-platform入門-サービスの全体像からクラウドネイテ-80' },
           ]
         }
       ]
