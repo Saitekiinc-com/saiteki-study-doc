@@ -38,16 +38,12 @@ jobs:
           commit-message: "feat: add book report from issue #${{ github.event.issue.number }}"
           title: "feat: add book report '${{ steps.generator.outputs.book_title }}'"
           body: |
-            This PR adds a new book report generated from Issue #${{ github.event.issue.number }}.
+            Issue #${{ github.event.issue.number }} から新しい読書感想文を追加しました。
 
-            Original Issue: ${{ github.event.issue.html_url }}
-
-            ${{ steps.generator.outputs.book_summary }}
+            元Issue: ${{ github.event.issue.html_url }}
 
             - [ ] 内容を確認しました
             - [ ] マージします
-
-            Closes #${{ github.event.issue.number }}
           branch: "book-report/issue-${{ github.event.issue.number }}"
           base: main
           labels: "documentation, book-report"

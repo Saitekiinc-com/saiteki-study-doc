@@ -43,29 +43,9 @@ function main() {
       bookTitle = issueTitle;
   }
 
-  // Extract other fields for PR summary
-  const objective = extractField(issueBody, '読む前の目的 \\(Objective\\)') || 'なし';
-  const takeaways = extractField(issueBody, '得られた知識・気づき \\(Key Takeaways\\)') || 'なし';
-  const recommend = extractField(issueBody, '💡 どんな人におすすめ？') || 'なし';
-
-  const bookSummary = `
-## 📖 書籍: ${bookTitle}
-
-### 🎯 読む前の目的
-${objective}
-
-### 💡 得られた知識・気づき
-${takeaways}
-
-### 👤 おすすめの読者
-${recommend}
-`;
-
   // Output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
       fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_title=${bookTitle}\n`);
-      // Multiline output for summary
-      fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_summary<<EOF\n${bookSummary}\nEOF\n`);
   }
 
   // Generate filename: YYYY-MM-DD-{sanitized_title}.md
