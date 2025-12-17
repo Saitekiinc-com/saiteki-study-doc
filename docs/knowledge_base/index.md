@@ -29,3 +29,4 @@
 - [Test Book Notification 15 (Issue 126)](./book_reports/2025-12-17-test-book-notification-15-126.md)
 - [Test Book Notification 16 (Issue 128)](./book_reports/2025-12-17-test-book-notification-16-128.md)
 - [Test Book Notification 17 (Issue 130)](./book_reports/2025-12-17-test-book-notification-17-130.md)
+- [Test Book Notification 18 (Issue 132)](./book_reports/2025-12-17-test-book-notification-18-132.md)
