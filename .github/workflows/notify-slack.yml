@@ -115,12 +115,12 @@ jobs:
               pageUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/${relativePath}`;
             }
 
-            const objective = extract('読む前の目的 \\(Objective\\)');
-            const takeaways = extract('得られた知識・気づき \\(Key Takeaways\\)');
-            const application = extract('実務における活用 \\(Application\\)');
-            const positive = extract('良かった点・学び \\(Positive\\)');
-            const negative = extract('難しかった点・合わなかった点 \\(Negative\\)');
-            const recommend = extract('どんな人におすすめ？');
+            const objective = extract('読む前の目的');
+            const takeaways = extract('得られた知識');
+            const application = extract('実務における活用');
+            const positive = extract('良かった点');
+            const negative = extract('難しかった点・合わなかった点');
+            const recommend = extract('💡 どんな人におすすめ？');
 
             core.setOutput('objective', objective);
             core.setOutput('takeaways', takeaways);
