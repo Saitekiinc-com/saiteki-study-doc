@@ -52,5 +52,45 @@ Learn best practices.
             const result = extractField(sampleBody, 'NonExistent');
             assert.strictEqual(result, null);
         });
+
+        // 境界値テスト (Boundary Testing)
+        it('空の本文から抽出を試みた場合nullを返すこと', () => {
+            const result = extractField('', '書籍名');
+            assert.strictEqual(result, null);
+        });
+
+        it('値が空のフィールドを正しく空文字として抽出できること', () => {
+            const bodyWithEmptyField = `
+### 空フィールド
+
+### 次のフィールド
+値あり
+`;
+            const result = extractField(bodyWithEmptyField, '空フィールド');
+            // 現在の実装では改行までを取得するため、空行が含まれる可能性があるか要確認。
+            // extractFieldの実装: ([\\s\\S]*?)(?=(?:###|$))
+            // ### 空フィールド\n\n### 次のフィールド
+            // なので、\n\n がマッチする。 trim() されるので '' になるはず。
+            assert.strictEqual(result, '');
+        });
+    });
+
+    describe('sanitizeFilename (境界値)', () => {
+        it('空文字の場合は空文字を返すこと', () => {
+            const result = sanitizeFilename('');
+            assert.strictEqual(result, '');
+        });
+
+        it('禁止文字のみの場合は空文字を返すこと', () => {
+            const result = sanitizeFilename('!@#$%^&*()');
+            assert.strictEqual(result, '');
+        });
+
+        it('非常に長いタイトルは50文字に切り詰められること', () => {
+            const longTitle = 'a'.repeat(100);
+            const result = sanitizeFilename(longTitle);
+            assert.strictEqual(result.length, 50);
+            assert.strictEqual(result, 'a'.repeat(50));
+        });
     });
 });

@@ -61,4 +61,45 @@ describe('統合テスト: AI検索ループ', () => {
         assert.strictEqual(mockModel.startChat.mock.callCount(), 1, 'startChat が呼ばれるべきです');
         assert.strictEqual(sendMessageMock.mock.callCount(), 1, 'sendMessage が呼ばれるべきです');
     });
+
+    it('APIエラー時に適切にエラーハンドリングして終了すること', async () => {
+        // process.exit のモック化
+        const exitMock = mock.method(process, 'exit', (code) => {
+            throw new Error(`Process exited with code ${code}`);
+        });
+
+        // 失敗する sendMessage のモック
+        const sendMessageMock = mock.fn(() => Promise.reject(new Error('API Connection Failed')));
+
+        const mockModel = {
+            startChat: mock.fn(() => ({
+                sendMessage: sendMessageMock
+            }))
+        };
+
+        const mockGenAI = {
+            getGenerativeModel: mock.fn(() => mockModel)
+        };
+
+        // 環境変数
+        process.env.USER_REQUEST = "【役割】: Test Role";
+
+        // コンソール出力の抑制
+        const originalLog = console.log;
+        const originalError = console.error;
+        console.log = () => {};
+        console.error = () => {};
+
+        try {
+            await main(mockGenAI);
+            assert.fail('エラー時プロセスが終了しませんでした');
+        } catch (e) {
+            // main() は catch ブロックで console.error を吐き、process.exit(1) を呼ぶはず
+            assert.strictEqual(e.message, 'Process exited with code 1');
+        } finally {
+            console.log = originalLog;
+            console.error = originalError;
+            exitMock.mock.restore();
+        }
+    });
 });

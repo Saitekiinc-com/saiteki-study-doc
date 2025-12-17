@@ -59,6 +59,12 @@ Verify E2E flow.
             const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-test-book-9999.md`;
             assert.ok(fs.existsSync(expectedFile), 'レポートファイルが作成されるべきです');
 
+            // レポートの中身の検証 (Strengthen E2E)
+            const content = fs.readFileSync(expectedFile, 'utf8');
+            assert.match(content, /title: "E2E Test Book"/, 'Frontmatter should contain title');
+            assert.match(content, /author: e2e-bot/, 'Frontmatter should contain author'); // author is likely e2e-bot from ISSUE_AUTHOR or GitHub lookup falling back
+            assert.ok(content.includes('Verify E2E flow.'), 'Body should contain objective');
+
             // 生成ファイルのクリーンアップ
             fs.unlinkSync(expectedFile);
             if (fs.existsSync('dummy_output.txt')) fs.unlinkSync('dummy_output.txt');
