@@ -49,6 +49,20 @@ jobs:
               return m ? m[1].trim() : 'なし';
             }
 
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            const reportFile = files.find(f => f.filename.startsWith('docs/knowledge_base/book_reports/') && f.filename.endsWith('.md'));
+            let pageUrl = '';
+            if (reportFile) {
+              // file: docs/knowledge_base/book_reports/2025-12-17-title-123.md
+              // url: https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/2025-12-17-title-123.html
+              const relativePath = reportFile.filename.replace(/^docs\//, '').replace(/\.md$/, '.html');
+              pageUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/${relativePath}`;
+            }
+
             const objective = extract('読む前の目的 \\(Objective\\)');
             const takeaways = extract('得られた知識・気づき \\(Key Takeaways\\)');
             const positive = extract('👍 Positive \\(良かった点・学び\\)');
@@ -58,6 +72,7 @@ jobs:
             core.setOutput('takeaways', takeaways);
             core.setOutput('positive', positive);
             core.setOutput('recommend', recommend);
+            core.setOutput('page_url', pageUrl);
 
       - name: Send Slack Notification
         uses: rtCamp/action-slack-notify@v2
@@ -68,5 +83,5 @@ jobs:
           SLACK_ICON_EMOJI: ':books:'
           SLACK_COLOR: '#36a64f'
           SLACK_TITLE: '📚 新しい読書感想文が追加されました！'
-          SLACK_MESSAGE: "タイトル: ${{ github.event.pull_request.title }}\n投稿者: ${{ github.event.pull_request.user.login }}\nリンク: ${{ github.event.pull_request.html_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
+          SLACK_MESSAGE: "タイトル: ${{ github.event.pull_request.title }}\n投稿者: ${{ github.event.pull_request.user.login }}\nリンク: ${{ github.event.pull_request.html_url }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
           SLACK_FOOTER: 'Saiteki Study Docs'
