@@ -48,6 +48,16 @@ Learn best practices.
             assert.strictEqual(result, 'Learn best practices.');
         });
 
+        it('括弧を含むラベル（リンク (任意)）を抽出できること', () => {
+            const bodyWithParens = `
+### リンク (任意)
+https://example.com
+### 次の項目
+`;
+            const result = extractField(bodyWithParens, 'リンク \\(任意\\)');
+            assert.strictEqual(result, 'https://example.com');
+        });
+
         it('存在しないフィールドの場合はnullを返すこと', () => {
             const result = extractField(sampleBody, 'NonExistent');
             assert.strictEqual(result, null);

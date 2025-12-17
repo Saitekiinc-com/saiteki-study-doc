@@ -39,6 +39,7 @@ function main() {
   // Extract fields (using new labels)
   const bookTitleReal = extractField(issueBody, '書籍名') || issueTitle;
   const author = extractField(issueBody, '著者') || 'Unknown';
+  const link = extractField(issueBody, 'リンク \\(任意\\)');
   const objective = extractField(issueBody, '読む前の目的');
   const takeaways = extractField(issueBody, '得られた知識');
   const application = extractField(issueBody, '実務における活用');
@@ -70,6 +71,7 @@ date: ${date}
 *   **Original Issue**: [${issueUrl}](${issueUrl})
 *   **投稿者**: ${issueAuthor}
 *   **書籍の著者**: ${author}
+${link ? `*   **リンク**: [${link}](${link})` : ''}
 
 ---
 
