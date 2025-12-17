@@ -1,8 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { globSync } from 'glob'
-import * as fs from 'fs'
-import * as path from 'path'
+import { getSidebarBooks } from './sidebar.mjs'
 
 export default withMermaid({
   base: '/saiteki-study-doc/',
@@ -66,49 +64,3 @@ export default withMermaid({
     ]
   }
 })
-
-function getSidebarBooks() {
-  const files: string[] = globSync('docs/knowledge_base/book_reports/*.md')
-  const authorMap: Record<string, string> = {
-    'koxtuichi': '杉本 光一',
-    'sugimotokouichi': '杉本 光一'
-  }
-
-  const booksByAuthor: Record<string, { text: string, link: string }[]> = {}
-
-  files.forEach((file: string) => {
-    const content = fs.readFileSync(file, 'utf-8')
-    // Simple regex to extract title and author from frontmatter
-    const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m)
-    const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
-
-    const title = titleMatch ? titleMatch[1] : path.basename(file, '.md')
-    let authorId = authorMatch ? authorMatch[1].trim() : 'Other'
-
-    // Normalize authorId if needed (e.g. remove @)
-    authorId = authorId.replace(/^@/, '')
-
-    const link = '/knowledge_base/book_reports/' + path.basename(file, '.md')
-
-    if (!booksByAuthor[authorId]) {
-      booksByAuthor[authorId] = []
-    }
-    booksByAuthor[authorId].push({ text: title, link })
-  })
-
-  // Sort groups and items
-  const sidebarGroups: any[] = []
-  for (const authorId in booksByAuthor) {
-    const displayName = authorMap[authorId] || authorId
-    // Sort items by link (which contains date) descending to show newest first
-    booksByAuthor[authorId].sort((a: any, b: any) => b.link.localeCompare(a.link))
-
-    sidebarGroups.push({
-      text: displayName,
-      collapsed: true,
-      items: booksByAuthor[authorId]
-    })
-  }
-
-  return sidebarGroups
-}
