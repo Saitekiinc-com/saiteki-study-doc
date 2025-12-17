@@ -74,7 +74,7 @@
 1. [**saiteki-study-doc リポジトリ**](https://github.com/Saitekiinc-com/saiteki-study-doc) にアクセス
 2. 上部の「**Issues**」タブをクリック
 3. 緑色の「**New issue**」ボタンをクリック
-4. 「**📚 書籍探索リクエスト (Book Search Request)**」テンプレートの「**Get started**」をクリック
+4. 「**📚 書籍探索リクエスト (Book Search Request)**」をクリック
 
 ### Step 2: フォームに入力
 
@@ -102,7 +102,7 @@
 1. [**saiteki-study-doc リポジトリ**](https://github.com/Saitekiinc-com/saiteki-study-doc) にアクセス
 2. 上部の「**Issues**」タブをクリック
 3. 緑色の「**New issue**」ボタンをクリック
-4. 「**📚 読書感想文 (Book Report)**」テンプレートの「**Get started**」をクリック
+4. 「**📚 読書感想文 (Book Report)**」をクリック
 
 ### Step 2: フォームに入力
 
