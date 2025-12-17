@@ -4,9 +4,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-describe('E2E: Workflow Simulation', () => {
+describe('E2E: ワークフローシミュレーション', () => {
 
-    // Cleanup function
+    // クリーンアップ関数
     const clean = () => {
         if (fs.existsSync('dummy_roadmap.md')) fs.unlinkSync('dummy_roadmap.md');
         if (fs.existsSync('docs/knowledge_base/book_reports/2099-01-01-e2e-test-book.md')) {
@@ -14,17 +14,17 @@ describe('E2E: Workflow Simulation', () => {
         }
     };
 
-    it('should fail recommend-books if no input provided', () => {
+    it('入力がない場合、recommend-books は失敗すること', () => {
         try {
             execSync('node scripts/recommend-books.js');
-            assert.fail('Should have failed');
+            assert.fail('失敗するはずです');
         } catch (e) {
-            assert.ok(e.status !== 0); // Exit code should be non-zero
+            assert.ok(e.status !== 0); // 終了コードは非ゼロであるべき
         }
     });
 
-    it('should generate a book report file via ingest-book-report', () => {
-        // Setup env vars mimicking GitHub Actions
+    it('ingest-book-report 経由で読書感想文ファイルが生成されること', () => {
+        // GitHub Actions を模倣した環境変数の設定
         const env = Object.assign({}, process.env, {
             ISSUE_TITLE: 'E2E Test Book',
             ISSUE_BODY: `
@@ -40,12 +40,11 @@ Verify E2E flow.
             ISSUE_NUMBER: '9999',
             ISSUE_URL: 'http://example.com/issue/9999',
             ISSUE_AUTHOR: 'e2e-bot',
-            GITHUB_OUTPUT: 'dummy_output.txt' // Mock output file
+            GITHUB_OUTPUT: 'dummy_output.txt' // モック出力ファイル
         });
 
-        // We need to ensure we don't mess up real index.md too badly.
-        // The script appends to 'docs/knowledge_base/index.md'.
-        // We might want to backup and restore it.
+        // 実際の index.md を破壊しないように事前バックアップ
+        // スクリプトは 'docs/knowledge_base/index.md' に追記します。
         const indexPath = 'docs/knowledge_base/index.md';
         let indexBackup = null;
         if (fs.existsSync(indexPath)) {
@@ -53,19 +52,19 @@ Verify E2E flow.
         }
 
         try {
-            // Run ingest script
+            // スクリプト実行
             execSync('node scripts/ingest-book-report.js', { env });
 
-            // Verify file creation
+            // ファイル作成確認
             const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-test-book-9999.md`;
-            assert.ok(fs.existsSync(expectedFile), 'Report file should be created');
+            assert.ok(fs.existsSync(expectedFile), 'レポートファイルが作成されるべきです');
 
-            // Clean up report file
+            // 生成ファイルのクリーンアップ
             fs.unlinkSync(expectedFile);
             if (fs.existsSync('dummy_output.txt')) fs.unlinkSync('dummy_output.txt');
 
         } finally {
-            // Restore index.md
+            // index.md の復元
             if (indexBackup !== null) {
                 fs.writeFileSync(indexPath, indexBackup);
             }

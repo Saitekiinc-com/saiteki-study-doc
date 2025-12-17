@@ -2,19 +2,18 @@ const { test, describe, it, mock } = require('node:test');
 const assert = require('node:assert');
 const { main } = require('../../scripts/recommend-books.js');
 
-describe('Integration: AI Search Loop', () => {
+describe('統合テスト: AI検索ループ', () => {
 
-    it('should initialize chat and send message with mocked client', async () => {
-        // Mock process.exit to prevent test runner death
+    it('モック化されたクライアントでチャットを初期化しメッセージを送信できること', async () => {
+        // テストランナーの停止を防ぐために process.exit をモック化
         const exitMock = mock.method(process, 'exit', () => { throw new Error('Process exited'); });
 
-        // Mock fs.writeFileSync to avoid writing roadmap_body.md
-        // We only mock it on the module used by recommend-books.
-        // Since we can't easily mock require('fs') without a loader,
-        // we will rely on file cleanup or just let it write.
-        // But we MUST check if recommend-books is exiting due to missing vectors.json
+        // fs.writeFileSync のモック化について:
+        // recommend-books で使用されるモジュールだけをモックするのは難しいため、
+        // 今回はファイル書き込み自体は許容し、必要であればクリーンアップを行います。
+        // ただし、recommend-books が vectors.json 不在により終了しないか確認する必要があります。
 
-        // Setup Mock for GenAI
+        // GenAI のモックアップ設定
         const mockResponse = {
             text: () => "Mocked AI Response: Recommend Book X",
             functionCalls: () => undefined
@@ -35,21 +34,21 @@ describe('Integration: AI Search Loop', () => {
             getGenerativeModel: mock.fn(() => mockModel)
         };
 
-        // Prepare Env
+        // 環境変数の準備
         process.env.USER_REQUEST = "【役割】: Test Role";
 
-        // Log suppression
+        // コンソール出力の抑制 (デバッグ時はコメントアウトを外す)
         const originalLog = console.log;
         const originalError = console.error;
         console.log = () => {};
         console.error = () => {};
-        // Keeping console output to debug failure!
+        // 失敗時のデバッグのために出力維持が必要な場合はここを調整
 
         try {
             await main(mockGenAI);
         } catch (e) {
             if (e.message === 'Process exited') {
-                assert.fail('main() called process.exit()');
+                assert.fail('main() が process.exit() を呼び出しました');
             }
             throw e;
         } finally {
@@ -58,8 +57,8 @@ describe('Integration: AI Search Loop', () => {
             exitMock.mock.restore();
         }
 
-        // Verify calls
-        assert.strictEqual(mockModel.startChat.mock.callCount(), 1, 'startChat should be called');
-        assert.strictEqual(sendMessageMock.mock.callCount(), 1, 'sendMessage should be called');
+        // 呼び出し確認
+        assert.strictEqual(mockModel.startChat.mock.callCount(), 1, 'startChat が呼ばれるべきです');
+        assert.strictEqual(sendMessageMock.mock.callCount(), 1, 'sendMessage が呼ばれるべきです');
     });
 });

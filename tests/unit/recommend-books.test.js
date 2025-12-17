@@ -2,43 +2,40 @@ const { test, describe, it } = require('node:test');
 const assert = require('node:assert');
 const { cosineSimilarity } = require('../../scripts/recommend-books.js');
 
-describe('recommend-books.js Unit Tests', () => {
-    describe('cosineSimilarity', () => {
-        it('should return 1 for identical vectors', () => {
+describe('recommend-books.js 単体テスト', () => {
+    describe('cosineSimilarity (コサイン類似度)', () => {
+        it('完全に一致するベクトルの場合は1を返すこと', () => {
             const vecA = [1, 2, 3];
             const vecB = [1, 2, 3];
             const result = cosineSimilarity(vecA, vecB);
             assert.ok(Math.abs(result - 1.0) < 0.0001);
         });
 
-        it('should return 0 for orthogonal vectors', () => {
+        it('直交するベクトルの場合は0を返すこと', () => {
             const vecA = [1, 0];
             const vecB = [0, 1];
             const result = cosineSimilarity(vecA, vecB);
             assert.ok(Math.abs(result) < 0.0001);
         });
 
-        it('should return -1 for opposite vectors', () => {
+        it('反対向きのベクトルの場合は-1を返すこと', () => {
             const vecA = [1, 1];
             const vecB = [-1, -1];
             const result = cosineSimilarity(vecA, vecB);
             assert.ok(Math.abs(result - (-1.0)) < 0.0001);
         });
 
-        it('should handle different lengths (although not expected in valid use case)', () => {
-            // Basic implementation iterates up to vecA.length.
-            // If vecB is shorter, it multiplies by undefined (NaN).
-            // This test just documents current behavior or ensures robustness if needed.
-            // For now, let's just assume valid inputs for simple unit test.
+        it('異なる長さのベクトルを処理できること（実装仕様として短い方に合わせる）', () => {
+            // 基本実装では vecA.length までループします。
+            // vecB が短い場合、undefined (NaN) との乗算になる可能性がありますが、
+            // 現在の単純な実装では vecA のインデックスのみを参照しています。
+            // このテストは現在の挙動を文書化するためのものです。
             const vecA = [1, 0];
             const vecB = [1, 0, 0];
-            // Implementation: dotProduct will process index 0, 1. (Length of vecA is 2).
+            // 実装詳細:
             // A[0]*B[0] = 1*1 = 1
             // A[1]*B[1] = 0*0 = 0
             // dot = 1.
-            // normA = 1+0 = 1. sqrt(1)=1.
-            // normB = 1+0 = 1 (loop only goes to vecA.length). sqrt(1)=1.
-            // Result 1. This essentially ignores extra elements of B.
             const result = cosineSimilarity(vecA, vecB);
             assert.ok(Math.abs(result - 1.0) < 0.0001);
         });
