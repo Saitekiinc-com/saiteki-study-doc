@@ -47,10 +47,16 @@ jobs:
               return;
             }
 
+            // Get user profile to fetch display name
+            const { data: userProfile } = await github.rest.users.getByUsername({
+              username: bookReportPR.user.login
+            });
+            const authorName = userProfile.name || bookReportPR.user.login;
+
             core.setOutput('found', 'true');
             core.setOutput('pr_number', bookReportPR.number);
             core.setOutput('pr_title', bookReportPR.title);
-            core.setOutput('pr_author', bookReportPR.user.login);
+            core.setOutput('pr_author', authorName);
             core.setOutput('pr_url', bookReportPR.html_url);
             core.setOutput('pr_body', bookReportPR.body || '');
             core.setOutput('pr_head_ref', bookReportPR.head.ref);
