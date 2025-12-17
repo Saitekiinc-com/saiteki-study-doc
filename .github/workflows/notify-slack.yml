@@ -65,12 +65,16 @@ jobs:
 
             const objective = extract('読む前の目的 \\(Objective\\)');
             const takeaways = extract('得られた知識・気づき \\(Key Takeaways\\)');
-            const positive = extract('👍 Positive \\(良かった点・学び\\)');
-            const recommend = extract('💡 どんな人におすすめ？');
+            const application = extract('実務における活用 \\(Application\\)');
+            const positive = extract('良かった点・学び \\(Positive\\)');
+            const negative = extract('難しかった点・合わなかった点 \\(Negative\\)');
+            const recommend = extract('どんな人におすすめ？');
 
             core.setOutput('objective', objective);
             core.setOutput('takeaways', takeaways);
+            core.setOutput('application', application);
             core.setOutput('positive', positive);
+            core.setOutput('negative', negative);
             core.setOutput('recommend', recommend);
             core.setOutput('page_url', pageUrl);
 
@@ -83,5 +87,5 @@ jobs:
           SLACK_ICON_EMOJI: ':books:'
           SLACK_COLOR: '#36a64f'
           SLACK_TITLE: '📚 新しい読書感想文が追加されました！'
-          SLACK_MESSAGE: "タイトル: ${{ github.event.pull_request.title }}\n投稿者: ${{ github.event.pull_request.user.login }}\nリンク: ${{ github.event.pull_request.html_url }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
+          SLACK_MESSAGE: "タイトル: ${{ github.event.pull_request.title }}\n投稿者: ${{ github.event.pull_request.user.login }}\nリンク: ${{ github.event.pull_request.html_url }}\n\n📖 読みやすいページで見る:\n${{ steps.parse.outputs.page_url }}\n\n--------------------------------------------------\n【読む前の目的】\n${{ steps.parse.outputs.objective }}\n\n【得られた知識・気づき】\n${{ steps.parse.outputs.takeaways }}\n\n【実務における活用】\n${{ steps.parse.outputs.application }}\n\n【良かった点・学び】\n${{ steps.parse.outputs.positive }}\n\n【難しかった点・合わなかった点】\n${{ steps.parse.outputs.negative }}\n\n【どんな人におすすめ？】\n${{ steps.parse.outputs.recommend }}\n--------------------------------------------------\nチームのナレッジとして活用しましょう！"
           SLACK_FOOTER: 'Saiteki Study Docs'

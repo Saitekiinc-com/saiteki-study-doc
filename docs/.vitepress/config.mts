@@ -11,6 +11,7 @@ export default withMermaid({
       { text: 'Frontend', link: '/training/curriculum/level1_knowledge' },
       { text: 'Backend', link: '/training/backend/index' },
       { text: 'AWS', link: '/training/aws/index' },
+      { text: 'Knowledge Base', link: '/knowledge_base/' },
     ],
 
     sidebar: [
@@ -34,14 +35,19 @@ export default withMermaid({
           { text: 'Introduction', link: '/training/aws/index' },
         ]
       },
-
+      {
+        text: 'Management',
+        items: [
+          { text: 'GitHub Management Flow', link: '/training/management/github_flow' },
+          { text: 'Progress Tracker', link: '/training/management/progress_tracker' },
+          { text: 'Mentoring Guide', link: '/training/management/mentoring_guide' },
+        ]
+      },
 
       {
         text: 'Guides',
         items: [
           { text: 'Book Features', link: '/guide/book-features' },
-          { text: 'Book Purchase Flow', link: '/guide/book-purchase-rule' },
-          { text: 'Knowledge Cycle (Slides)', link: '/guide/rag_mechanism_slide' },
         ]
       }
     ],

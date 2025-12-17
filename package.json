@@ -4,10 +4,9 @@
   "description": "Training materials for React and TypeScript",
   "main": "index.js",
   "scripts": {
-    "docs:dev": "npm run build:slides && vitepress dev docs",
-    "docs:build": "npm run build:slides && vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "build:slides": "mkdir -p docs/public/slides && marp slides/rag_mechanism.md -o docs/public/slides/rag_mechanism.html --no-stdin"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [],
   "author": "",

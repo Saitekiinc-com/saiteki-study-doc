@@ -36,44 +36,78 @@ function main() {
     fs.mkdirSync(REPORTS_DIR, { recursive: true });
   }
 
-  // Extract real book title from the body
-  let bookTitle = extractField(issueBody, '書籍名');
-  if (!bookTitle) {
-      console.warn("Could not extract '書籍名' from body. Using Issue Title.");
-      bookTitle = issueTitle;
-  }
+  // Extract fields (using new labels)
+  const bookTitleReal = extractField(issueBody, '書籍名') || issueTitle;
+  const author = extractField(issueBody, '著者') || 'Unknown';
+  const link = extractField(issueBody, 'リンク') || '';
+  const objective = extractField(issueBody, '読む前の目的 \\(Objective\\)');
+  const takeaways = extractField(issueBody, '得られた知識・気づき \\(Key Takeaways\\)');
+  const application = extractField(issueBody, '実務における活用 \\(Application\\)');
+  const positive = extractField(issueBody, '良かった点・学び \\(Positive\\)');
+  const negative = extractField(issueBody, '難しかった点・合わなかった点 \\(Negative\\)');
+  const recommend = extractField(issueBody, 'どんな人におすすめ？');
 
   // Output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
-      fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_title=${bookTitle}\n`);
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_title=${bookTitleReal}\n`);
   }
 
   // Generate filename: YYYY-MM-DD-{sanitized_title}.md
   const date = new Date().toISOString().split('T')[0];
-  const safeTitle = sanitizeFilename(bookTitle);
+  const safeTitle = sanitizeFilename(bookTitleReal);
   const filename = `${date}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);
 
   // Add frontmatter or header
   const fileContent = `---
-title: "${bookTitle}"
+title: "${bookTitleReal}"
 author: ${issueAuthor}
 issue_url: ${issueUrl}
 date: ${date}
 ---
 
-# ${bookTitle}
+# ${bookTitleReal}
 
 *   **Original Issue**: [${issueUrl}](${issueUrl})
 *   **Author**: @${issueAuthor}
+*   **Book Author**: ${author}
+*   **Link**: ${link ? `[${link}](${link})` : 'N/A'}
 
 ---
 
-${issueBody}
+## 🎯 読む前の目的 (Objective)
+${objective || 'なし'}
+
+## 💡 得られた知識・気づき (Key Takeaways)
+${takeaways || 'なし'}
+
+## 🛠 実務における活用 (Application)
+${application || 'なし'}
+
+## 👍 良かった点・学び (Positive)
+${positive || 'なし'}
+
+## 👎 難しかった点・合わなかった点 (Negative)
+${negative || 'なし'}
+
+## 👤 どんな人におすすめ？
+${recommend || 'なし'}
+
+---
 `;
 
   fs.writeFileSync(filepath, fileContent);
   console.log(`Successfully created report: ${filepath}`);
+
+  // Update Index File
+  const indexFile = 'docs/knowledge_base/index.md';
+  if (fs.existsSync(indexFile)) {
+    const linkLine = `- [${bookTitleReal} (Issue ${issueNumber})](./book_reports/${filename})`;
+    fs.appendFileSync(indexFile, `\n${linkLine}`);
+    console.log(`Appended to index: ${indexFile}`);
+  } else {
+    console.warn(`Index file not found: ${indexFile}`);
+  }
 }
 
 main();

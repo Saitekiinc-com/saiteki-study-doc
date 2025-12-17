@@ -1,0 +1,81 @@
+name: 📚 読書感想文 (Book Report)
+description: 読んだ本の感想・学びを共有して、ナレッジベースに追加します。
+title: "📚 [書籍名] 読書感想文"
+labels: ["book-report"]
+body:
+  - type: input
+    id: book_title
+    attributes:
+      label: 書籍名
+      description: 読んだ本の正確なタイトルを入力してください。
+      placeholder: "例: リーダブルコード"
+    validations:
+      required: true
+
+  - type: input
+    id: author
+    attributes:
+      label: 著者
+      description: 著者名を入力してください。
+      placeholder: "例: Dustin Boswell"
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: リンク
+      description: Amazonや公式サイトのURL
+      placeholder: "https://..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 読む前の目的 (Objective)
+      description: なぜこの本を読もうと思ったのか。何を解決したかったのか。
+      placeholder: "例: コードレビューの質を上げたかったため"
+    validations:
+      required: true
+
+  - type: textarea
+    id: takeaways
+    attributes:
+      label: 得られた知識・気づき (Key Takeaways)
+      description: この本を読んで何がわかったか。読む前の目的は達成されたか。
+    validations:
+      required: true
+
+  - type: textarea
+    id: application
+    attributes:
+      label: 実務における活用 (Application)
+      description: この学びを具体的にどう実務に活かすか、または活かしたか。
+    validations:
+      required: true
+
+  - type: textarea
+    id: positive_review
+    attributes:
+      label: 良かった点・学び (Positive)
+      description: 詳細な感想。なぜ良かったのか、感動したポイントなど。
+    validations:
+      required: true
+
+  - type: textarea
+    id: negative_review
+    attributes:
+      label: 難しかった点・合わなかった点 (Negative)
+      description: どのレベルの読者には難しいか、読みづらかった点など（なければ「なし」）。
+    validations:
+      required: false
+
+  - type: textarea
+    id: recommend_to
+    attributes:
+      label: どんな人におすすめ？
+      description: 具体的なターゲット層
+      placeholder: "例: チームリーダー、React初心者"
+    validations:
+      required: true
