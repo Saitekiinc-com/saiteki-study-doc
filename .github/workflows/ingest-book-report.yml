@@ -46,26 +46,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const { findParentIssue } = require('./scripts/find-parent-issue.js');
             const nodeId = context.payload.issue.node_id;
-            const query = `
-              query($nodeId: ID!) {
-                node(id: $nodeId) {
-                  ... on Issue {
-                    trackedInIssues(first: 1) {
-                      nodes {
-                        number
-                      }
-                    }
-                  }
-                }
-              }
-            `;
 
             try {
-              const result = await github.graphql(query, { nodeId });
-              const parents = result.node.trackedInIssues.nodes;
-              if (parents && parents.length > 0) {
-                const parentNum = parents[0].number;
+              const parentNum = await findParentIssue(github.graphql, nodeId);
+
+              if (parentNum) {
                 console.log(`Found parent issue via Tasklist: #${parentNum}`);
                 core.setOutput('number', parentNum);
               } else {
