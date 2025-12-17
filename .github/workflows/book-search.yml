@@ -48,14 +48,12 @@ jobs:
               return match ? match[1].trim() : '';
             }
 
-            const name = extractValue('お名前');
             const role = extractValue('役割');
             const experience = extractValue('経験年数');
             const current_understanding = extractValue('わかっていること');
             const current_unknowns = extractValue('わかっていないこと');
             const objective = extractValue('達成したい目標');
 
-            core.setOutput('name', name);
             core.setOutput('role', role);
             core.setOutput('experience', experience);
             core.setOutput('current_understanding', current_understanding);
@@ -64,7 +62,6 @@ jobs:
 
       - name: Debug Parsed Values
         run: |
-          echo "Name: ${{ steps.parse.outputs.name }}"
           echo "Role: ${{ steps.parse.outputs.role }}"
           echo "Experience: ${{ steps.parse.outputs.experience }}"
           echo "Understanding: ${{ steps.parse.outputs.current_understanding }}"
@@ -75,7 +72,6 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           USER_REQUEST: |
-            【お名前】: ${{ steps.parse.outputs.name }}
             【役割】: ${{ steps.parse.outputs.role }}
             【経験年数】: ${{ steps.parse.outputs.experience }}
             【わかっていること】: ${{ steps.parse.outputs.current_understanding }}
@@ -85,11 +81,21 @@ jobs:
           # Run script (writes to roadmap_body.md)
           node scripts/recommend-books.js
 
+      - name: Get Author Display Name
+        id: author
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: user } = await github.rest.users.getByUsername({
+              username: context.payload.issue.user.login
+            });
+            core.setOutput('name', user.name || context.payload.issue.user.login);
+
       - name: Rename Issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          USER_NAME: ${{ steps.parse.outputs.name }}
+          USER_NAME: ${{ steps.author.outputs.name }}
           OBJECTIVE: ${{ steps.parse.outputs.objective }}
         run: |
           gh issue edit "$ISSUE_NUMBER" --title "📚 書籍探索: ${OBJECTIVE} (${USER_NAME}さん)"

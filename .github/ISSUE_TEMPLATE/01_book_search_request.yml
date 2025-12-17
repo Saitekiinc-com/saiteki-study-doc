@@ -10,15 +10,6 @@ body:
         以下の項目を入力してIssueを作成してください。数分以内にコメントで回答が届きます。
 
   - type: input
-    id: name
-    attributes:
-      label: お名前
-      description: 呼びかけに使用します。
-      placeholder: 山田 太郎
-    validations:
-      required: true
-
-  - type: input
     id: role
     attributes:
       label: 役割
