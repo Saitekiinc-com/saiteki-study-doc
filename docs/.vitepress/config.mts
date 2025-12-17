@@ -44,13 +44,14 @@ export default withMermaid({
       // Books Review sidebar
       '/knowledge_base/': [
         {
-          text: '📚 Books Review',
+          text: '📋 ガイド',
           items: [
-            { text: '📖 全ての読書感想文', link: '/knowledge_base/' },
+            { text: '投稿の流れ', link: '/knowledge_base/' },
+            { text: '感想文一覧', link: '/knowledge_base/book_list' },
           ]
         },
         {
-          text: '@sugimotokouichi',
+          text: '杉本 光一',
           collapsed: true,
           items: [
             { text: 'AI時代に強い質問力', link: '/knowledge_base/book_reports/2025-12-03-ai時代に強い質問力-読書感想文-10' },
@@ -59,7 +60,7 @@ export default withMermaid({
           ]
         },
         {
-          text: '@test-users (デモ)',
+          text: 'テストユーザー',
           collapsed: true,
           items: [
             { text: 'Test Book 12-14', link: '/knowledge_base/' },
