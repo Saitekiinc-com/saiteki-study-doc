@@ -59,32 +59,22 @@ jobs:
             core.setOutput('positive', positive);
             core.setOutput('recommend', recommend);
 
-#      - name: Send Slack Notification
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-#          SLACK_CHANNEL: random
-#          SLACK_USERNAME: BookRepo Bot
-#          SLACK_ICON_EMOJI: :books:
-#          SLACK_COLOR: '#36a64f'
-#          SLACK_TITLE: "📚 新しい読書感想文が追加されました！"
-#          SLACK_MESSAGE: |
-#            *タイトル*: ${{ github.event.pull_request.title }}
-#            *投稿者*: ${{ github.event.pull_request.user.login }}
-#            *リンク*: ${{ github.event.pull_request.html_url }}
-#
-#            --------------------------------------------------
-#            *【読む前の目的】*
-#            ${{ steps.parse.outputs.objective }}
-#
-#            *【得られた知識・気づき】*
-#            ${{ steps.parse.outputs.takeaways }}
-#
-#            *【良かった点・学び】*
-#            ${{ steps.parse.outputs.positive }}
-#
-#            *【どんな人におすすめ？】*
-#            ${{ steps.parse.outputs.recommend }}
-#            --------------------------------------------------
-#            チームのナレッジとして活用しましょう！
-#          SLACK_FOOTER: "Saiteki Study Docs"
+      - name: Send Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: random
+          SLACK_USERNAME: BookRepo Bot
+          SLACK_ICON_EMOJI: :books:
+          SLACK_COLOR: '#36a64f'
+          SLACK_TITLE: "📚 Book Report Added"
+          SLACK_MESSAGE: |
+            Title: ${{ github.event.pull_request.title }}
+            User: ${{ github.event.pull_request.user.login }}
+            Link: ${{ github.event.pull_request.html_url }}
+
+            Objective: ${{ steps.parse.outputs.objective }}
+            Takeaways: ${{ steps.parse.outputs.takeaways }}
+            Positive: ${{ steps.parse.outputs.positive }}
+            Recommend: ${{ steps.parse.outputs.recommend }}
+          SLACK_FOOTER: "Saiteki Study Docs"
