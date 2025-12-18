@@ -24,11 +24,11 @@ body:
   - type: input
     id: link
     attributes:
-      label: リンク (任意)
+      label: リンク
       description: Amazonや公式サイトのURL
       placeholder: "https://..."
     validations:
-      required: false
+      required: true
 
 
 

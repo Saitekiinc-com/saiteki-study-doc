@@ -13,10 +13,16 @@ function sanitizeFilename(title) {
     .slice(0, 50); // Limit length
 }
 
+function preserveNewlines(text) {
+  if (!text) return text;
+  // Replace newlines with two spaces and a newline to ensure markdown line breaks
+  return text.split(/\r\n|\r|\n/).join('  \n');
+}
+
 function extractField(body, label) {
   const regex = new RegExp(`### ${label}\\s+([\\s\\S]*?)(?=(?:###|$))`);
   const match = body.match(regex);
-  return match ? match[1].trim() : null;
+  return match ? preserveNewlines(match[1].trim()) : null;
 }
 
 function main() {
@@ -39,7 +45,8 @@ function main() {
   // Extract fields (using new labels)
   const bookTitleReal = extractField(issueBody, '書籍名') || issueTitle;
   const author = extractField(issueBody, '著者') || 'Unknown';
-  const link = extractField(issueBody, 'リンク \\(任意\\)');
+  // Link label changed
+  const link = extractField(issueBody, 'リンク');
   const objective = extractField(issueBody, '読む前の目的');
   const takeaways = extractField(issueBody, '得られた知識');
   const application = extractField(issueBody, '実務における活用');
