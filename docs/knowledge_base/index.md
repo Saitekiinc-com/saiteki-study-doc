@@ -138,3 +138,4 @@
 > ⏳ マージから約1分後、Slackに通知が届き、ページが公開されます！
 - [AI時代に強い質問力 (Issue 140)](./book_reports/2025-12-17-ai時代に強い質問力-140.md)
 - [「サイバーセキュリティ、マジわからん」と思ったときに読む本 (Issue 142)](./book_reports/2025-12-17-「サイバーセキュリティ、マジわからん」と思ったときに読む本-142.md)
+- [LangChainとLangGraphによるRAG・AIエージェント［実践］入門 (Issue 144)](./book_reports/2025-12-18-langchainとlanggraphによるrag・aiエージェント［実践］入門-144.md)
