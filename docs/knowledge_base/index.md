@@ -35,7 +35,7 @@
 |:---:|:---:|---|
 | 1 | <span style="white-space: nowrap;">**あなた**</span> | [📖 書籍探索Issueを作成](#how-to-search-book)（学びたい内容を入力） |
 | 2 | <span style="white-space: nowrap;">**自動**</span> | AIが適切な書籍を推薦（**あくまで参考**） |
-| 3 | <span style="white-space: nowrap;">**あなた**</span> | 購入する書籍を決定し、**書籍探索Issueにコメント**で報告 |
+| 3 | <span style="white-space: nowrap;">**あなた**</span> | 購入する書籍を決定し、**書籍探索Issueにコメント**で報告<br>（書籍を特定できるように商品リンクを添付） |
 | 4 | <span style="white-space: nowrap;">**あなた**</span> | 書籍を購入する |
 | 5 | <span style="white-space: nowrap;">**あなた**</span> | Issueに領収書を添付してコメントし、[領収書を添付した]にチェックを入れる |
 | 6 | <span style="white-space: nowrap;">**上長**</span> | 領収書を確認し、[承認済み]にチェックを入れる |
