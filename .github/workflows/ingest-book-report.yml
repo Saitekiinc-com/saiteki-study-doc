@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: read
+      issues: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -83,3 +83,10 @@ jobs:
           branch: "book-report/issue-${{ github.event.issue.number }}"
           base: main
           labels: "documentation, book-report"
+
+      - name: Close Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue close "$ISSUE_NUMBER" --comment "PRを作成しました。このIssueは自動的にクローズされます。"
