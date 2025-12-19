@@ -21,8 +21,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check for redundant 'labeled' event
+        id: check_race
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // If the event is 'labeled', check if the issue was created very recently.
+            // If so, we assume the 'opened' trigger already handled it, and this is a duplicate.
+            if (context.payload.action === 'labeled') {
+              const created_at = new Date(context.payload.issue.created_at).getTime();
+              const now = Date.now();
+              const diff = now - created_at; // milliseconds
+
+              // If created within last 60 seconds, skip.
+              if (diff < 60000) {
+                 console.log(`Issue created ${diff}ms ago. Skipping 'labeled' event to avoid duplicate run with 'opened'.`);
+                 core.setOutput('skip', 'true');
+                 return;
+              }
+            }
+            core.setOutput('skip', 'false');
+
       - name: Check for Concurrent Requests
         id: check_concurrency
+        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -31,20 +53,24 @@ jobs:
 
 
       - name: Setup Node.js
+        if: steps.check_race.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.check_race.outputs.skip != 'true'
         run: npm install @google/generative-ai glob dotenv
 
       - name: Update Vectors (Just-in-Time)
+        if: steps.check_race.outputs.skip != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/update-vectors.js
 
       - name: Parse Issue Body
         id: parse
+        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -72,6 +98,7 @@ jobs:
             core.setOutput('objective', objective);
 
       - name: Debug Parsed Values
+        if: steps.check_race.outputs.skip != 'true'
         run: |
           echo "Role: ${{ steps.parse.outputs.role }}"
           echo "Experience: ${{ steps.parse.outputs.experience }}"
@@ -80,6 +107,7 @@ jobs:
           echo "Objective: ${{ steps.parse.outputs.objective }}"
 
       - name: Generate Book Recommendations
+        if: steps.check_race.outputs.skip != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           USER_REQUEST: |
@@ -94,6 +122,7 @@ jobs:
 
       - name: Get Author Display Name
         id: author
+        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -103,6 +132,7 @@ jobs:
             core.setOutput('name', user.name || context.payload.issue.user.login);
 
       - name: Rename Issue
+        if: steps.check_race.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
@@ -112,6 +142,7 @@ jobs:
           gh issue edit "$ISSUE_NUMBER" --title "📚 書籍探索: ${OBJECTIVE} (${USER_NAME}さん)"
 
       - name: Post Comment
+        if: steps.check_race.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
