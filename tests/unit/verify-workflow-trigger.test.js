@@ -4,13 +4,12 @@
  */
 
 function shouldRunWorkflow(event) {
-  const { action, issue, label } = event;
-  const hasBookReportLabel = issue.labels.some(l => l.name === 'book-report');
+  const { action, label } = event;
 
-  // .github/workflows/ingest-book-report.yml のロジック
-  const condition =
-    (action === 'opened' && hasBookReportLabel) ||
-    (action === 'labeled' && label && label.name === 'book-report');
+  // .github/workflows/ingest-book-report.yml の新しいロジック（opened は削除済み）
+  // トリガー: types: [labeled]
+  // if: github.event.label.name == 'book-report'
+  const condition = action === 'labeled' && label && label.name === 'book-report';
 
   return condition;
 }
@@ -22,9 +21,9 @@ const issueWithOtherLabel = { labels: [{ name: 'book-report' }, { name: 'other' 
 
 const tests = [
   {
-    name: 'ケース 1: book-report ラベル付きで Issue が開かれた (テンプレートケース)',
+    name: 'ケース 1: book-report ラベル付きで Issue が開かれた (opened イベント)',
     event: { action: 'opened', issue: issueWithLabel },
-    expected: true
+    expected: false // opened トリガーを削除したため、opened イベントでは実行されない（直後の labeled で実行される）
   },
   {
     name: 'ケース 2: ラベルなしで Issue が開かれた',
@@ -32,7 +31,7 @@ const tests = [
     expected: false
   },
   {
-    name: 'ケース 3: "book-report" ラベルが手動で追加された',
+    name: 'ケース 3: "book-report" ラベルが手動で追加された（または作成時の labeled イベント）',
     event: { action: 'labeled', issue: issueWithLabel, label: { name: 'book-report' } },
     expected: true
   },
@@ -40,7 +39,7 @@ const tests = [
     name: 'ケース 4: "other" ラベルが手動で追加された (既存のバグケース)',
     // ユーザーが 'other' ラベルを追加したが、Issue には既に 'book-report' がある
     event: { action: 'labeled', issue: issueWithOtherLabel, label: { name: 'other' } },
-    expected: false // FALSE であるべき。古いロジックではここで TRUE を返していた。
+    expected: false
   }
 ];
 
