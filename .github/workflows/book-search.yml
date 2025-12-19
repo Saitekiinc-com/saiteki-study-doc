@@ -2,7 +2,7 @@ name: Book Search Request
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [labeled]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number }}
@@ -11,9 +11,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'issues' && github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'book-search-request')) ||
-      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'book-search-request')
+    if: github.event.label.name == 'book-search-request'
     permissions:
       issues: write
       contents: read
@@ -21,43 +19,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for redundant 'labeled' event
-        id: check_race
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { checkRedundantEvent } = require('./scripts/check-redundant-event.js');
-            checkRedundantEvent({ context, core });
-
       - name: Check for Concurrent Requests
         id: check_concurrency
-        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const { checkConcurrentRequests } = require('./scripts/check-concurrent-requests.js');
             await checkConcurrentRequests({ github, context, core });
 
-
       - name: Setup Node.js
-        if: steps.check_race.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        if: steps.check_race.outputs.skip != 'true'
         run: npm install @google/generative-ai glob dotenv
 
       - name: Update Vectors (Just-in-Time)
-        if: steps.check_race.outputs.skip != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/update-vectors.js
 
       - name: Parse Issue Body
         id: parse
-        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -85,7 +69,6 @@ jobs:
             core.setOutput('objective', objective);
 
       - name: Debug Parsed Values
-        if: steps.check_race.outputs.skip != 'true'
         run: |
           echo "Role: ${{ steps.parse.outputs.role }}"
           echo "Experience: ${{ steps.parse.outputs.experience }}"
@@ -94,7 +77,6 @@ jobs:
           echo "Objective: ${{ steps.parse.outputs.objective }}"
 
       - name: Generate Book Recommendations
-        if: steps.check_race.outputs.skip != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           USER_REQUEST: |
@@ -109,7 +91,6 @@ jobs:
 
       - name: Get Author Display Name
         id: author
-        if: steps.check_race.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -119,19 +100,22 @@ jobs:
             core.setOutput('name', user.name || context.payload.issue.user.login);
 
       - name: Rename Issue
-        if: steps.check_race.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          USER_NAME: ${{ steps.author.outputs.name }}
-          OBJECTIVE: ${{ steps.parse.outputs.objective }}
-        run: |
-          gh issue edit "$ISSUE_NUMBER" --title "📚 書籍探索: ${OBJECTIVE} (${USER_NAME}さん)"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { renameIssue } = require('./scripts/rename-issue.js');
+            await renameIssue({
+              github,
+              context,
+              core,
+              userName: '${{ steps.author.outputs.name }}',
+              objective: '${{ steps.parse.outputs.objective }}'
+            });
 
       - name: Post Comment
-        if: steps.check_race.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           gh issue comment "$ISSUE_NUMBER" --body-file roadmap_body.md
+
