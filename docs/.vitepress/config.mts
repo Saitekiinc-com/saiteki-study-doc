@@ -48,7 +48,7 @@ export default withMermaid({
           text: '📋 ガイド',
           items: [
             { text: '投稿の流れ', link: '/knowledge_base/' },
-            { text: '感想文一覧', link: '/knowledge_base/book_list' },
+
           ]
         },
         ...getSidebarBooks()
