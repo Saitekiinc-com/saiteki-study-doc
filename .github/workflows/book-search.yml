@@ -2,7 +2,7 @@ name: Book Search Request
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number }}
@@ -11,7 +11,9 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'book-search-request'
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'book-search-request')) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'book-search-request')
     permissions:
       issues: write
       contents: read
