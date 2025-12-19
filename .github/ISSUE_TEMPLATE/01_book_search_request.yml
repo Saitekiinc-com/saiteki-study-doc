@@ -1,5 +1,5 @@
-name: 📚 書籍の選定相談 (AI Recommendation)
-description: あなたの課題を解決する最適な書籍をAIが提案します。
+name: AIによる書籍選定（購入補助申請）
+description: AIエージェントに自分に合った書籍を提案してもらい、購入申請を行います。
 title: "📚 書籍の選定相談"
 labels: ["book-search-request"]
 body:

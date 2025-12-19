@@ -40,12 +40,29 @@ test('syncLabels appends checklist if missing (Trigger: opened)', async (t) => {
 
   const { body } = getFinalState();
   assert.ok(body.includes('## ステータス管理 (Status)'));
+  assert.ok(body.includes('- [ ] 購入したい書籍の商品リンクを添付した')); // 新規チェックボックス
   assert.ok(body.includes('- [ ] 領収書を添付した (申請者)'));
   assert.ok(body.includes('- [ ] 承認済み (上長)'));
 });
 
+// 新しいチェックボックスのマイグレーションテスト
+test('syncLabels inserts new checkbox if missing (Trigger: edited)', async (t) => {
+  // 既存のチェックボックスはあるが、リンク添付チェックがないケース
+  const OLD_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const { github, context, getFinalState } = createMockGithub(OLD_BODY, [], 'edited');
+
+  await syncLabels({ github, context });
+
+  const { body } = getFinalState();
+  assert.ok(body.includes('- [ ] 購入したい書籍の商品リンクを添付した'));
+  // 順序確認: リンク添付 -> 領収書
+  const linkIndex = body.indexOf('- [ ] 購入したい書籍の商品リンクを添付した');
+  const receiptIndex = body.indexOf('- [ ] 領収書を添付した (申請者)');
+  assert.ok(linkIndex < receiptIndex, 'リンク添付チェックボックスは領収書チェックボックスの上にあるべき');
+});
+
 test('syncLabels adds label when checkbox is checked (Trigger: edited)', async (t) => {
-  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 購入したい書籍の商品リンクを添付した\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(CHECKED_BODY, [], 'edited');
 
   await syncLabels({ github, context });
@@ -55,7 +72,7 @@ test('syncLabels adds label when checkbox is checked (Trigger: edited)', async (
 });
 
 test('syncLabels removes label when checkbox is unchecked (Trigger: edited)', async (t) => {
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 購入したい書籍の商品リンクを添付した\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['領収書あり'], 'edited');
 
   await syncLabels({ github, context });
@@ -65,7 +82,7 @@ test('syncLabels removes label when checkbox is unchecked (Trigger: edited)', as
 });
 
 test('syncLabels checks checkbox when label is added (Trigger: labeled)', async (t) => {
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 購入したい書籍の商品リンクを添付した\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['領収書あり'], 'labeled');
 
   await syncLabels({ github, context });
@@ -75,7 +92,7 @@ test('syncLabels checks checkbox when label is added (Trigger: labeled)', async 
 });
 
 test('syncLabels unchecks checkbox when label is removed (Trigger: unlabeled)', async (t) => {
-  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 購入したい書籍の商品リンクを添付した\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(CHECKED_BODY, [], 'unlabeled');
 
   await syncLabels({ github, context });
@@ -85,7 +102,7 @@ test('syncLabels unchecks checkbox when label is removed (Trigger: unlabeled)', 
 });
 
 test('syncLabels DOES NOT check checkbox if label is unrelated (Trigger: labeled)', async (t) => {
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 購入したい書籍の商品リンクを添付した\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['book-search-request'], 'labeled');
 
   await syncLabels({ github, context });
@@ -103,5 +120,6 @@ test('syncLabels migrates old checkbox format to new format (Trigger: opened)', 
   const { body, labels } = getFinalState();
   assert.ok(body.includes('- [x] 領収書を添付した (申請者)'), '旧形式[x]は新形式[x]に置換されるべき');
   assert.ok(body.includes('- [ ] 承認済み (上長)'), '旧形式[ ]は新形式[ ]に置換されるべき');
+  assert.ok(body.includes('- [ ] 購入したい書籍の商品リンクを添付した'), '新しいチェックボックスも追加されるべき');
 });
 

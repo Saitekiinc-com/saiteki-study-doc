@@ -24,28 +24,45 @@ async function syncLabels({ github, context, core }) {
   const currentLabels = issue.labels.map(l => l.name);
   let bodyChanged = false;
 
+  // --- チェックボックス定義 ---
   const STATUS_HEADER = '## ステータス管理 (Status)';
+  // 新しいチェックボックス: 購入リンク添付
+  const CHECKBOX_LINK = '- [ ] 購入したい書籍の商品リンクを添付した';
   const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した (申請者)';
   const CHECKBOX_APPROVED = '- [ ] 承認済み (上長)';
 
-  // 旧形式からの移行 (Migration)
-  // 本文に旧形式のチェックボックスがある場合、新形式に置換します。
-  // チェック状態 ([ ] or [x]) は維持します。
-  if (body.includes('- [ ] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT)) {
+  // --- 旧形式からの移行 (Migration) ---
+
+  // 1. 古い表記の置換
+  if (body.includes('- [ ] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT) && !body.includes('- [ ] 領収書を添付した (申請者)')) {
     body = body.replace('- [ ] 領収書を添付した', CHECKBOX_RECEIPT);
     bodyChanged = true;
   }
-  if (body.includes('- [x] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT)) {
+  if (body.includes('- [x] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT) && !body.includes('- [x] 領収書を添付した (申請者)')) {
     body = body.replace('- [x] 領収書を添付した', '- [x] 領収書を添付した (申請者)');
     bodyChanged = true;
   }
-  if (body.includes('- [ ] 承認済み') && !body.includes(CHECKBOX_APPROVED)) {
+  if (body.includes('- [ ] 承認済み') && !body.includes(CHECKBOX_APPROVED) && !body.includes('- [ ] 承認済み (上長)')) {
     body = body.replace('- [ ] 承認済み', CHECKBOX_APPROVED);
     bodyChanged = true;
   }
-  if (body.includes('- [x] 承認済み') && !body.includes(CHECKBOX_APPROVED)) {
+  if (body.includes('- [x] 承認済み') && !body.includes(CHECKBOX_APPROVED) && !body.includes('- [x] 承認済み (上長)')) {
     body = body.replace('- [x] 承認済み', '- [x] 承認済み (上長)');
     bodyChanged = true;
+  }
+
+  // 2. 新しいチェックボックスの挿入 (領収書チェックの前)
+  // 既に存在するか確認 (完了状態も含む)
+  const isLinkMsgPresent = body.includes('購入したい書籍の商品リンクを添付した');
+
+  if (!isLinkMsgPresent) {
+     if (body.includes(CHECKBOX_RECEIPT)) {
+         body = body.replace(CHECKBOX_RECEIPT, `${CHECKBOX_LINK}\n${CHECKBOX_RECEIPT}`);
+         bodyChanged = true;
+     } else if (body.includes('- [x] 領収書を添付した (申請者)')) {
+         body = body.replace('- [x] 領収書を添付した (申請者)', `${CHECKBOX_LINK}\n- [x] 領収書を添付した (申請者)`);
+         bodyChanged = true;
+     }
   }
 
   // 注: 単純に追加する場合、混合状態を適切にサポートできません。
@@ -53,9 +70,11 @@ async function syncLabels({ github, context, core }) {
 
   if (!body.includes(STATUS_HEADER)) {
     console.log('Status section missing. Appending...');
-    body += `\n\n${STATUS_HEADER}\n以下のチェックボックスは、進捗に応じてチェックを入れてください。\n${CHECKBOX_RECEIPT}\n${CHECKBOX_APPROVED}`;
+    // 順番: リンク添付 -> 領収書 -> 承認
+    body += `\n\n${STATUS_HEADER}\n以下のチェックボックスは、進捗に応じてチェックを入れてください。\n${CHECKBOX_LINK}\n${CHECKBOX_RECEIPT}\n${CHECKBOX_APPROVED}`;
     bodyChanged = true;
   }
+
 
   // --- 双方向同期ロジック ---
 
