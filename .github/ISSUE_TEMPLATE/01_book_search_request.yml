@@ -65,10 +65,4 @@ body:
         - Backend: DBのインデックス設計やN+1問題の解決方法がわからない。
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: |
-        ## ステータス管理 (Status)
-        以下のチェックボックスは、進捗に応じてチェックを入れてください。
-        - [ ] 領収書を添付した (Receipt Attached)
-        - [ ] 承認済み (Approved)
+

@@ -18,6 +18,19 @@ jobs:
             const body = context.payload.issue.body || '';
             const labels = [];
 
+            // Add Status Checkboxes if missing (Post-creation operation)
+            const statusSectionHeader = '## ステータス管理 (Status)';
+            if (!body.includes(statusSectionHeader)) {
+              const newBody = body + `\n\n${statusSectionHeader}\n以下のチェックボックスは、進捗に応じてチェックを入れてください。\n- [ ] 領収書を添付した (Receipt Attached)\n- [ ] 承認済み (Approved)`;
+              await github.rest.issues.update({
+                owner, repo, issue_number,
+                body: newBody
+              });
+              console.log('Appended status checkboxes to issue body.');
+              // We can return here effectively, as the checkboxes are definitely unchecked right now.
+              // However, allowing it to proceed is fine too.
+            }
+
             // Check for Receipt
             if (body.includes('- [x] 領収書を添付した')) {
               labels.push('領収書あり');
