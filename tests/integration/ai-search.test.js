@@ -185,4 +185,77 @@ describe('統合テスト: AI検索ループ', () => {
         // 結果の中身も確認できる
         assert.strictEqual(secondCallArgs[0][0].functionResponse.response.books[0].title, 'Mocked Book');
     });
+    it('Google Books APIの結果から日本語以外の書籍をフィルタリングすること', async () => {
+        // process.exit のモック
+        const exitMock = mock.method(process, 'exit', (code) => {
+            throw new Error(`Process exited with code ${code}`);
+        });
+
+        // 1. fetch のモック (Google Books API) - 混合言語を返す
+        const mockFetch = mock.method(global, 'fetch', async (url) => {
+            if (url.includes('googleapis.com')) {
+                return {
+                    json: async () => ({
+                        items: [
+                            { volumeInfo: { title: "Japanese Book", authors: ["J-Author"], language: "ja", infoLink: "http://jp" } },
+                            { volumeInfo: { title: "English Book", authors: ["E-Author"], language: "en", infoLink: "http://en" } },
+                            { volumeInfo: { title: "Unknown Book", authors: ["U-Author"], infoLink: "http://unknown" } } // language field missing
+                        ]
+                    })
+                };
+            }
+            return { json: async () => ({}) };
+        });
+
+        // 2. GenAIの応答モック
+        const firstTurnResponse = {
+            text: () => "Let me check.",
+            functionCalls: () => [{ name: "searchGoogleBooks", args: { query: "Test Query" } }]
+        };
+        const secondTurnResponse = {
+            text: () => "Found books.",
+            functionCalls: () => undefined
+        };
+
+        let mockCallCount = 0;
+        const sendMessageMock = mock.fn(() => {
+            mockCallCount++;
+            if (mockCallCount === 1) {
+                return Promise.resolve({ response: firstTurnResponse });
+            } else {
+                return Promise.resolve({ response: secondTurnResponse });
+            }
+        });
+
+        const mockModel = {
+            startChat: mock.fn(() => ({ sendMessage: sendMessageMock }))
+        };
+        const mockGenAI = { getGenerativeModel: mock.fn(() => mockModel) };
+
+        // 環境変数
+        process.env.USER_REQUEST = "【役割】: Test Role";
+
+        // コンソール出力抑制
+         const originalLog = console.log;
+         const originalError = console.error;
+         console.log = () => {};
+         console.error = () => {};
+
+        try {
+            await main(mockGenAI);
+        } finally {
+             console.log = originalLog;
+             console.error = originalError;
+            exitMock.mock.restore();
+            mockFetch.mock.restore();
+        }
+
+        // 検証: 2回目のsendMessageの引数（ツール結果）に日本語の本だけが含まれているか
+        const secondCallArgs = sendMessageMock.mock.calls[1].arguments;
+        const books = secondCallArgs[0][0].functionResponse.response.books;
+
+        assert.strictEqual(books.length, 1, '日本語の本だけが残るべきです');
+        assert.strictEqual(books[0].title, 'Japanese Book');
+    });
 });
+

@@ -249,12 +249,23 @@ ${userRequest}
                     const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20&langRestrict=ja`);
                     const data = await apiRes.json();
 
-                    const books = data.items ? data.items.map(item => ({
+                    let books = data.items ? data.items.map(item => ({
                         title: item.volumeInfo.title,
                         authors: item.volumeInfo.authors,
                         description: item.volumeInfo.description ? item.volumeInfo.description.substring(0, 200) + "..." : "No description",
-                        infoLink: item.volumeInfo.infoLink
+                        infoLink: item.volumeInfo.infoLink,
+                        language: item.volumeInfo.language // フィルタリング用に取得
                     })) : [];
+
+                    // クライアントサイドフィルタリング: 言語が 'ja' のもののみを残す
+                    // APIの langRestrict は完璧ではないため
+                    const initialCount = books.length;
+                    books = books.filter(b => b.language === 'ja');
+                    const filteredCount = books.length;
+
+                    if (initialCount !== filteredCount) {
+                        console.error(`[Filter] Filtered out ${initialCount - filteredCount} non-Japanese books.`);
+                    }
                     console.error(`[Tool Result] Found ${books.length} books.`);
                     functionResponses.push({
                         functionResponse: {
