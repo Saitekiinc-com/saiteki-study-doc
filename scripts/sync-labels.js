@@ -25,8 +25,28 @@ async function syncLabels({ github, context, core }) {
   let bodyChanged = false;
 
   const STATUS_HEADER = '## ステータス管理 (Status)';
-  const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した';
-  const CHECKBOX_APPROVED = '- [ ] 承認済み';
+  const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した (申請者)';
+  const CHECKBOX_APPROVED = '- [ ] 承認済み (上長)';
+
+  // 旧形式からの移行 (Migration)
+  // 本文に旧形式のチェックボックスがある場合、新形式に置換します。
+  // チェック状態 ([ ] or [x]) は維持します。
+  if (body.includes('- [ ] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT)) {
+    body = body.replace('- [ ] 領収書を添付した', CHECKBOX_RECEIPT);
+    bodyChanged = true;
+  }
+  if (body.includes('- [x] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT)) {
+    body = body.replace('- [x] 領収書を添付した', '- [x] 領収書を添付した (申請者)');
+    bodyChanged = true;
+  }
+  if (body.includes('- [ ] 承認済み') && !body.includes(CHECKBOX_APPROVED)) {
+    body = body.replace('- [ ] 承認済み', CHECKBOX_APPROVED);
+    bodyChanged = true;
+  }
+  if (body.includes('- [x] 承認済み') && !body.includes(CHECKBOX_APPROVED)) {
+    body = body.replace('- [x] 承認済み', '- [x] 承認済み (上長)');
+    bodyChanged = true;
+  }
 
   // 注: 単純に追加する場合、混合状態を適切にサポートできません。
   // しかし厳密には、ヘッダーがない場合は追加します。
@@ -40,66 +60,42 @@ async function syncLabels({ github, context, core }) {
   // --- 双方向同期ロジック ---
 
   // 1. チェックボックス -> ラベル (本文でチェックボックスがオンの場合、ラベルが存在することを確認)
-  const isReceiptChecked = body.includes('- [x] 領収書を添付した');
-  const isApprovedChecked = body.includes('- [x] 承認済み');
+  const isReceiptChecked = body.includes('- [x] 領収書を添付した (申請者)');
+  const isApprovedChecked = body.includes('- [x] 承認済み (上長)');
 
   const labelsToAdd = [];
   const labelsToRemove = [];
-
-  // 2. ラベル -> チェックボックス (ラベルが存在する場合、チェックボックスがオンであることを確認)
-  // このロジックは注意が必要です。ユーザーがチェックボックスをクリックしたばかりの場合、本文は [x] です。ラベルを追加する必要があります。
-  // ユーザーがラベルを追加したばかりの場合、本文は [ ] です。チェックボックスを [x] に更新する必要があります。
-  // 可能であればイベントのソースを優先しますが、ここでは状態を同期するだけです。
-  // "True" state is easier to treat as union? Or prioritize one?
-  // User said "勝手にチェックされる" (Automatically checked).
-  // This implies: Label was present -> Checkbox got checked.
-  // IF the label was NOT present, but workflow added it?
-
-  // Let's implement robust sync:
-  // - If Checkbox is [x] -> Add Label
-  // - If Label is present -> Mark Checkbox [x]
-  // - If Checkbox is [ ] -> Remove Label (User unchecked it)
-  // - If Label is missing -> Mark Checkbox [ ] (User removed label)
-
-  // 有効な [x] のチェックを外すと、ラベルは削除されるべきです。
-  // ラベルを削除すると、[x] は [ ] になるべきです。
-  //
-  // 方向を区別するために、トリガーを確認するのが理想的です。
-  // トリガー: 'labeled' -> チェックボックスへ伝播
-  // トリガー: 'edited' (チェックボックス変更) -> ラベルへ伝播
-  // トリガー: 'opened' -> 初期化
 
   const action = context.payload.action;
 
   // ロジック:
   // アクションが 'labeled' または 'unlabeled' の場合: ラベル -> チェックボックスの一貫性を検証
-  // アクションが 'edited' (本文変更) の場合: チェックボックス -> ラベルの一貫性を検証
 
   if (action === 'labeled' || action === 'unlabeled') {
      console.log(`Action is ${action}. Syncing Label -> Checkbox`);
      // ラベル -> チェックボックス同期
      // 領収書
      if (currentLabels.includes('領収書あり')) {
-       if (body.includes('- [ ] 領収書を添付した')) {
-         body = body.replace('- [ ] 領収書を添付した', '- [x] 領収書を添付した');
+       if (body.includes('- [ ] 領収書を添付した (申請者)')) {
+         body = body.replace('- [ ] 領収書を添付した (申請者)', '- [x] 領収書を添付した (申請者)');
          bodyChanged = true;
        }
      } else {
-       if (body.includes('- [x] 領収書を添付した')) {
-         body = body.replace('- [x] 領収書を添付した', '- [ ] 領収書を添付した');
+       if (body.includes('- [x] 領収書を添付した (申請者)')) {
+         body = body.replace('- [x] 領収書を添付した (申請者)', '- [ ] 領収書を添付した (申請者)');
          bodyChanged = true;
        }
      }
 
      // 承認済み
      if (currentLabels.includes('承認済み')) {
-       if (body.includes('- [ ] 承認済み')) {
-         body = body.replace('- [ ] 承認済み', '- [x] 承認済み');
+       if (body.includes('- [ ] 承認済み (上長)')) {
+         body = body.replace('- [ ] 承認済み (上長)', '- [x] 承認済み (上長)');
          bodyChanged = true;
        }
      } else {
-       if (body.includes('- [x] 承認済み')) {
-         body = body.replace('- [x] 承認済み', '- [ ] 承認済み');
+       if (body.includes('- [x] 承認済み (上長)')) {
+         body = body.replace('- [x] 承認済み (上長)', '- [ ] 承認済み (上長)');
          bodyChanged = true;
        }
      }

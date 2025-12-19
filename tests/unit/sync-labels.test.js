@@ -40,12 +40,12 @@ test('syncLabels appends checklist if missing (Trigger: opened)', async (t) => {
 
   const { body } = getFinalState();
   assert.ok(body.includes('## ステータス管理 (Status)'));
-  assert.ok(body.includes('- [ ] 領収書を添付した'));
-  assert.ok(!body.includes('(Receipt Attached)')); // 英語が削除されていることを確認
+  assert.ok(body.includes('- [ ] 領収書を添付した (申請者)'));
+  assert.ok(body.includes('- [ ] 承認済み (上長)'));
 });
 
 test('syncLabels adds label when checkbox is checked (Trigger: edited)', async (t) => {
-  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した\n- [ ] 承認済み';
+  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(CHECKED_BODY, [], 'edited');
 
   await syncLabels({ github, context });
@@ -55,7 +55,7 @@ test('syncLabels adds label when checkbox is checked (Trigger: edited)', async (
 });
 
 test('syncLabels removes label when checkbox is unchecked (Trigger: edited)', async (t) => {
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した\n- [ ] 承認済み';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['領収書あり'], 'edited');
 
   await syncLabels({ github, context });
@@ -65,34 +65,43 @@ test('syncLabels removes label when checkbox is unchecked (Trigger: edited)', as
 });
 
 test('syncLabels checks checkbox when label is added (Trigger: labeled)', async (t) => {
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した\n- [ ] 承認済み';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['領収書あり'], 'labeled');
 
   await syncLabels({ github, context });
 
   const { body } = getFinalState();
-  assert.ok(body.includes('- [x] 領収書を添付した'));
+  assert.ok(body.includes('- [x] 領収書を添付した (申請者)'));
 });
 
 test('syncLabels unchecks checkbox when label is removed (Trigger: unlabeled)', async (t) => {
-  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した\n- [ ] 承認済み';
+  const CHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(CHECKED_BODY, [], 'unlabeled');
 
   await syncLabels({ github, context });
 
   const { body } = getFinalState();
-  assert.ok(body.includes('- [ ] 領収書を添付した'));
+  assert.ok(body.includes('- [ ] 領収書を添付した (申請者)'));
 });
 
 test('syncLabels DOES NOT check checkbox if label is unrelated (Trigger: labeled)', async (t) => {
-  // ケース: ユーザーが 'book-search-request' ラベルを追加。これにより 'labeled' がトリガーされる。
-  // これが 'Receipt Attached' をチェックしないことを確認する必要がある。
-  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した\n- [ ] 承認済み';
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した (申請者)\n- [ ] 承認済み (上長)';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['book-search-request'], 'labeled');
 
   await syncLabels({ github, context });
 
   const { body } = getFinalState();
-  assert.ok(body.includes('- [ ] 領収書を添付した'), '無関係なラベルの場合、チェックボックスは未チェックのままであるべき');
+  assert.ok(body.includes('- [ ] 領収書を添付した (申請者)'), '無関係なラベルの場合、チェックボックスは未チェックのままであるべき');
+});
+
+test('syncLabels migrates old checkbox format to new format (Trigger: opened)', async (t) => {
+  const OLD_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [x] 領収書を添付した\n- [ ] 承認済み';
+  const { github, context, getFinalState } = createMockGithub(OLD_BODY, [], 'opened');
+
+  await syncLabels({ github, context });
+
+  const { body, labels } = getFinalState();
+  assert.ok(body.includes('- [x] 領収書を添付した (申請者)'), '旧形式[x]は新形式[x]に置換されるべき');
+  assert.ok(body.includes('- [ ] 承認済み (上長)'), '旧形式[ ]は新形式[ ]に置換されるべき');
 });
 
