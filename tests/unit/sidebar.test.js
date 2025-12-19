@@ -55,10 +55,10 @@ author: 杉本光一
   // "📚 [AI駆動開発の教科書] 読書感想文" should become "[AI駆動開発の教科書] 読書感想文" (or just without the icon)
   // Assuming the original logic didn't strip [], just the icon.
   // Wait, in my mock above I didn't put the icon in the mock data. Let me update the mock data too.
-  assert.deepStrictEqual(titles, ['Report 1', 'Report 2'])
+  assert.deepStrictEqual(titles, ['📚 Report 1', '📚 Report 2'])
 })
 
-test('getSidebarBooks normalizes titles by removing icons', (t) => {
+test('getSidebarBooks normalizes titles by ensuring book icons', (t) => {
   const mockGlobSync = () => ['/path/to/icon-book.md']
   const mockFs = {
     readFileSync: () => `---
@@ -74,5 +74,6 @@ author: koxtuichi
     path: mockPath
   })
 
-  assert.strictEqual(sidebar[0].items[0].text, '[Icon Book] Report')
+  // Expect the icon to be preserved/added
+  assert.strictEqual(sidebar[0].items[0].text, '📚 [Icon Book] Report')
 })
