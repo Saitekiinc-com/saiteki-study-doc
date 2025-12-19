@@ -112,6 +112,7 @@ describe('統合テスト: AI検索ループ', () => {
         // 1. fetch のモック (Google Books API)
         const mockFetch = mock.method(global, 'fetch', async (url) => {
             if (url.includes('googleapis.com')) {
+                assert.ok(url.includes('langRestrict=ja'), 'URL must restrict to Japanese books');
                 return {
                     json: async () => ({
                         items: [{ volumeInfo: { title: "Mocked Book", authors: ["Mock Author"], infoLink: "http://mock" } }]
