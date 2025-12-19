@@ -27,13 +27,23 @@ async function syncLabels({ github, context, core }) {
   // --- チェックボックス定義 ---
   const STATUS_HEADER = '## ステータス管理 (Status)';
   // 新しいチェックボックス: 購入リンク添付
-  const CHECKBOX_LINK = '- [ ] 購入したい書籍の商品リンクを添付した';
+  const CHECKBOX_LINK = '- [ ] 購入したい書籍の商品リンクを添付した（申請者）';
   const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した (申請者)';
   const CHECKBOX_APPROVED = '- [ ] 承認済み (上長)';
 
   // --- 旧形式からの移行 (Migration) ---
 
   // 1. 古い表記の置換
+  // 以前の "購入したい書籍の商品リンクを添付した" (申請者なし) を置換
+  if (body.includes('- [ ] 購入したい書籍の商品リンクを添付した') && !body.includes(CHECKBOX_LINK)) {
+    body = body.replace('- [ ] 購入したい書籍の商品リンクを添付した', CHECKBOX_LINK);
+    bodyChanged = true;
+  }
+  if (body.includes('- [x] 購入したい書籍の商品リンクを添付した') && !body.includes(CHECKBOX_LINK)) {
+    body = body.replace('- [x] 購入したい書籍の商品リンクを添付した', '- [x] 購入したい書籍の商品リンクを添付した（申請者）');
+    bodyChanged = true;
+  }
+
   if (body.includes('- [ ] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT) && !body.includes('- [ ] 領収書を添付した (申請者)')) {
     body = body.replace('- [ ] 領収書を添付した', CHECKBOX_RECEIPT);
     bodyChanged = true;
@@ -53,7 +63,7 @@ async function syncLabels({ github, context, core }) {
 
   // 2. 新しいチェックボックスの挿入 (領収書チェックの前)
   // 既に存在するか確認 (完了状態も含む)
-  const isLinkMsgPresent = body.includes('購入したい書籍の商品リンクを添付した');
+  const isLinkMsgPresent = body.includes('購入したい書籍の商品リンクを添付した（申請者）');
 
   if (!isLinkMsgPresent) {
      if (body.includes(CHECKBOX_RECEIPT)) {
