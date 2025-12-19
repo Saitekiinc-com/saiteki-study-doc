@@ -19,6 +19,54 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check for Concurrent Requests
+        id: check_concurrency
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.issue.number;
+            const username = context.payload.issue.user.login;
+            const label = 'book-search-request';
+
+            // List open issues with the label created by the user
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              creator: username,
+              labels: label,
+              per_page: 100
+            });
+
+            // Filter out the current issue itself
+            const otherIssues = issues.filter(issue => issue.number !== issue_number);
+
+            if (otherIssues.length > 0) {
+              const previousIssue = otherIssues[0];
+              const commentBody = `@${username} さん、すでに進行中の書籍選定依頼があります (${previousIssue.html_url})。\n\n原則としてお一人様1件ずつの対応とさせていただいております。完了してから新しい依頼を作成してください。\n\nこのIssueは自動的にクローズされます。`;
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: commentBody
+              });
+
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number,
+                state: 'closed'
+              });
+
+              console.log(`Duplicate request found: Issue ${previousIssue.number}. Closed current issue.`);
+              core.setFailed('Concurrent request limit exceeded.');
+            } else {
+              console.log('No concurrent requests found.');
+            }
+
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
