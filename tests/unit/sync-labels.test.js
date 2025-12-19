@@ -83,3 +83,16 @@ test('syncLabels unchecks checkbox when label is removed (Trigger: unlabeled)', 
   const { body } = getFinalState();
   assert.ok(body.includes('- [ ] 領収書を添付した'));
 });
+
+test('syncLabels DOES NOT check checkbox if label is unrelated (Trigger: labeled)', async (t) => {
+  // Case: User adds 'book-search-request' label. This triggers 'labeled'.
+  // We must ensure this does NOT check 'Receipt Attached'.
+  const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した\n- [ ] 承認済み';
+  const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['book-search-request'], 'labeled');
+
+  await syncLabels({ github, context });
+
+  const { body } = getFinalState();
+  assert.ok(body.includes('- [ ] 領収書を添付した'), 'Checkbox should remain unchecked for unrelated label');
+});
+
