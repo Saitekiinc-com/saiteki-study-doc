@@ -115,7 +115,7 @@ describe('統合テスト: AI検索ループ', () => {
                 assert.ok(url.includes('langRestrict=ja'), 'URL must restrict to Japanese books');
                 return {
                     json: async () => ({
-                        items: [{ volumeInfo: { title: "Mocked Book", authors: ["Mock Author"], infoLink: "http://mock" } }]
+                        items: [{ volumeInfo: { title: "Mocked Book", authors: ["Mock Author"], infoLink: "http://mock", language: "ja" } }]
                     })
                 };
             }
