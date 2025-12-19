@@ -62,7 +62,7 @@ Verify E2E flow.
             // レポートの中身の検証 (Strengthen E2E)
             const content = fs.readFileSync(expectedFile, 'utf8');
             assert.match(content, /title: "E2E Test Book"/, 'Frontmatter should contain title');
-            assert.match(content, /author: e2e-bot/, 'Frontmatter should contain author'); // author is likely e2e-bot from ISSUE_AUTHOR or GitHub lookup falling back
+            assert.match(content, /author: e2e-bot/, 'Frontmatter should contain author'); // 著者は ISSUE_AUTHOR または GitHub ルックアップからの e2e-bot である可能性が高い
             assert.ok(content.includes('Verify E2E flow.'), 'Body should contain objective');
 
             // 生成ファイルのクリーンアップ

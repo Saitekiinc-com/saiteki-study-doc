@@ -1,13 +1,13 @@
 const assert = require('assert');
 
-// The extraction logic from notify-slack.yml
+// notify-slack.yml からの抽出ロジック
 function extract(body, label) {
   const regex = new RegExp(`### ${label}[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))`);
   const m = body.match(regex);
   return m ? m[1].trim() : 'なし';
 }
 
-// Test cases
+// テストケース
 function testExtraction() {
   const issueBody = `### 書籍名
 Test Book Notification 2

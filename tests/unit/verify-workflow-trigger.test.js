@@ -1,13 +1,13 @@
 /**
- * Logic Verification Test for Workflow Triggers
- * This script simulates GitHub Action event payloads to verify the "if" condition logic.
+ * ワークフロートリガーのロジック検証テスト
+ * このスクリプトは GitHub Action のイベントペイロードをシミュレートし、"if" 条件のロジックを検証します。
  */
 
 function shouldRunWorkflow(event) {
   const { action, issue, label } = event;
   const hasBookReportLabel = issue.labels.some(l => l.name === 'book-report');
 
-  // Logic from .github/workflows/ingest-book-report.yml
+  // .github/workflows/ingest-book-report.yml のロジック
   const condition =
     (action === 'opened' && hasBookReportLabel) ||
     (action === 'labeled' && label && label.name === 'book-report');
@@ -15,37 +15,37 @@ function shouldRunWorkflow(event) {
   return condition;
 }
 
-// Mock Data
+// モックデータ
 const issueWithLabel = { labels: [{ name: 'book-report' }] };
 const issueWithoutLabel = { labels: [] };
 const issueWithOtherLabel = { labels: [{ name: 'book-report' }, { name: 'other' }] };
 
 const tests = [
   {
-    name: 'Case 1: Issue opened WITH book-report label (Template case)',
+    name: 'ケース 1: book-report ラベル付きで Issue が開かれた (テンプレートケース)',
     event: { action: 'opened', issue: issueWithLabel },
     expected: true
   },
   {
-    name: 'Case 2: Issue opened WITHOUT label',
+    name: 'ケース 2: ラベルなしで Issue が開かれた',
     event: { action: 'opened', issue: issueWithoutLabel },
     expected: false
   },
   {
-    name: 'Case 3: "book-report" label added manually',
+    name: 'ケース 3: "book-report" ラベルが手動で追加された',
     event: { action: 'labeled', issue: issueWithLabel, label: { name: 'book-report' } },
     expected: true
   },
   {
-    name: 'Case 4: "other" label added manually (EXISTING BUG CASE)',
-    // User adds 'other' label, issue ALREADY has 'book-report'
+    name: 'ケース 4: "other" ラベルが手動で追加された (既存のバグケース)',
+    // ユーザーが 'other' ラベルを追加したが、Issue には既に 'book-report' がある
     event: { action: 'labeled', issue: issueWithOtherLabel, label: { name: 'other' } },
-    expected: false // Should be FALSE. Old logic returned TRUE here.
+    expected: false // FALSE であるべき。古いロジックではここで TRUE を返していた。
   }
 ];
 
-// Run Tests
-console.log('--- Workflow Trigger Logic Verification ---\n');
+// テストの実行
+console.log('--- ワークフロートリガーロジック検証 ---\n');
 let failed = false;
 
 tests.forEach(test => {
@@ -61,5 +61,5 @@ if (failed) {
   console.error('❌ Some tests failed.');
   process.exit(1);
 } else {
-  console.log('✅ All logic tests passed. The fix effectively suppresses duplicate runs.');
+  console.log('✅ 全てのロジックテストに合格しました。修正により重複実行が効果的に抑制されています。');
 }

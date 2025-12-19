@@ -27,8 +27,8 @@ async function main() {
     const filename = path.basename(file);
 
     try {
-      // Generate embedding for the entire file content
-      // For very large files, chunking might be necessary, but reports are likely short.
+      // ファイル内容全体の埋め込みを生成
+      // 非常に大きなファイルの場合はチャンク分割が必要かもしれないが、レポートは短いと思われるためこのまま続行。
       const result = await model.embedContent(content);
       const embedding = result.embedding.values;
 
@@ -42,7 +42,7 @@ async function main() {
       });
       console.log(`Vectorized: ${filename}`);
 
-      // Add delay to avoid hitting rate limits (Free Tier)
+      // レート制限（無料枠）に引っかからないように遅延を追加
       await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (error) {
       console.error(`Error embedding ${filename}:`, error);

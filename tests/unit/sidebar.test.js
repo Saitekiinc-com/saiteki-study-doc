@@ -4,7 +4,7 @@ import assert from 'node:assert'
 import { getSidebarBooks } from '../../docs/.vitepress/sidebar.mjs'
 
 test('getSidebarBooks groups different author representations together', (t) => {
-  // Mock dependencies
+  // 依存関係のモック
   const mockFiles = [
     '/path/to/report1.md',
     '/path/to/report2.md'
@@ -38,23 +38,23 @@ author: 杉本光一
     }
   }
 
-  // Execute
+  // 実行
   const sidebar = getSidebarBooks({
     globSync: mockGlobSync,
     fs: mockFs,
     path: mockPath
   })
 
-  // Verify
-  assert.strictEqual(sidebar.length, 1, 'Should have exactly one group')
-  assert.strictEqual(sidebar[0].text, '杉本 光一', 'Group name should be standardized')
-  assert.strictEqual(sidebar[0].items.length, 2, 'Should contain both items')
+  // 検証
+  assert.strictEqual(sidebar.length, 1, 'グループは正確に1つであるべき')
+  assert.strictEqual(sidebar[0].text, '杉本 光一', 'グループ名は標準化されるべき')
+  assert.strictEqual(sidebar[0].items.length, 2, '両方のアイテムが含まれるべき')
 
-  // Verify items are present and titles are normalized
+  // アイテムが存在し、タイトルが正規化されていることを検証
   const titles = sidebar[0].items.map(i => i.text).sort()
-  // "📚 [AI駆動開発の教科書] 読書感想文" should become "[AI駆動開発の教科書] 読書感想文" (or just without the icon)
-  // Assuming the original logic didn't strip [], just the icon.
-  // Wait, in my mock above I didn't put the icon in the mock data. Let me update the mock data too.
+  // "📚 [AI駆動開発の教科書] 読書感想文" は "[AI駆動開発の教科書] 読書感想文" (またはアイコンなし) になるべき
+  // 元のロジックが [] を削除せず、アイコンだけを削除すると仮定。
+  // 待って、上記のモックではアイコンをデータに入れていなかった。モックデータも更新しよう。
   assert.deepStrictEqual(titles, ['📚 Report 1', '📚 Report 2'])
 })
 
@@ -74,6 +74,6 @@ author: koxtuichi
     path: mockPath
   })
 
-  // Expect the icon to be preserved/added
+  // アイコンが保持/追加されることを期待
   assert.strictEqual(sidebar[0].items[0].text, '📚 [Icon Book] Report')
 })

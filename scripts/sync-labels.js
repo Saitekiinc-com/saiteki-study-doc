@@ -1,11 +1,11 @@
 
 /**
- * Syncs the checkboxes in the issue body with the issue labels.
- * Also appends the status checklist if it's missing.
+ * Issue 本文のチェックボックスと Issue ラベルを同期させます。
+ * また、ステータスチェックリストが不足している場合は追加します。
  *
  * @param {Object} params
- * @param {Object} params.github - GitHub API client
- * @param {Object} params.context - Actions context
+ * @param {Object} params.github - GitHub API クライアント
+ * @param {Object} params.context - Actions コンテキスト
  * @param {Object} params.core - Actions core
  */
 async function syncLabels({ github, context, core }) {
@@ -13,7 +13,7 @@ async function syncLabels({ github, context, core }) {
   const owner = context.repo.owner;
   const repo = context.repo.repo;
 
-  // Fetch latest issue data to avoid race conditions with local payload
+  // ローカルペイロードとの競合状態を避けるため、最新の Issue データを取得
   const { data: issue } = await github.rest.issues.get({
     owner,
     repo,
@@ -28,8 +28,8 @@ async function syncLabels({ github, context, core }) {
   const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した';
   const CHECKBOX_APPROVED = '- [ ] 承認済み';
 
-  // NOTE: We do not support mixed states properly if we blindly append.
-  // But strictly speaking, if header is missing, we append.
+  // 注: 単純に追加する場合、混合状態を適切にサポートできません。
+  // しかし厳密には、ヘッダーがない場合は追加します。
 
   if (!body.includes(STATUS_HEADER)) {
     console.log('Status section missing. Appending...');
@@ -37,19 +37,19 @@ async function syncLabels({ github, context, core }) {
     bodyChanged = true;
   }
 
-  // --- Bidirectional Sync Logic ---
+  // --- 双方向同期ロジック ---
 
-  // 1. Checkboxes -> Labels (If checkbox is checked in body, ensure label exists)
+  // 1. チェックボックス -> ラベル (本文でチェックボックスがオンの場合、ラベルが存在することを確認)
   const isReceiptChecked = body.includes('- [x] 領収書を添付した');
   const isApprovedChecked = body.includes('- [x] 承認済み');
 
   const labelsToAdd = [];
   const labelsToRemove = [];
 
-  // 2. Labels -> Checkboxes (If label exists, ensure checkbox is checked)
-  // This logic is tricky. If user JUST clicked checkbox, body has [x]. Label needs to be added.
-  // If user JUST added label, body has [ ]. Checkbox needs to be updated to [x].
-  // We prioritize the EVENT source if possible, but here we just sync state.
+  // 2. ラベル -> チェックボックス (ラベルが存在する場合、チェックボックスがオンであることを確認)
+  // このロジックは注意が必要です。ユーザーがチェックボックスをクリックしたばかりの場合、本文は [x] です。ラベルを追加する必要があります。
+  // ユーザーがラベルを追加したばかりの場合、本文は [ ] です。チェックボックスを [x] に更新する必要があります。
+  // 可能であればイベントのソースを優先しますが、ここでは状態を同期するだけです。
   // "True" state is easier to treat as union? Or prioritize one?
   // User said "勝手にチェックされる" (Automatically checked).
   // This implies: Label was present -> Checkbox got checked.
@@ -61,24 +61,24 @@ async function syncLabels({ github, context, core }) {
   // - If Checkbox is [ ] -> Remove Label (User unchecked it)
   // - If Label is missing -> Mark Checkbox [ ] (User removed label)
 
-  // Wait, if I uncheck valid [x], label should be removed.
-  // If I remove label, [x] should become [ ].
-
-  // To distinguish direction, we ideally check the trigger.
-  // Trigger: 'labeled' -> Propagate to Checkbox
-  // Trigger: 'edited' (Checkbox change) -> Propagate to Label
-  // Trigger: 'opened' -> Init
+  // 有効な [x] のチェックを外すと、ラベルは削除されるべきです。
+  // ラベルを削除すると、[x] は [ ] になるべきです。
+  //
+  // 方向を区別するために、トリガーを確認するのが理想的です。
+  // トリガー: 'labeled' -> チェックボックスへ伝播
+  // トリガー: 'edited' (チェックボックス変更) -> ラベルへ伝播
+  // トリガー: 'opened' -> 初期化
 
   const action = context.payload.action;
 
-  // LOGIC:
-  // If action is 'labeled' or 'unlabeled': Verify consistency from Label -> Checkbox
-  // If action is 'edited' (body change): Verify consistency from Checkbox -> Label
+  // ロジック:
+  // アクションが 'labeled' または 'unlabeled' の場合: ラベル -> チェックボックスの一貫性を検証
+  // アクションが 'edited' (本文変更) の場合: チェックボックス -> ラベルの一貫性を検証
 
   if (action === 'labeled' || action === 'unlabeled') {
      console.log(`Action is ${action}. Syncing Label -> Checkbox`);
-     // Sync L -> C
-     // Receipt
+     // ラベル -> チェックボックス同期
+     // 領収書
      if (currentLabels.includes('領収書あり')) {
        if (body.includes('- [ ] 領収書を添付した')) {
          body = body.replace('- [ ] 領収書を添付した', '- [x] 領収書を添付した');
@@ -91,7 +91,7 @@ async function syncLabels({ github, context, core }) {
        }
      }
 
-     // Approved
+     // 承認済み
      if (currentLabels.includes('承認済み')) {
        if (body.includes('- [ ] 承認済み')) {
          body = body.replace('- [ ] 承認済み', '- [x] 承認済み');
@@ -105,18 +105,18 @@ async function syncLabels({ github, context, core }) {
      }
 
   } else {
-    // Action is 'opened', 'edited', or 'reopened'.
-    // We prioritize the Checkbox state in the body (User interaction).
+    // アクションは 'opened', 'edited', または 'reopened'。
+    // 本文のチェックボックスの状態（ユーザーインタラクション）を優先します。
     console.log(`Action is ${action}. Syncing Checkbox -> Label`);
 
-    // Receipt
+    // 領収書
     if (isReceiptChecked) {
       if (!currentLabels.includes('領収書あり')) labelsToAdd.push('領収書あり');
     } else {
       if (currentLabels.includes('領収書あり')) labelsToRemove.push('領収書あり');
     }
 
-    // Approved
+    // 承認済み
     if (isApprovedChecked) {
       if (!currentLabels.includes('承認済み')) labelsToAdd.push('承認済み');
     } else {
@@ -124,9 +124,9 @@ async function syncLabels({ github, context, core }) {
     }
   }
 
-  // --- Execution ---
+  // --- 実行 ---
 
-  // Update Body if needed
+  // 必要に応じて本文を更新
   if (bodyChanged) {
     console.log('Updating issue body...');
     await github.rest.issues.update({
@@ -134,7 +134,7 @@ async function syncLabels({ github, context, core }) {
     });
   }
 
-  // Define Helper
+  // ヘルパー定義
   const ensureLabel = async (name, color) => {
     try {
       await github.rest.issues.getLabel({ owner, repo, name });
@@ -145,9 +145,9 @@ async function syncLabels({ github, context, core }) {
     }
   };
 
-  // Process Labels
+  // ラベルの処理
   if (labelsToAdd.length > 0) {
-    // Ensure existence first
+    // 最初に存在確認
     if (labelsToAdd.includes('領収書あり')) await ensureLabel('領収書あり', '1D76DB');
     if (labelsToAdd.includes('承認済み')) await ensureLabel('承認済み', '0E8A16');
 
@@ -165,7 +165,7 @@ async function syncLabels({ github, context, core }) {
           owner, repo, issue_number, name: label
         });
       } catch (e) {
-        // Ignore checking 404
+        // 404 は無視してチェックしない
         console.log(`Failed to remove label ${label}: ${e.message}`);
       }
     }

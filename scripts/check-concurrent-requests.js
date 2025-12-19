@@ -1,11 +1,11 @@
 /**
- * Checks for concurrent open book search requests by the same user.
- * If a duplicate is found, it closes the current issue and posts a comment.
+ * 同一ユーザーによる同時並行の書籍探索リクエストをチェックします。
+ * 重複が見つかった場合、現在の Issue をクローズし、コメントを投稿します。
  *
- * @param {object} args - The arguments provided by actions/github-script.
- * @param {object} args.github - The authenticated octokit client.
- * @param {object} args.context - The github context.
- * @param {object} args.core - The actions core library.
+ * @param {object} args - actions/github-script によって提供される引数。
+ * @param {object} args.github - 認証済みの octokit クライアント。
+ * @param {object} args.context - github コンテキスト。
+ * @param {object} args.core - actions core ライブラリ。
  */
 async function checkConcurrentRequests({ github, context, core }) {
   const { owner, repo } = context.repo;
@@ -16,8 +16,8 @@ async function checkConcurrentRequests({ github, context, core }) {
   console.log(`Checking concurrent requests for user: ${username}, Issue: ${issue_number}`);
 
   try {
-    // List open issues with the label created by the user
-    // Note: creator parameter filters by the user who created the issue
+    // ユーザー作成のオープンな Issue (指定ラベル付き) をリストアップ
+    // 注: creator パラメータは Issue を作成したユーザーでフィルタリングします
     const { data: issues } = await github.rest.issues.listForRepo({
       owner,
       repo,
@@ -27,7 +27,7 @@ async function checkConcurrentRequests({ github, context, core }) {
       per_page: 100
     });
 
-    // Filter out the current issue itself to find *other* open issues
+    // *他の* Issue を見つけるために、現在の Issue 自体を除外します
     const otherIssues = issues.filter(issue => issue.number !== issue_number);
 
     if (otherIssues.length > 0) {
@@ -36,7 +36,7 @@ async function checkConcurrentRequests({ github, context, core }) {
 
       console.log(`Found duplicate issue: ${previousIssue.number}. Closing current issue ${issue_number}.`);
 
-      // Post comment
+      // コメントを投稿
       await github.rest.issues.createComment({
         owner,
         repo,
@@ -44,7 +44,7 @@ async function checkConcurrentRequests({ github, context, core }) {
         body: commentBody
       });
 
-      // Close current issue
+      // 現在の Issue をクローズ
       await github.rest.issues.update({
         owner,
         repo,

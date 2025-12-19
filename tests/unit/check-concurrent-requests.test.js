@@ -6,7 +6,7 @@ test('checkConcurrentRequests allows execution if no other issues exist', async 
   const mockGithub = {
     rest: {
       issues: {
-        listForRepo: async () => ({ data: [{ number: 123 }] }), // Only the current issue
+        listForRepo: async () => ({ data: [{ number: 123 }] }), // 現在の Issue のみ
         createComment: async () => {},
         update: async () => {}
       }
@@ -23,7 +23,7 @@ test('checkConcurrentRequests allows execution if no other issues exist', async 
   };
 
   await checkConcurrentRequests({ github: mockGithub, context: mockContext, core: mockCore });
-  assert.ok(true, 'Should finish without error');
+  assert.ok(true, 'エラーなしで完了すべき');
 });
 
 test('checkConcurrentRequests closes issue if duplicates exist', async (t) => {
@@ -36,8 +36,8 @@ test('checkConcurrentRequests closes issue if duplicates exist', async (t) => {
       issues: {
         listForRepo: async () => ({
           data: [
-            { number: 100, html_url: 'http://old' }, // Previous issue
-            { number: 123, html_url: 'http://new' }  // Current issue
+            { number: 100, html_url: 'http://old' }, // 以前の Issue
+            { number: 123, html_url: 'http://new' }  // 現在の Issue
           ]
         }),
         createComment: async ({ body }) => {
@@ -62,7 +62,7 @@ test('checkConcurrentRequests closes issue if duplicates exist', async (t) => {
 
   await checkConcurrentRequests({ github: mockGithub, context: mockContext, core: mockCore });
 
-  assert.strictEqual(commentCreated, true, 'Should create a warning comment');
-  assert.strictEqual(issueClosed, true, 'Should close the current issue');
-  assert.strictEqual(failedMsg, 'Concurrent request limit exceeded.', 'Should mark action as failed');
+  assert.strictEqual(commentCreated, true, '警告コメントを作成すべき');
+  assert.strictEqual(issueClosed, true, '現在の Issue をクローズすべき');
+  assert.strictEqual(failedMsg, 'Concurrent request limit exceeded.', 'アクションを失敗としてマークすべき');
 });

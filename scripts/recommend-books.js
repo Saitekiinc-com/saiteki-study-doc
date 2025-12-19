@@ -5,7 +5,7 @@ const glob = require('glob');
 
 const VECTORS_FILE = 'vectors.json';
 
-// Simple Cosine Similarity
+// 単純なコサイン類似度
 function cosineSimilarity(vecA, vecB) {
   let dotProduct = 0;
   let normA = 0;
@@ -20,22 +20,22 @@ function cosineSimilarity(vecA, vecB) {
 
 async function main(injectedGenAI = null) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey && !injectedGenAI) { // Allow skipping key check if mocked client provided
+  if (!apiKey && !injectedGenAI) { // モッククライアントが提供されている場合はキーチェックをスキップ可能
     console.error('Error: GEMINI_API_KEY is not set.');
     process.exit(1);
   }
 
-  // User input from command line args or environment variable
+  // コマンドライン引数または環境変数からのユーザー入力
   const userRequest = process.env.USER_REQUEST || process.argv[2];
-  if (!userRequest && !injectedGenAI) { // Be lenient for test instantiation if needed, or stick to req
-      // Actually strictly requiring userRequest is fine even for tests
+  if (!userRequest && !injectedGenAI) { // 必要であればテスト用のインスタンス化を許容する、あるいはリクエスト入力を厳格にする
+      // 実際にはテストであっても userRequest を必須としても問題ない
   }
-  if (!userRequest) { // Keep strict check
+  if (!userRequest) { // 厳格なチェックを維持
     console.error('Error: User request details are required.');
     process.exit(1);
   }
 
-  // Check for empty fields in the request string (simple heuristic)
+  // リクエスト文字列内の空フィールドをチェック（簡易的なヒューリスティック）
   console.log("--- Debug: Received USER_REQUEST ---");
   console.log(userRequest);
   console.log("-----------------------------------");
@@ -48,7 +48,7 @@ async function main(injectedGenAI = null) {
 
   const genAI = injectedGenAI || new GoogleGenerativeAI(apiKey);
 
-  // Function Declaration for Google Books API
+  // Google Books API 用の関数宣言
   const searchGoogleBooksDeclaration = {
     name: "searchGoogleBooks",
     parameters: {
@@ -64,7 +64,7 @@ async function main(injectedGenAI = null) {
   };
 
 
-  // Read Context Files
+  // コンテキストファイルの読み込み
   let aiNativeGuide = "";
   try {
     if (fs.existsSync('docs/training/ai_native_guide.md')) {
@@ -74,7 +74,7 @@ async function main(injectedGenAI = null) {
       console.warn("Failed to read context guides:", e);
   }
 
-  // 1. Define System Instruction (Role & Strict Format)
+  // 1. システムインストラクションの定義（役割と厳格なフォーマット）
   const systemInstruction = `
 あなたは、企業の成長とメンバーの幸福を最大化するための学習ロードマップを作成する、世界最高の人材育成責任者（CLO）です。
 
@@ -131,7 +131,7 @@ ${aiNativeGuide}
 </organization_guide>
 `;
 
-  // Function Declaration for Knowledge Base Search
+  // ナレッジベース検索用の関数宣言
   const searchKnowledgeBaseDeclaration = {
     name: "searchKnowledgeBase",
     parameters: {
@@ -146,7 +146,7 @@ ${aiNativeGuide}
     }
   };
 
-  // Function Declaration for Knowledge Base Discovery
+  // ナレッジベース発見用の関数宣言
   const searchInternalReviewsDeclaration = {
     name: "searchInternalReviews",
     parameters: {
@@ -180,7 +180,7 @@ ${aiNativeGuide}
     ]
   });
 
-  // 2. User Prompt (Task specific context)
+  // 2. ユーザープロンプト（タスク固有のコンテキスト）
   const userPrompt = `
 以下のユーザーリクエストに基づいて、最適な学習ロードマップと書籍を提案してください。
 
@@ -211,7 +211,7 @@ ${userRequest}
 
 
 
-  // Load vectors if available
+  // 利用可能であればベクトルを読み込む
   let vectors = [];
   try {
       if (fs.existsSync('vectors.json')) {
@@ -224,14 +224,14 @@ ${userRequest}
       console.error("Failed to load vectors.json:", e);
   }
 
-  // Embedding Model for KB Search
+  // KB検索用の埋め込みモデル
   const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
 
   try {
     console.error(`Starting chat with model: gemini-2.5-flash...`);
     let result = await chat.sendMessage("おすすめの書籍を教えてください。");
 
-    let maxTurns = 15; // Increased for multiple checks
+    let maxTurns = 15; // 複数回チェックのために増加
     let turn = 0;
 
     while (result.response.functionCalls() && turn < maxTurns) {
@@ -244,7 +244,7 @@ ${userRequest}
                 const query = call.args.query;
                 console.error(`[Tool Call] Searching Google Books for: "${query}"`);
 
-                // Execute Google Books API Call
+                // Google Books API コールの実行
                 try {
                     const apiRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20&langRestrict=ja`);
                     const data = await apiRes.json();
@@ -276,11 +276,11 @@ ${userRequest}
                 console.error(`[Tool Call] Searching KB for: "${bookTitle}"`);
 
                 try {
-                    // Embed query
+                    // クエリの埋め込み
                     const embResult = await embeddingModel.embedContent(bookTitle);
                     const queryVec = embResult.embedding.values;
 
-                    // Find best match
+                    // 最良の一致を検索
                     let bestMatch = null;
                     let maxScore = -1;
 
@@ -292,10 +292,10 @@ ${userRequest}
                         }
                     }
 
-                    // Threshold (e.g., 0.65 for semantic match)
+                    // 閾値（例: 意味的一致のために 0.65）
                     if (maxScore > 0.65 && bestMatch) {
                         console.error(`[Tool Result] KB Match Found: ${bestMatch.id} (Score: ${maxScore.toFixed(3)})`);
-                        // Generate GitHub Pages URL from filename
+                        // ファイル名から GitHub Pages の URL を生成
                         const filename = bestMatch.id.replace('.md', '');
                         const pageUrl = `https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/${filename}.html`;
                         functionResponses.push({
@@ -304,7 +304,7 @@ ${userRequest}
                                 response: {
                                     found: true,
                                     score: maxScore,
-                                    summary: bestMatch.content.substring(0, 500), // Truncate content for context
+                                    summary: bestMatch.content.substring(0, 500), // コンテキストのために内容を切り詰め
                                     pageUrl: pageUrl
                                 }
                             }
@@ -335,15 +335,15 @@ ${userRequest}
                      const embResult = await embeddingModel.embedContent(topic);
                      const queryVec = embResult.embedding.values;
 
-                     // Score all vectors
+                     // 全ベクトルのスコアリング
                      const scored = vectors.map(vec => ({
                          ...vec,
                          score: cosineSimilarity(queryVec, vec.embedding)
                      }));
 
-                     // Sort and take top 3
+                     // ソートして上位3件を取得
                      scored.sort((a, b) => b.score - a.score);
-                     const topMatches = scored.slice(0, 3).filter(v => v.score > 0.6); // Threshold
+                     const topMatches = scored.slice(0, 3).filter(v => v.score > 0.6); // 閾値
 
                      console.error(`[Tool Result] Found ${topMatches.length} internal reviews.`);
 
@@ -356,7 +356,7 @@ ${userRequest}
                                      const pageUrl = `https://Saitekiinc-com.github.io/saiteki-study-doc/knowledge_base/book_reports/${filename}.html`;
                                      return {
                                          filename: m.id,
-                                         summary: m.content.substring(0, 800), // Longer context for discovery
+                                         summary: m.content.substring(0, 800), // 発見のために長めのコンテキスト
                                          score: m.score,
                                          pageUrl: pageUrl
                                      };
@@ -376,11 +376,11 @@ ${userRequest}
             }
         }
 
-        // Send all results back
+        // 全結果を返送
         result = await chat.sendMessage(functionResponses);
     }
 
-    // Check if the loop ended because of tool call limit but model still wants to call tool
+    // ツール呼び出し制限によりループが終了したが、モデルがまだツールを呼び出そうとしているか確認
     if (result.response.functionCalls()) {
         console.warn("Max tool turns reached. Forcing response generation.");
         result = await chat.sendMessage("検索はこれで十分です。ここまでに見つかった書籍情報だけを使って、今すぐ回答を作成してください。");
@@ -399,25 +399,25 @@ ${userRequest}
      console.error("Failed to generate text after tool execution.");
      console.error("--- DEBUG INFO ---");
      try {
-         // Re-get the response object if possible, or we should have saved it?
-         // 'result' is inside try block. Let's move 'result' decl up or just guess.
-         // Actually, I can't access 'result' here easily without restructuring.
-         // But I can guess standard reasons.
-         // Let's assume FinishReason is the culprit.
+          // レスポンスオブジェクトを再取得可能か、または保存すべきだったか？
+          // 'result' は try ブロック内にある。'result' の宣言を移動するか推測する。
+          // 実際には、ここで再構成なしに 'result' にアクセスするのは簡単ではない。
+          // しかし、一般的な原因を推測できる。
+          // FinishReason が原因であると仮定する。
          console.error("Possible causes: Safety Filters or Recitation Check.");
          console.error("Please check if the topic triggers restrictive safety filters.");
      } catch (e) {}
      process.exit(1);
   }
 
-  // No need for post-verification logic anymore!
+  // 事後検証ロジックはもう不要！
   console.error("\n--- Generated Roadmap ---\n");
   console.log(generatedText);
 
-  // Output to a file for GitHub Actions to pick up reliably
+  // GitHub Actions が確実に取得できるようにファイルに出力
   fs.writeFileSync('roadmap_body.md', generatedText);
 }
-// Removed legacy checkLinksInText and isUrlAlive functions
+// 以前の checkLinksInText と isUrlAlive 関数を削除
 
 
 if (require.main === module) {

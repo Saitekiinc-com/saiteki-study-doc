@@ -1,14 +1,14 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert');
 
-// Logic extracted from notify-slack.yml for testing
+// テストのために notify-slack.yml からロジックを抽出
 function extract(body, label) {
   const regex = new RegExp("### " + label + "[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))");
   const m = body.match(regex);
   return m ? m[1].trim() : 'なし';
 }
 
-describe('Slack Notification Content Extraction', () => {
+describe('Slack 通知コンテンツの抽出', () => {
     const sampleBody = `
 ### 書籍名
 AI時代に強い質問力
@@ -35,28 +35,28 @@ AI時代に強い質問力
 リーダー層
 `;
 
-    test('extracts "読む前の目的" correctly', () => {
+    test('"読む前の目的" が正しく抽出されること', () => {
         const result = extract(sampleBody, '読む前の目的');
         assert.strictEqual(result, '質問力を高めたい');
     });
 
-    test('extracts "得られた知識" correctly', () => {
+    test('"得られた知識" が正しく抽出されること', () => {
         const result = extract(sampleBody, '得られた知識');
         assert.strictEqual(result, '良い質問は人生を変える');
     });
 
-     test('extracts "難しかった点・合わなかった点" correctly', () => {
+     test('"難しかった点・合わなかった点" が正しく抽出されること', () => {
         const result = extract(sampleBody, '難しかった点・合わなかった点');
         assert.strictEqual(result, '特になし');
     });
 
-    test('extracts "💡 どんな人におすすめ？" correctly', () => {
-        // Note: The YAML uses '💡 どんな人におすすめ？' as label
+    test('"💡 どんな人におすすめ？" が正しく抽出されること', () => {
+        // 注: YAML ではラベルとして '💡 どんな人におすすめ？' を使用している
         const result = extract(sampleBody, '💡 どんな人におすすめ？');
         assert.strictEqual(result, 'リーダー層');
     });
 
-    test('returns "なし" for missing fields', () => {
+    test('存在しないフィールドには "なし" を返すこと', () => {
         const result = extract(sampleBody, '存在しないフィールド');
         assert.strictEqual(result, 'なし');
     });

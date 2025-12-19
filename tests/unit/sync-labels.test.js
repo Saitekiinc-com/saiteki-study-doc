@@ -3,7 +3,7 @@ const { test } = require('node:test');
 const assert = require('node:assert');
 const { syncLabels } = require('../../scripts/sync-labels.js');
 
-// Helper to mock GitHub API
+// GitHub API をモックするためのヘルパー
 const createMockGithub = (initialBody, initialLabels, action) => {
   let body = initialBody;
   let labels = [...initialLabels];
@@ -41,7 +41,7 @@ test('syncLabels appends checklist if missing (Trigger: opened)', async (t) => {
   const { body } = getFinalState();
   assert.ok(body.includes('## ステータス管理 (Status)'));
   assert.ok(body.includes('- [ ] 領収書を添付した'));
-  assert.ok(!body.includes('(Receipt Attached)')); // Ensure English removed
+  assert.ok(!body.includes('(Receipt Attached)')); // 英語が削除されていることを確認
 });
 
 test('syncLabels adds label when checkbox is checked (Trigger: edited)', async (t) => {
@@ -85,14 +85,14 @@ test('syncLabels unchecks checkbox when label is removed (Trigger: unlabeled)', 
 });
 
 test('syncLabels DOES NOT check checkbox if label is unrelated (Trigger: labeled)', async (t) => {
-  // Case: User adds 'book-search-request' label. This triggers 'labeled'.
-  // We must ensure this does NOT check 'Receipt Attached'.
+  // ケース: ユーザーが 'book-search-request' ラベルを追加。これにより 'labeled' がトリガーされる。
+  // これが 'Receipt Attached' をチェックしないことを確認する必要がある。
   const UNCHECKED_BODY = 'Original Body\n\n## ステータス管理 (Status)\n- [ ] 領収書を添付した\n- [ ] 承認済み';
   const { github, context, getFinalState } = createMockGithub(UNCHECKED_BODY, ['book-search-request'], 'labeled');
 
   await syncLabels({ github, context });
 
   const { body } = getFinalState();
-  assert.ok(body.includes('- [ ] 領収書を添付した'), 'Checkbox should remain unchecked for unrelated label');
+  assert.ok(body.includes('- [ ] 領収書を添付した'), '無関係なラベルの場合、チェックボックスは未チェックのままであるべき');
 });
 

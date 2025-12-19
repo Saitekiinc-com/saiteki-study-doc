@@ -1,8 +1,8 @@
 /**
- * Finds the parent issue (trackedInIssues) for a given issue Node ID.
- * @param {object} graphqlClient - The GitHub GraphQL client (octokit.graphql).
- * @param {string} nodeId - The Node ID of the child issue.
- * @returns {Promise<number|null>} - The issue number of the parent, or null if not found.
+ * 指定された Issue ノード ID の親 Issue (trackedInIssues) を検索します。
+ * @param {object} graphqlClient - GitHub GraphQL クライアント (octokit.graphql)。
+ * @param {string} nodeId - 子 Issue のノード ID。
+ * @returns {Promise<number|null>} - 親 Issue の番号。見つからない場合は null。
  */
 async function findParentIssue(graphqlClient, nodeId) {
   const query = `
@@ -22,7 +22,7 @@ async function findParentIssue(graphqlClient, nodeId) {
   try {
     const result = await graphqlClient(query, { nodeId });
 
-    // Safety checks for deep nesting
+    // 深いネストの安全性チェック
     if (
       result &&
       result.node &&
