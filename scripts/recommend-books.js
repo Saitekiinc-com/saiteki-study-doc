@@ -169,7 +169,7 @@ ${aiNativeGuide}
 
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-3-flash-preview",
     tools: tools,
     systemInstruction: systemInstruction,
     safetySettings: [
@@ -228,7 +228,7 @@ ${userRequest}
   const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001" });
 
   try {
-    console.error(`Starting chat with model: gemini-2.5-flash...`);
+    console.error(`Starting chat with model: gemini-3-flash-preview...`);
     let result = await chat.sendMessage("おすすめの書籍を教えてください。");
 
     let maxTurns = 15; // 複数回チェックのために増加
