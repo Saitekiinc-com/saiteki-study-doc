@@ -107,15 +107,7 @@ ${recommend || 'なし'}
   fs.writeFileSync(filepath, fileContent);
   console.log(`Successfully created report: ${filepath}`);
 
-  // インデックスファイルの更新
-  const indexFile = 'docs/knowledge_base/index.md';
-  if (fs.existsSync(indexFile)) {
-    const linkLine = `- [${bookTitleReal} (Issue ${issueNumber})](./book_reports/${filename})`;
-    fs.appendFileSync(indexFile, `\n${linkLine}`);
-    console.log(`Appended to index: ${indexFile}`);
-  } else {
-    console.warn(`Index file not found: ${indexFile}`);
-  }
+
 }
 
 

@@ -43,13 +43,7 @@ Verify E2E flow.
             GITHUB_OUTPUT: 'dummy_output.txt' // モック出力ファイル
         });
 
-        // 実際の index.md を破壊しないように事前バックアップ
-        // スクリプトは 'docs/knowledge_base/index.md' に追記します。
-        const indexPath = 'docs/knowledge_base/index.md';
-        let indexBackup = null;
-        if (fs.existsSync(indexPath)) {
-             indexBackup = fs.readFileSync(indexPath, 'utf8');
-        }
+
 
         try {
             // スクリプト実行
@@ -70,10 +64,6 @@ Verify E2E flow.
             if (fs.existsSync('dummy_output.txt')) fs.unlinkSync('dummy_output.txt');
 
         } finally {
-            // index.md の復元
-            if (indexBackup !== null) {
-                fs.writeFileSync(indexPath, indexBackup);
-            }
         }
     });
 });
