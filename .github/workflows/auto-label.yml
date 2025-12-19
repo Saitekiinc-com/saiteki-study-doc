@@ -2,7 +2,7 @@ name: Auto Label by Checkbox
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened, edited, labeled, reopened]
 
 jobs:
   label-manager:
