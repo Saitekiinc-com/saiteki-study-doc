@@ -11,6 +11,9 @@ jobs:
       issues: write
     if: contains(github.event.issue.labels.*.name, 'book-search-request')
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Manage Labels
         uses: actions/github-script@v7
         with:
