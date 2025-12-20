@@ -46,6 +46,9 @@ Verify E2E flow.
         });
 
         try {
+            // GITHUB_OUTPUT のファイルを作成しておく必要があります
+            fs.writeFileSync('dummy_output.txt', '');
+
             // ingest-book-report.ts スクリプトを実行します
             execSync('npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts', { env });
 

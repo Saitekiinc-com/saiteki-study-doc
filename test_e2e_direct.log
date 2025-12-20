@@ -1,0 +1,71 @@
+Error: GEMINI_API_KEY is not set.
+/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/lib/file-command.js:51
+        throw new Error(`Missing file at path: ${filePath}`);
+              ^
+
+Error: Missing file at path: dummy_output.txt
+    at issueFileCommand (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/file-command.ts:19:11)
+    at Object.setOutput (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/core.ts:220:28)
+    at main (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:60:8)
+    at <anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:111:3)
+    at Object.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:112:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object.transformer (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+
+Node.js v24.11.1
+▶ E2E: ワークフローシミュレーション
+  ✔ 入力がない場合、recommend-books は失敗すること (428.218458ms)
+  ✖ ingest-book-report 経由で書籍レポートファイルが生成されること (462.102875ms)
+✖ E2E: ワークフローシミュレーション (890.965875ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1035.31675
+
+✖ failing tests:
+
+test at tests/e2e/workflow-simulation.test.ts:2:1837
+✖ ingest-book-report 経由で書籍レポートファイルが生成されること (462.102875ms)
+  Error: Command failed: npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts
+  /Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/lib/file-command.js:51
+          throw new Error(`Missing file at path: ${filePath}`);
+                ^
+  
+  Error: Missing file at path: dummy_output.txt
+      at issueFileCommand (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/file-command.ts:19:11)
+      at Object.setOutput (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/core.ts:220:28)
+      at main (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:60:8)
+      at <anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:111:3)
+      at Object.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:112:1)
+      at Module._compile (node:internal/modules/cjs/loader:1761:14)
+      at Object.transformer (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+      at Module.load (node:internal/modules/cjs/loader:1481:32)
+      at Module._load (node:internal/modules/cjs/loader:1300:12)
+      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+  
+  Node.js v24.11.1
+  
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execSync (node:child_process:997:15)
+      at TestContext.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/tests/e2e/workflow-simulation.test.ts:50:13)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    status: 1,
+    signal: null,
+    output: [ null, <Buffer >, <Buffer 2f 55 73 65 72 73 2f 73 75 67 69 6d 6f 74 6f 6b 6f 75 69 63 68 69 2f 2e 67 65 6d 69 6e 69 2f 61 6e 74 69 67 72 61 76 69 74 79 2f 70 6c 61 79 67 72 6f ... 1406 more bytes> ],
+    pid: 42122,
+    stdout: <Buffer >,
+    stderr: <Buffer 2f 55 73 65 72 73 2f 73 75 67 69 6d 6f 74 6f 6b 6f 75 69 63 68 69 2f 2e 67 65 6d 69 6e 69 2f 61 6e 74 69 67 72 61 76 69 74 79 2f 70 6c 61 79 67 72 6f ... 1406 more bytes>
+  }

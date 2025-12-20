@@ -1,17 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as core from '@actions/core';
 
 const REPORTS_DIR = 'docs/knowledge_base/book_reports';
 
 export function sanitizeFilename(title: string): string {
   // 特殊文字とスペースを削除し、ハイフンに置換
-  // 日本語と英数字は保持
+  // 日本語と英数字、およびハイフンは保持
   return title
-    .replace(/[^\w\s\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf]/g, '') // Keep Japanese and alphanumeric
+    .replace(/[^\w\s\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
     .toLowerCase()
-    .slice(0, 50); // 長さを制限
+    .slice(0, 50);
 }
 
 export function preserveNewlines(text: string | null | undefined): string | null | undefined {
@@ -33,8 +34,8 @@ export function main(): void {
   const issueUrl = process.env.ISSUE_URL;
   const issueAuthor = process.env.ISSUE_AUTHOR;
 
-  if (!issueTitle || !issueBody) {
-    console.error('Error: ISSUE_TITLE and ISSUE_BODY environment variables are required.');
+  if (!issueTitle || !issueBody || !issueAuthor) {
+    console.error('Error: ISSUE_TITLE, ISSUE_BODY, and ISSUE_AUTHOR environment variables are required.');
     process.exit(1);
   }
 
@@ -56,14 +57,13 @@ export function main(): void {
   const recommend = extractField(issueBody, '💡 どんな人におすすめ？');
 
   // GitHub Actions への出力
-  if (process.env.GITHUB_OUTPUT) {
-      fs.appendFileSync(process.env.GITHUB_OUTPUT, `book_title=${bookTitleReal}\n`);
-  }
+  core.setOutput('book_title', bookTitleReal);
 
-  // ファイル名の生成: YYYY-MM-DD-{sanitized_title}.md
+  // ファイル名の生成: YYYY-MM-DD-{sanitized_author}-{sanitized_title}-{issueNumber}.md
   const date = new Date().toISOString().split('T')[0];
+  const safeAuthor = sanitizeFilename(issueAuthor);
   const safeTitle = sanitizeFilename(bookTitleReal);
-  const filename = `${date}-${issueAuthor}-${safeTitle}-${issueNumber}.md`;
+  const filename = `${date}-${safeAuthor}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);
 
   // フロントマターまたはヘッダーを追加

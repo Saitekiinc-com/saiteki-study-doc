@@ -1,0 +1,219 @@
+
+> saiteki-study-doc@1.0.0 test
+> tsx --test 'scripts/**/*.test.{js,ts}' 'tests/**/*.test.{js,ts}' 'docs/**/*.test.{js,ts}' tests/e2e/workflow-simulation.test.ts
+
+Issue #123 のタイトルを以下に変更します: 📚 書籍探索: RAGを構築したい (杉本さん)
+Issue 名の変更に成功しました。
+Issue #123 のタイトルを以下に変更します: 📚 書籍探索: Obj (Userさん)
+Issue 名の変更に失敗しました: Error: API Error
+    at Object.update (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/Issue名の変更/rename-issue.test.ts:53:17)
+    at renameIssue (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/Issue名の変更/rename-issue.ts:35:31)
+    at TestContext.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/Issue名の変更/rename-issue.test.ts:64:9)
+    at Test.runInAsyncScope (node:async_hooks:214:14)
+    at Test.run (node:internal/test_runner/test:1106:25)
+    at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    at Test.postRun (node:internal/test_runner/test:1235:19)
+    at Test.run (node:internal/test_runner/test:1163:12)
+    at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+✔ renameIssue formats title correctly and calls API (正常系) (1.021084ms)
+✔ renameIssue handles API errors gracefully (異常系) (83.49675ms)
+▶ debug-sidebar.ts 単体テスト
+  ✔ ファイルが見つかり、著者マッピングが存在する場合、正しくグループ化されること (53.949542ms)
+  ✔ マッピングにない著者の場合、そのままのIDが表示名になること (0.310708ms)
+  ✔ 著者がフロントマターにない場合、Other として扱われること (5.174ms)
+  ✔ @マーク付きの著者IDが正規化されること (0.270333ms)
+  ✔ ファイルが見つからない場合、空配列を返すこと (0.1825ms)
+✔ debug-sidebar.ts 単体テスト (60.614417ms)
+
+> saiteki-study-doc@1.0.0 docs:build
+> vitepress build docs
+
+
+  vitepress v1.6.4
+
+- building client + server bundles...
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+build complete in 7.16s.
+✔ Docs Build Verification (7755.242ms)
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+Found 1 report(s). Starting vectorization...
+Vectorized: report1.md
+Saved 1 vectors to /var/folders/zt/13z1dh853bz3kfr6bv9gs3hc0000gn/T/update-vectors-test-QhKpHj/vectors.json
+✔ update-vectors.ts のメインロジックテスト (2012.60225ms)
+Status section missing. Appending...
+Action is opened. Syncing Checkbox -> Label
+Updating issue body...
+Action is edited. Syncing Checkbox -> Label
+Adding labels: 領収書あり
+Action is edited. Syncing Checkbox -> Label
+Removing labels: 領収書あり
+Action is labeled. Syncing Label -> Checkbox
+Updating issue body...
+Action is unlabeled. Syncing Label -> Checkbox
+Updating issue body...
+Action is labeled. Syncing Label -> Checkbox
+✔ syncLabels appends checklist if missing (Trigger: opened) (1.264167ms)
+✔ syncLabels adds label when checkbox is checked (Trigger: edited) (0.237625ms)
+✔ syncLabels removes label when checkbox is unchecked (Trigger: edited) (0.18375ms)
+✔ syncLabels checks checkbox when label is added (Trigger: labeled) (0.15875ms)
+✔ syncLabels unchecks checkbox when label is removed (Trigger: unlabeled) (0.168167ms)
+✔ syncLabels DOES NOT check checkbox if label is unrelated (Trigger: labeled) (0.106166ms)
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+▶ recommend-books.ts 単体テスト
+  ▶ cosineSimilarity (コサイン類似度)
+    ✔ 完全に一致するベクトルの場合は1を返すこと (0.4685ms)
+    ✔ 直交するベクトルの場合は0を返すこと (0.091333ms)
+    ✔ 反対向きのベクトルの場合は-1を返すこと (0.06775ms)
+    ✔ 異なる長さのベクトルを処理できること（実装仕様として短い方に合わせる） (0.06775ms)
+  ✔ cosineSimilarity (コサイン類似度) (1.16875ms)
+✔ recommend-books.ts 単体テスト (1.402875ms)
+▶ ingest-book-report.ts 単体テスト
+  ▶ sanitizeFilename (ファイル名サニタイズ)
+    ✔ 通常の英語タイトルをサニタイズできること (0.519458ms)
+    ✔ 日本語文字を扱えること (0.14575ms)
+    ✔ 特殊文字を削除すること (0.068208ms)
+    ✔ 空白をトリムして短縮すること (0.076041ms)
+  ✔ sanitizeFilename (ファイル名サニタイズ) (1.271458ms)
+  ▶ extractField (フィールド抽出)
+    ✔ 存在するフィールドを抽出できること (0.214083ms)
+    ✔ 読む前の目的を抽出できること (0.107666ms)
+    ✔ 括弧を含むラベル（リンク (任意)）を抽出できること (0.098041ms)
+    ✔ 存在しないフィールドの場合はnullを返すこと (0.203417ms)
+    ✔ 空の本文から抽出を試みた場合nullを返すこと (0.134792ms)
+    ✔ 値が空のフィールドを正しく空文字として抽出できること (0.131792ms)
+  ✔ extractField (フィールド抽出) (1.736417ms)
+  ▶ sanitizeFilename (境界値)
+    ✔ 空文字の場合は空文字を返すこと (2.130125ms)
+    ✔ 禁止文字のみの場合は空文字を返すこと (0.451791ms)
+    ✔ 非常に長いタイトルは50文字に切り詰められること (0.114584ms)
+  ✔ sanitizeFilename (境界値) (2.863875ms)
+✔ ingest-book-report.ts 単体テスト (6.206042ms)
+GraphQL Error in findParentIssue: API Error
+▶ find-parent-issue.ts 単体テスト
+  ✔ 親Issueが存在する場合、番号を返すこと (10.633583ms)
+  ✔ 親Issueが存在しない場合、nullを返すこと (0.197833ms)
+  ✔ GraphQLエラー時に例外をスローすること (0.795667ms)
+✔ find-parent-issue.ts 単体テスト (66.549792ms)
+ユーザー test-user の重複リクエストを確認中... Issue: 123
+重複リクエストは見つかりませんでした。
+ユーザー test-user の重複リクエストを確認中... Issue: 123
+重複する Issue が見つかりました: 100。現在の Issue 123 をクローズします。
+✔ checkConcurrentRequests allows execution if no other issues exist (1.102625ms)
+✔ checkConcurrentRequests closes issue if duplicates exist (0.325083ms)
+Error: GEMINI_API_KEY is not set.
+/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/lib/file-command.js:51
+        throw new Error(`Missing file at path: ${filePath}`);
+              ^
+
+Error: Missing file at path: dummy_output.txt
+    at issueFileCommand (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/file-command.ts:19:11)
+    at Object.setOutput (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/core.ts:220:28)
+    at main (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:60:8)
+    at <anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:111:3)
+    at Object.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:112:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object.transformer (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+
+Node.js v24.11.1
+▶ E2E: ワークフローシミュレーション
+  ✔ 入力がない場合、recommend-books は失敗すること (444.778666ms)
+  ✖ ingest-book-report 経由で書籍レポートファイルが生成されること (491.446125ms)
+✖ E2E: ワークフローシミュレーション (936.886625ms)
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+--- Debug: Received USER_REQUEST ---
+【役割】: Test Role
+-----------------------------------
+Loaded 12 vectors from vectors.json
+Starting chat with model: gemini-3-flash-preview...
+[Tool Call] Searching Google Books for: "Test Query"
+[Tool Result] Found 1 books.
+Success!
+
+--- Generated Roadmap ---
+
+I found 'Mocked Book'.
+▶ 統合テスト: AI検索ループ
+  ✔ モック化されたクライアントでチャットを初期化しメッセージを送信できること (2.332666ms)
+  ✔ APIエラー時に適切にエラーハンドリングして終了すること (1.094084ms)
+  ✔ AIがツール実行（Google Books）を要求した場合、ツールが実行されループすること (2.243792ms)
+  ✔ Google Books APIの結果から日本語以外の書籍をフィルタリングすること (2.324791ms)
+✔ 統合テスト: AI検索ループ (8.668333ms)
+Testing Parsing Logic...
+Objective: 再テスト。環境変数修正後のSlack通知を確認する。
+Takeaways: シークレット名は正確に合わせる必要がある。
+Positive: 失敗から学ぶことは多い。
+Recommend: CI/CDエンジニア。
+ALL TESTS PASSED
+✔ tests/notify-slack.test.js (174.196417ms)
+▶ Slack 通知コンテンツの抽出
+  ✔ "読む前の目的" が正しく抽出されること (0.525417ms)
+  ✔ "得られた知識" が正しく抽出されること (0.165167ms)
+  ✔ "難しかった点・合わなかった点" が正しく抽出されること (0.097833ms)
+  ✔ "💡 どんな人におすすめ？" が正しく抽出されること (0.083958ms)
+  ✔ 存在しないフィールドには "なし" を返すこと (0.075791ms)
+✔ Slack 通知コンテンツの抽出 (1.648208ms)
+▶ ワークフロートリガーロジック検証
+  ✔ ケース 1: book-report ラベル付きで Issue が開かれた (opened イベント) (0.4425ms)
+  ✔ ケース 2: ラベルなしで Issue が開かれた (0.087416ms)
+  ✔ ケース 3: "book-report" ラベルが手動で追加された（または作成時の labeled イベント） (0.072166ms)
+  ✔ ケース 4: "other" ラベルが手動で追加された (0.060459ms)
+✔ ワークフロートリガーロジック検証 (1.259916ms)
+ℹ tests 54
+ℹ suites 11
+ℹ pass 53
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8014.930291
+
+✖ failing tests:
+
+test at tests/e2e/workflow-simulation.test.ts:2:1837
+✖ ingest-book-report 経由で書籍レポートファイルが生成されること (491.446125ms)
+  Error: Command failed: npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts
+  /Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/lib/file-command.js:51
+          throw new Error(`Missing file at path: ${filePath}`);
+                ^
+  
+  Error: Missing file at path: dummy_output.txt
+      at issueFileCommand (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/file-command.ts:19:11)
+      at Object.setOutput (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/@actions/core/src/core.ts:220:28)
+      at main (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:60:8)
+      at <anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:111:3)
+      at Object.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/scripts/書籍レポートの取り込み/ingest-book-report.ts:112:1)
+      at Module._compile (node:internal/modules/cjs/loader:1761:14)
+      at Object.transformer (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+      at Module.load (node:internal/modules/cjs/loader:1481:32)
+      at Module._load (node:internal/modules/cjs/loader:1300:12)
+      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+  
+  Node.js v24.11.1
+  
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execSync (node:child_process:997:15)
+      at TestContext.<anonymous> (/Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/tests/e2e/workflow-simulation.test.ts:50:13)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    status: 1,
+    signal: null,
+    output: [ null, <Buffer >, <Buffer 2f 55 73 65 72 73 2f 73 75 67 69 6d 6f 74 6f 6b 6f 75 69 63 68 69 2f 2e 67 65 6d 69 6e 69 2f 61 6e 74 69 67 72 61 76 69 74 79 2f 70 6c 61 79 67 72 6f ... 1406 more bytes> ],
+    pid: 41985,
+    stdout: <Buffer >,
+    stderr: <Buffer 2f 55 73 65 72 73 2f 73 75 67 69 6d 6f 74 6f 6b 6f 75 69 63 68 69 2f 2e 67 65 6d 69 6e 69 2f 61 6e 74 69 67 72 61 76 69 74 79 2f 70 6c 61 79 67 72 6f ... 1406 more bytes>
+  }
