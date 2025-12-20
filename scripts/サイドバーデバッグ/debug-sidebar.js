@@ -3,8 +3,11 @@ const { globSync } = require('glob');
 const fs = require('fs');
 const path = require('path');
 
-function getSidebarBooks() {
-  const files = globSync('docs/knowledge_base/book_reports/*.md');
+function getSidebarBooks(injectedGlobSync, injectedFs) {
+  const globFn = injectedGlobSync || globSync;
+  const fsMod = injectedFs || fs;
+
+  const files = globFn('docs/knowledge_base/book_reports/*.md');
   console.log('Found files:', files);
 
   const authorMap = {
@@ -15,7 +18,7 @@ function getSidebarBooks() {
   const booksByAuthor = {};
 
   files.forEach(file => {
-    const content = fs.readFileSync(file, 'utf-8');
+    const content = fsMod.readFileSync(file, 'utf-8');
     // フロントマターからタイトルと著者を抽出するための正規表現（簡易版）
     const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
     const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
@@ -26,33 +29,40 @@ function getSidebarBooks() {
     // 必要に応じて著者IDを正規化（例: @の削除）
     authorId = authorId.replace(/^@/, '');
 
-    console.log(`File: ${file}, AuthorId: '${authorId}', Title: ${title}`);
+    const displayName = authorMap[authorId] || authorId;
+
+    console.log(`File: ${file}, AuthorId: '${authorId}', DisplayName: '${displayName}', Title: ${title}`);
 
     const link = '/knowledge_base/book_reports/' + path.basename(file, '.md');
 
-    if (!booksByAuthor[authorId]) {
-      booksByAuthor[authorId] = [];
+    // DisplayName (杉本 光一) をキーにしてグループ化する
+    // NOTE: 著者が異なるIDでも同じ名前ならマージされる
+    if (!booksByAuthor[displayName]) {
+      booksByAuthor[displayName] = [];
     }
-    booksByAuthor[authorId].push({ text: title, link });
+    booksByAuthor[displayName].push({ text: title, link });
   });
 
   // グループとアイテムをソート
   const sidebarGroups = [];
-  for (const authorId in booksByAuthor) {
-    const displayName = authorMap[authorId] || authorId;
-    console.log(`Group: AuthorId='${authorId}', DisplayName='${displayName}'`);
+  for (const displayName in booksByAuthor) {
+    console.log(`Group: DisplayName='${displayName}'`);
     // リンク（日付を含む）の降順でアイテムをソートし、最新のものを最初に表示する
-    booksByAuthor[authorId].sort((a, b) => b.link.localeCompare(a.link));
+    booksByAuthor[displayName].sort((a, b) => b.link.localeCompare(a.link));
 
     sidebarGroups.push({
       text: displayName,
       collapsed: true,
-      items: booksByAuthor[authorId]
+      items: booksByAuthor[displayName]
     });
   }
 
   return sidebarGroups;
 }
 
-const result = getSidebarBooks();
-console.log('Final Sidebar Structure:', JSON.stringify(result, null, 2));
+if (require.main === module) {
+  const result = getSidebarBooks();
+  console.log('Final Sidebar Structure:', JSON.stringify(result, null, 2));
+}
+
+module.exports = { getSidebarBooks };

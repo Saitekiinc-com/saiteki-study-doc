@@ -1,16 +1,19 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require('dotenv').config();
 
-async function verifyModel() {
+async function verifyModel(injectedGenAI, injectedEnv) {
+  const env = injectedEnv || process.env;
+  const GenAI = injectedGenAI || GoogleGenerativeAI;
+
   const modelName = "gemini-3-flash-preview";
   console.log(`Verifying model: ${modelName}...`);
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!env.GEMINI_API_KEY) {
     console.error("❌ GEMINI_API_KEY is missing in .env");
     process.exit(1);
   }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const genAI = new GenAI(env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: modelName });
 
   try {
@@ -26,4 +29,8 @@ async function verifyModel() {
   }
 }
 
-verifyModel();
+if (require.main === module) {
+  verifyModel();
+}
+
+module.exports = { verifyModel };
