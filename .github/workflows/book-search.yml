@@ -31,7 +31,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install @google/generative-ai glob dotenv @actions/core @actions/github
+        run: npm ci
 
       - name: Update Vectors (Just-in-Time)
         env:
