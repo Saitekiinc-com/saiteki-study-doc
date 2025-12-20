@@ -1,6 +1,6 @@
 const { test, describe, it, mock } = require('node:test');
 const assert = require('node:assert');
-const { main } = require('../../scripts/recommend-books.js');
+const { main } = require('../../scripts/書籍の推薦/recommend-books.js');
 
 describe('統合テスト: AI検索ループ', () => {
 

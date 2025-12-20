@@ -5,7 +5,7 @@
 
 function shouldRunWorkflow(event) {
   const { action, label } = event;
-  const { checkConcurrentRequests } = require('../../scripts/check-concurrent-requests.js');
+  const { checkConcurrentRequests } = require('../../scripts/重複リクエストのチェック/check-concurrent-requests.js');
 
   // .github/workflows/ingest-book-report.yml の新しいロジック（opened は削除済み）
   // トリガー: types: [labeled]

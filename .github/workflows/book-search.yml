@@ -24,7 +24,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { checkConcurrentRequests } = require('./scripts/check-concurrent-requests.js');
+            const { checkConcurrentRequests } = require('./scripts/重複リクエストのチェック/check-concurrent-requests.js');
             await checkConcurrentRequests({ github, context, core });
 
       - name: Setup Node.js
@@ -38,7 +38,7 @@ jobs:
       - name: Update Vectors (Just-in-Time)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: node scripts/update-vectors.js
+        run: node scripts/ベクトルデータの更新/update-vectors.js
 
       - name: Parse Issue Body
         id: parse
@@ -87,7 +87,7 @@ jobs:
             【達成したい目標】: ${{ steps.parse.outputs.objective }}
         run: |
           # Run script (writes to roadmap_body.md)
-          node scripts/recommend-books.js
+          node scripts/書籍の推薦/recommend-books.js
 
       - name: Get Author Display Name
         id: author
@@ -103,7 +103,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { renameIssue } = require('./scripts/rename-issue.js');
+            const { renameIssue } = require('./scripts/Issue名の変更/rename-issue.js');
             await renameIssue({
               github,
               context,

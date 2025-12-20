@@ -16,8 +16,7 @@ describe('E2E: ワークフローシミュレーション', () => {
 
     it('入力がない場合、recommend-books は失敗すること', () => {
         try {
-            execSync('node scripts/recommend-books.js');
-            assert.fail('失敗するはずです');
+         const result = execSync('node scripts/書籍の推薦/recommend-books.js', { encoding: 'utf-8' });         assert.fail('失敗するはずです');
         } catch (e) {
             assert.ok(e.status !== 0); // 終了コードは非ゼロであるべき
         }
@@ -47,7 +46,7 @@ Verify E2E flow.
 
         try {
             // スクリプト実行
-            execSync('node scripts/ingest-book-report.js', { env });
+         const result = execSync('node scripts/読書感想文の取り込み/ingest-book-report.js', { env });
 
             // ファイル作成確認
             const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-test-book-9999.md`;
