@@ -21,15 +21,30 @@ function getSidebarBooks(injectedGlobSync, injectedFs) {
 
   files.forEach(file => {
     const content = fsMod.readFileSync(file, 'utf-8');
+    // Extract authorId from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+    // Fallback to frontmatter extraction for backward compatibility if filename doesn't match pattern
+    const filename = path.basename(file, '.md');
+    const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/);
+
+    let authorId = 'Other';
+    let title = path.basename(file, '.md'); // Default title
+    if (filenameParts && filenameParts[1]) {
+       authorId = filenameParts[1];
+       // Extract title from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+       const titleParts = filename.match(/^\d{4}-\d{2}-\d{2}-.*?-(.*?)-\d+$/);
+       if (titleParts && titleParts[1]) {
+         title = titleParts[1];
+       }
+    } else {
+       // Fallback: use frontmatter for old files
     // フロントマターからタイトルと著者を抽出するための正規表現（簡易版）
     const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
-    const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
 
-    const title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
-    let authorId = authorMatch ? authorMatch[1].trim() : 'Other';
-
-    // 必要に応じて著者IDを正規化（例: @の削除）
-    authorId = authorId.replace(/^@/, '');
+    title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
+       const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
+       authorId = authorMatch ? authorMatch[1].trim() : 'Other';
+       authorId = authorId.replace(/^@/, '');
+    }
 
     const displayName = authorMap[authorId] || authorId;
 

@@ -6,21 +6,23 @@ import { getSidebarBooks } from './sidebar.mjs'
 test('getSidebarBooks groups different author representations together', (t) => {
   // 依存関係のモック
   const mockFiles = [
-    '/path/to/report1.md',
-    '/path/to/report2.md'
+    '/path/to/2025-12-20-koxtuichi-report1-100.md',
+    '/path/to/2025-12-21-sugimotokouichi-report2-101.md'
   ]
 
   const mockGlobSync = () => mockFiles
 
   const mockFs = {
     readFileSync: (file) => {
-      if (file === '/path/to/report1.md') {
+      // Logic for new format: author is in filename, so frontmatter author might differ or be absent
+      // But for this test let's keep consistent
+      if (file.includes('report1')) {
         return `---
 title: "Report 1"
 author: koxtuichi
 ---`
       }
-      if (file === '/path/to/report2.md') {
+      if (file.includes('report2')) {
         return `---
 title: "Report 2"
 author: 杉本光一
@@ -32,8 +34,8 @@ author: 杉本光一
 
   const mockPath = {
     basename: (file, ext) => {
-      if (file === '/path/to/report1.md') return 'report1'
-      if (file === '/path/to/report2.md') return 'report2'
+      if (file.includes('report1')) return '2025-12-20-koxtuichi-report1-100'
+      if (file.includes('report2')) return '2025-12-21-sugimotokouichi-report2-101'
       return 'unknown'
     }
   }
@@ -55,6 +57,15 @@ author: 杉本光一
   // "📚 [AI駆動開発の教科書] 読書感想文" は "[AI駆動開発の教科書] 読書感想文" (またはアイコンなし) になるべき
   // 元のロジックが [] を削除せず、アイコンだけを削除すると仮定。
   // 待って、上記のモックではアイコンをデータに入れていなかった。モックデータも更新しよう。
+  // "undefined" author ID from report2 (because it's 'undefined' string in filename mock)
+  // Wait, report 2 filename: 2025-12-21-undefined-report2-101.md
+  // The logic regex: /^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/
+  // So authorId = 'undefined'
+  // But wait, the previous test expected group '杉本 光一'.
+  // 'undefined' is not mapped in authorMap.
+  // Unless we use 'sugimotokouichi' in filename for report2 to match the map.
+  // Let's change report2 filename in Step 226 to use 'sugimotokouichi' to test mapping success.
+
   assert.deepStrictEqual(titles, ['📚 Report 1', '📚 Report 2'])
 })
 
