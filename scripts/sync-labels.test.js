@@ -1,7 +1,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { syncLabels } = require('../../scripts/sync-labels.js');
+const { syncLabels } = require('./sync-labels.js');
 
 // GitHub API をモックするためのヘルパー
 const createMockGithub = (initialBody, initialLabels, action) => {

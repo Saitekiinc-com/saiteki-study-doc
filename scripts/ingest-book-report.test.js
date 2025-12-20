@@ -1,6 +1,6 @@
 const { test, describe, it } = require('node:test');
 const assert = require('node:assert');
-const { sanitizeFilename, extractField } = require('../../scripts/ingest-book-report.js');
+const { sanitizeFilename, extractField } = require('./ingest-book-report.js');
 
 describe('ingest-book-report.js 単体テスト', () => {
 

@@ -1,0 +1,28 @@
+
+> saiteki-study-doc@1.0.0 docs:build
+> vitepress build docs
+
+
+  vitepress v1.6.4
+
+- building client + server bundles...
+
+
+(!) Found dead link ./book_reports/2025-12-03-ai%E6%99%82%E4%BB%A3%E3%81%AB%E5%BC%B7%E3%81%84%E8%B3%AA%E5%95%8F%E5%8A%9B-%E8%AA%AD%E6%9B%B8%E6%84%9F%E6%83%B3%E6%96%87-10 in file knowledge_base/book_list.md
+(!) Found dead link ./book_reports/2025-12-16-ai%E6%99%82%E4%BB%A3%E3%81%AB%E5%BC%B7%E3%81%84%E8%B3%AA%E5%95%8F%E5%8A%9B-92 in file knowledge_base/book_list.md
+(!) Found dead link ./book_reports/2025-12-16-%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9E%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AEgoogle-cloud-platform%E5%85%A5%E9%96%80-%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%81%AE%E5%85%A8%E4%BD%93%E5%83%8F%E3%81%8B%E3%82%89%E3%82%AF%E3%83%A9%E3%82%A6%E3%83%89%E3%83%8D%E3%82%A4%E3%83%86-80 in file knowledge_base/book_list.md
+
+If this is expected, you can disable this check via config. Refer: https://vitepress.dev/reference/site-config#ignoredeadlinks
+
+x Build failed in 2.10s
+[31m✖[0m building client + server bundles...
+build error:
+[vitepress] 3 dead link(s) found.
+[vitepress] 3 dead link(s) found.
+    at Object.renderStart (file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/vitepress/dist/node/chunk-D3CUZ4fa.js:45027:15)
+    at file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/rollup/dist/es/shared/node-entry.js:22451:40
+    at async Promise.all (index 0)
+    at async PluginDriver.hookParallel (file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/rollup/dist/es/shared/node-entry.js:22361:9)
+    at async Bundle.generate (file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/rollup/dist/es/shared/node-entry.js:20558:13)
+    at async file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/rollup/dist/es/shared/node-entry.js:23438:27
+    at async catchUnfinishedHookActions (file:///Users/sugimotokouichi/.gemini/antigravity/playground/azimuthal-coronal/node_modules/rollup/dist/es/shared/node-entry.js:22805:16)

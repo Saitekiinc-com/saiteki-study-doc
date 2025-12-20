@@ -1,6 +1,6 @@
 const { test, describe, it } = require('node:test');
 const assert = require('node:assert');
-const { cosineSimilarity } = require('../../scripts/recommend-books.js');
+const { cosineSimilarity } = require('./recommend-books.js');
 
 describe('recommend-books.js 単体テスト', () => {
     describe('cosineSimilarity (コサイン類似度)', () => {

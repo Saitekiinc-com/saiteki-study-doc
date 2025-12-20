@@ -1,7 +1,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { renameIssue } = require('../../scripts/rename-issue.js');
+const { renameIssue } = require('./rename-issue.js');
 
 // 正常系: タイトルが正しくフォーマットされ、APIが呼び出されることを確認
 test('renameIssue formats title correctly and calls API (正常系)', async (t) => {

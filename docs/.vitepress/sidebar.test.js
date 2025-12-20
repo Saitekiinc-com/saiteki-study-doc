@@ -1,7 +1,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert'
-import { getSidebarBooks } from '../../docs/.vitepress/sidebar.mjs'
+import { getSidebarBooks } from './sidebar.mjs'
 
 test('getSidebarBooks groups different author representations together', (t) => {
   // 依存関係のモック

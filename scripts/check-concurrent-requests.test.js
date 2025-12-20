@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { checkConcurrentRequests } = require('../../scripts/check-concurrent-requests.js');
+const { checkConcurrentRequests } = require('./check-concurrent-requests.js');
 
 test('checkConcurrentRequests allows execution if no other issues exist', async (t) => {
   const mockGithub = {

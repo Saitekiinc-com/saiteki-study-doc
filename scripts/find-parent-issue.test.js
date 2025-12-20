@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { findParentIssue } = require('../../scripts/find-parent-issue.js');
+const { findParentIssue } = require('./find-parent-issue.js');
 
 test('find-parent-issue.js 単体テスト', async (t) => {
 
