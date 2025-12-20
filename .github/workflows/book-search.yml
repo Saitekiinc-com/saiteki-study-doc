@@ -19,12 +19,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for Concurrent Requests
-        id: check_concurrency
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx tsx scripts/重複リクエストのチェック/check-concurrent-requests.ts
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,6 +26,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check for Concurrent Requests
+        id: check_concurrency
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/重複リクエストのチェック/check-concurrent-requests.ts
+
+
 
       - name: Update Vectors (Just-in-Time)
         env:
