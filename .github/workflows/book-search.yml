@@ -25,7 +25,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install @actions/core @actions/github tsx glob dotenv @google/generative-ai
 
       - name: Check for Concurrent Requests
         id: check_concurrency
