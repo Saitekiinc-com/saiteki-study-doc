@@ -40,12 +40,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install @google/generative-ai glob dotenv
+        run: npm ci
 
       - name: Update Vectors (Just-in-Time)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: node scripts/update-vectors.js
+        run: npx tsx scripts/ベクトルデータの更新/update-vectors.ts
 
       - name: Generate Roadmap
         id: generate
@@ -58,7 +58,7 @@ jobs:
             【現在の課題/ゴール】: ${{ inputs.goal }}
         run: |
           # Run script and capture output to a temporary file
-          node scripts/generate-roadmap.js > roadmap_output.md
+          npx tsx scripts/書籍の推薦/recommend-books.ts > roadmap_output.md
 
           # Extract only the Markdown part (after "--- Generated Roadmap ---")
           # Note: The script prints logs to stdout too, so we need to be careful.
@@ -68,7 +68,7 @@ jobs:
 
           # For now, let's just use the whole output but strip the logs if possible.
           # Run script (it now writes to roadmap_body.md)
-          node scripts/generate-roadmap.js
+          npx tsx scripts/書籍の推薦/recommend-books.ts
 
       - name: Ensure Label Exists
         env:

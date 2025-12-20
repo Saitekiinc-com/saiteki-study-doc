@@ -30,8 +30,8 @@ jobs:
       # or if the user simply wants to verify logic.
       # However, our integration tests MOCK the API, so no actual key is needed for 'npm test' logic if implementation is correct.
       # Let's ensure GEMINI_API_KEY is available or mocked in environment if required by strict checks in code.
-      # recommend-books.js lines 22-26 require keys unless "injectedGenAI" is passed, which integration tests do.
-      # E2E test calls "node scripts/recommend-books.js", which DOES check for key.
+      # recommend-books.ts lines 22-26 require keys unless "injectedGenAI" is passed, which integration tests do.
+      # E2E test calls "npx tsx scripts/書籍の推薦/recommend-books.ts", which DOES check for key.
       # So we need to provide a dummy key for CI E2E tests if we want them to "pass" the env check,
       # but they will fail network calls if not mocked.
       # Wait, E2E tests DO run the actual script. Actual script needs actual key...

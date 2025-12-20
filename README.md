@@ -54,8 +54,8 @@ sequenceDiagram
     participant User as 社員
     participant Issue as GitHub Issue
     participant Action as GitHub Actions
-    participant Ingest as ingest-book-report.js
-    participant Vector as update-vectors.js
+    participant Ingest as ingest-book-report.ts
+    participant Vector as update-vectors.ts
     participant KB as docs/knowledge_base
     participant JSON as vectors.json
 
@@ -77,7 +77,7 @@ sequenceDiagram
 sequenceDiagram
     participant User as 社員
     participant Action as GitHub Actions
-    participant Script as recommend-books.js
+    participant Script as recommend-books.ts
     participant AI as Gemini 2.5 Flash
     participant GBooks as Google Books API
     participant JSON as vectors.json
