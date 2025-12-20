@@ -12,7 +12,9 @@ function getSidebarBooks(injectedGlobSync, injectedFs) {
 
   const authorMap = {
     'koxtuichi': '杉本 光一',
-    'sugimotokouichi': '杉本 光一'
+    'sugimotokouichi': '杉本 光一',
+    '杉本光一': '杉本 光一',
+    '杉本 光一': '杉本 光一'
   }
 
   const booksByAuthor = {};
