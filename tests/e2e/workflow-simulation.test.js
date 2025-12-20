@@ -49,7 +49,7 @@ Verify E2E flow.
          const result = execSync('node scripts/読書感想文の取り込み/ingest-book-report.js', { env });
 
             // ファイル作成確認
-            const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-test-book-9999.md`;
+            const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-bot-e2e-test-book-9999.md`;
             assert.ok(fs.existsSync(expectedFile), 'レポートファイルが作成されるべきです');
 
             // レポートの中身の検証 (Strengthen E2E)

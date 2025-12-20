@@ -23,18 +23,26 @@ export function getSidebarBooks({
     const content = fs.readFileSync(file, 'utf-8')
     // Simple regex to extract title and author from frontmatter
     const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m)
-    const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
 
     let title = titleMatch ? titleMatch[1] : path.basename(file, '.md')
     // Normalize title: remove generic book icon and leading spaces
     title = '📚 ' + title.replace(/^📚\s*/, '')
-
-    let authorId = authorMatch ? authorMatch[1].trim() : 'Other'
-
-    // Normalize authorId if needed (e.g. remove @)
-    authorId = authorId.replace(/^@/, '')
-
     const link = '/knowledge_base/book_reports/' + path.basename(file, '.md')
+
+    // Extract authorId from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+    // Fallback to frontmatter extraction for backward compatibility if filename doesn't match pattern
+    const filename = path.basename(file, '.md')
+    const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/)
+
+    let authorId = 'Other'
+    if (filenameParts && filenameParts[1]) {
+       authorId = filenameParts[1]
+    } else {
+       // Fallback: use frontmatter for old files
+       const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
+       authorId = authorMatch ? authorMatch[1].trim() : 'Other'
+       authorId = authorId.replace(/^@/, '')
+    }
 
     // Fallback if no mapping exists: use the raw ID
     // But since we want to duplicate handling, we will rely on displayName mapping later

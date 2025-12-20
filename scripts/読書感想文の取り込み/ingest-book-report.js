@@ -63,7 +63,7 @@ function main() {
   // ファイル名の生成: YYYY-MM-DD-{sanitized_title}.md
   const date = new Date().toISOString().split('T')[0];
   const safeTitle = sanitizeFilename(bookTitleReal);
-  const filename = `${date}-${safeTitle}-${issueNumber}.md`;
+  const filename = `${date}-${issueAuthor}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);
 
   // フロントマターまたはヘッダーを追加
