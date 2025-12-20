@@ -1,6 +1,6 @@
 name: 書籍レポート
 description: 読了した書籍の感想・学びをチームに共有します。ナレッジベースに蓄積されます。
-title: "📚 [書籍名] 読書感想文"
+title: "📚 [書籍名] 書籍レポート"
 labels: ["book-report"]
 body:
   - type: input

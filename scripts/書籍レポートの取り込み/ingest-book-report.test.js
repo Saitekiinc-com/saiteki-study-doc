@@ -34,7 +34,7 @@ The Pragmatic Programmer
 ### 著者
 David Thomas
 
-### 読む前の目的 (Objective)
+### 読む前の目的
 Learn best practices.
 `;
 
@@ -43,8 +43,8 @@ Learn best practices.
             assert.strictEqual(result, 'The Pragmatic Programmer');
         });
 
-        it('ラベルにエスケープが必要な文字が含まれていても抽出できること', () => {
-            const result = extractField(sampleBody, '読む前の目的 \\(Objective\\)');
+        it('読む前の目的を抽出できること', () => {
+            const result = extractField(sampleBody, '読む前の目的');
             assert.strictEqual(result, 'Learn best practices.');
         });
 
