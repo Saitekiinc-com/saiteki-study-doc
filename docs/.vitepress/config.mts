@@ -9,14 +9,14 @@ export default withMermaid({
   themeConfig: {
     nav: [
       { text: 'AI Doc', link: '/' },
-      { text: 'Books Review', link: '/knowledge_base/' },
+      { text: '書籍レポート', link: '/knowledge_base/' },
     ],
 
     sidebar: {
       // Default sidebar for AI Doc pages
       '/': [
         {
-          text: 'Curriculum (Fullstack)',
+          text: 'Curriculum WIP',
           collapsed: false,
           items: [
             { text: 'AI Native Engineering', link: '/training/ai_native_guide' },
@@ -26,19 +26,6 @@ export default withMermaid({
             { text: 'Lv.2 Application', link: '/training/curriculum/level2_application' },
             { text: 'Lv.3 Quality', link: '/training/curriculum/level3_quality' },
             { text: 'Lv.4 Architecture', link: '/training/curriculum/level4_architecture' },
-          ]
-        },
-        {
-          text: 'AWS / Infrastructure',
-          collapsed: false,
-          items: [
-            { text: 'Introduction', link: '/training/aws/index' },
-          ]
-        },
-        {
-          text: 'Guides',
-          items: [
-            { text: 'Book Features', link: '/guide/book-features' },
           ]
         }
       ],
