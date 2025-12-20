@@ -7,7 +7,7 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "test": "tsx --test 'scripts/**/*.test.{js,ts}' 'tests/**/*.test.{js,ts}' 'docs/**/*.test.{js,ts}'",
+    "test": "tsx --test 'scripts/**/*.test.ts' 'scripts/**/*.test.js' 'tests/**/*.test.ts' 'tests/**/*.test.js' 'docs/**/*.test.ts' 'docs/**/*.test.js'",
     "prepare": "husky"
   },
   "keywords": [],

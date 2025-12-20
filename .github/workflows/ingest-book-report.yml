@@ -58,6 +58,8 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
+        env:
+          HUSKY: "0"
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: "feat: add book report from issue #${{ github.event.issue.number }}"
