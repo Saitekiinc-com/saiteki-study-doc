@@ -1,6 +1,6 @@
-const { test } = require('node:test');
-const assert = require('node:assert');
-const { checkConcurrentRequests } = require('./check-concurrent-requests.js');
+import { test } from 'node:test';
+import * as assert from 'node:assert';
+import { checkConcurrentRequests } from './check-concurrent-requests.js';
 
 test('checkConcurrentRequests allows execution if no other issues exist', async (t) => {
   const mockGithub = {
@@ -11,16 +11,16 @@ test('checkConcurrentRequests allows execution if no other issues exist', async 
         update: async () => {}
       }
     }
-  };
+  } as any;
   const mockContext = {
     repo: { owner: 'test-owner', repo: 'test-repo' },
     payload: {
       issue: { number: 123, user: { login: 'test-user' } }
     }
-  };
+  } as any;
   const mockCore = {
-    setFailed: (msg) => { throw new Error(`setFailed called: ${msg}`); }
-  };
+    setFailed: (msg: string) => { throw new Error(`setFailed called: ${msg}`); }
+  } as any;
 
   await checkConcurrentRequests({ github: mockGithub, context: mockContext, core: mockCore });
   assert.ok(true, 'エラーなしで完了すべき');
@@ -40,29 +40,29 @@ test('checkConcurrentRequests closes issue if duplicates exist', async (t) => {
             { number: 123, html_url: 'http://new' }  // 現在の Issue
           ]
         }),
-        createComment: async ({ body }) => {
+        createComment: async ({ body }: any) => {
           commentCreated = true;
           assert.match(body, /すでに進行中の書籍選定依頼があります/);
         },
-        update: async ({ state }) => {
+        update: async ({ state }: any) => {
           if (state === 'closed') issueClosed = true;
         }
       }
     }
-  };
+  } as any;
   const mockContext = {
     repo: { owner: 'test-owner', repo: 'test-repo' },
     payload: {
       issue: { number: 123, user: { login: 'test-user' } }
     }
-  };
+  } as any;
   const mockCore = {
-    setFailed: (msg) => { failedMsg = msg; }
-  };
+    setFailed: (msg: string) => { failedMsg = msg; }
+  } as any;
 
   await checkConcurrentRequests({ github: mockGithub, context: mockContext, core: mockCore });
 
   assert.strictEqual(commentCreated, true, '警告コメントを作成すべき');
   assert.strictEqual(issueClosed, true, '現在の Issue をクローズすべき');
-  assert.strictEqual(failedMsg, 'Concurrent request limit exceeded.', 'アクションを失敗としてマークすべき');
+  assert.strictEqual(failedMsg, '重複リクエストの制限を超過しました。', 'アクションを失敗としてマークすべき');
 });

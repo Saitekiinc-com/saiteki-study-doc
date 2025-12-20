@@ -1,27 +1,36 @@
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { Context } from '@actions/github/lib/context';
+
+type Octokit = ReturnType<typeof github.getOctokit>;
+
+type SyncParams = {
+  github: Octokit;
+  context: Context;
+  core: typeof core;
+};
 
 /**
  * Issue 本文のチェックボックスと Issue ラベルを同期させます。
  * また、ステータスチェックリストが不足している場合は追加します。
- *
- * @param {Object} params
- * @param {Object} params.github - GitHub API クライアント
- * @param {Object} params.context - Actions コンテキスト
- * @param {Object} params.core - Actions core
  */
-async function syncLabels({ github, context, core }) {
-  const issue_number = context.payload.issue.number;
+export async function syncLabels({ github: octokit, context, core }: SyncParams) {
+  const issue_number = context.payload.issue?.number;
+  if (!issue_number) {
+    throw new Error('No issue number found in context');
+  }
   const owner = context.repo.owner;
   const repo = context.repo.repo;
 
   // ローカルペイロードとの競合状態を避けるため、最新の Issue データを取得
-  const { data: issue } = await github.rest.issues.get({
+  const { data: issue } = await octokit.rest.issues.get({
     owner,
     repo,
     issue_number
   });
 
   let body = issue.body || '';
-  const currentLabels = issue.labels.map(l => l.name);
+  const currentLabels = issue.labels.map((l: string | { name?: string }) => typeof l === 'string' ? l : l.name || '');
   let bodyChanged = false;
 
   // --- チェックボックス定義 ---
@@ -31,53 +40,8 @@ async function syncLabels({ github, context, core }) {
   const CHECKBOX_RECEIPT = '- [ ] 領収書を添付した (申請者)';
   const CHECKBOX_APPROVED = '- [ ] 承認済み (上長)';
 
-  // --- 旧形式からの移行 (Migration) ---
-
-  // 1. 古い表記の置換
-  // 以前の "購入したい書籍の商品リンクを添付した" (申請者なし) を置換
-  if (body.includes('- [ ] 購入したい書籍の商品リンクを添付した') && !body.includes(CHECKBOX_LINK)) {
-    body = body.replace('- [ ] 購入したい書籍の商品リンクを添付した', CHECKBOX_LINK);
-    bodyChanged = true;
-  }
-  if (body.includes('- [x] 購入したい書籍の商品リンクを添付した') && !body.includes(CHECKBOX_LINK)) {
-    body = body.replace('- [x] 購入したい書籍の商品リンクを添付した', '- [x] 購入したい書籍の商品リンクを添付した（申請者）');
-    bodyChanged = true;
-  }
-
-  if (body.includes('- [ ] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT) && !body.includes('- [ ] 領収書を添付した (申請者)')) {
-    body = body.replace('- [ ] 領収書を添付した', CHECKBOX_RECEIPT);
-    bodyChanged = true;
-  }
-  if (body.includes('- [x] 領収書を添付した') && !body.includes(CHECKBOX_RECEIPT) && !body.includes('- [x] 領収書を添付した (申請者)')) {
-    body = body.replace('- [x] 領収書を添付した', '- [x] 領収書を添付した (申請者)');
-    bodyChanged = true;
-  }
-  if (body.includes('- [ ] 承認済み') && !body.includes(CHECKBOX_APPROVED) && !body.includes('- [ ] 承認済み (上長)')) {
-    body = body.replace('- [ ] 承認済み', CHECKBOX_APPROVED);
-    bodyChanged = true;
-  }
-  if (body.includes('- [x] 承認済み') && !body.includes(CHECKBOX_APPROVED) && !body.includes('- [x] 承認済み (上長)')) {
-    body = body.replace('- [x] 承認済み', '- [x] 承認済み (上長)');
-    bodyChanged = true;
-  }
-
-  // 2. 新しいチェックボックスの挿入 (領収書チェックの前)
-  // 既に存在するか確認 (完了状態も含む)
-  const isLinkMsgPresent = body.includes('購入したい書籍の商品リンクを添付した（申請者）');
-
-  if (!isLinkMsgPresent) {
-     if (body.includes(CHECKBOX_RECEIPT)) {
-         body = body.replace(CHECKBOX_RECEIPT, `${CHECKBOX_LINK}\n${CHECKBOX_RECEIPT}`);
-         bodyChanged = true;
-     } else if (body.includes('- [x] 領収書を添付した (申請者)')) {
-         body = body.replace('- [x] 領収書を添付した (申請者)', `${CHECKBOX_LINK}\n- [x] 領収書を添付した (申請者)`);
-         bodyChanged = true;
-     }
-  }
-
   // 注: 単純に追加する場合、混合状態を適切にサポートできません。
   // しかし厳密には、ヘッダーがない場合は追加します。
-
   if (!body.includes(STATUS_HEADER)) {
     console.log('Status section missing. Appending...');
     // 順番: リンク添付 -> 領収書 -> 承認
@@ -85,15 +49,14 @@ async function syncLabels({ github, context, core }) {
     bodyChanged = true;
   }
 
-
   // --- 双方向同期ロジック ---
 
   // 1. チェックボックス -> ラベル (本文でチェックボックスがオンの場合、ラベルが存在することを確認)
   const isReceiptChecked = body.includes('- [x] 領収書を添付した (申請者)');
   const isApprovedChecked = body.includes('- [x] 承認済み (上長)');
 
-  const labelsToAdd = [];
-  const labelsToRemove = [];
+  const labelsToAdd: string[] = [];
+  const labelsToRemove: string[] = [];
 
   const action = context.payload.action;
 
@@ -154,18 +117,18 @@ async function syncLabels({ github, context, core }) {
   // 必要に応じて本文を更新
   if (bodyChanged) {
     console.log('Updating issue body...');
-    await github.rest.issues.update({
+    await octokit.rest.issues.update({
       owner, repo, issue_number, body
     });
   }
 
   // ヘルパー定義
-  const ensureLabel = async (name, color) => {
+  const ensureLabel = async (name: string, color: string) => {
     try {
-      await github.rest.issues.getLabel({ owner, repo, name });
-    } catch (e) {
+      await octokit.rest.issues.getLabel({ owner, repo, name });
+    } catch (e: any) {
       if (e.status === 404) {
-        await github.rest.issues.createLabel({ owner, repo, name, color });
+        await octokit.rest.issues.createLabel({ owner, repo, name, color });
       }
     }
   };
@@ -177,7 +140,7 @@ async function syncLabels({ github, context, core }) {
     if (labelsToAdd.includes('承認済み')) await ensureLabel('承認済み', '0E8A16');
 
     console.log(`Adding labels: ${labelsToAdd.join(', ')}`);
-    await github.rest.issues.addLabels({
+    await octokit.rest.issues.addLabels({
       owner, repo, issue_number, labels: labelsToAdd
     });
   }
@@ -186,10 +149,10 @@ async function syncLabels({ github, context, core }) {
     console.log(`Removing labels: ${labelsToRemove.join(', ')}`);
     for (const label of labelsToRemove) {
       try {
-        await github.rest.issues.removeLabel({
+        await octokit.rest.issues.removeLabel({
           owner, repo, issue_number, name: label
         });
-      } catch (e) {
+      } catch (e: any) {
         // 404 は無視してチェックしない
         console.log(`Failed to remove label ${label}: ${e.message}`);
       }
@@ -197,4 +160,22 @@ async function syncLabels({ github, context, core }) {
   }
 }
 
-module.exports = { syncLabels };
+async function main() {
+  try {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      throw new Error('GITHUB_TOKEN is required');
+    }
+    const octokit = github.getOctokit(token);
+    const context = github.context;
+
+    await syncLabels({ github: octokit, context, core });
+
+  } catch (error: any) {
+    core.setFailed(error.message);
+  }
+}
+
+if (require.main === module) {
+  main();
+}

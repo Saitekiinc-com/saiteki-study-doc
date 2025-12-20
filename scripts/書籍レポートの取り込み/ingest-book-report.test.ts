@@ -1,8 +1,8 @@
-const { test, describe, it } = require('node:test');
-const assert = require('node:assert');
-const { sanitizeFilename, extractField } = require('./ingest-book-report.js');
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert';
+import { sanitizeFilename, extractField } from './ingest-book-report.js';
 
-describe('ingest-book-report.js 単体テスト', () => {
+describe('ingest-book-report.ts 単体テスト', () => {
 
     describe('sanitizeFilename (ファイル名サニタイズ)', () => {
         it('通常の英語タイトルをサニタイズできること', () => {

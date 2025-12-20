@@ -1,12 +1,20 @@
-const { test, describe, it, mock, beforeEach, afterEach } = require('node:test');
-const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
+import { test, describe, it, mock, beforeEach, afterEach } from 'node:test';
+import * as assert from 'node:assert';
+import { getSidebarBooks } from './debug-sidebar.js';
 
-const { getSidebarBooks } = require('./debug-sidebar.js');
+type SidebarItem = {
+  text: string;
+  link: string;
+};
 
-describe('debug-sidebar.js 単体テスト', () => {
-  let consoleLogMock;
+type SidebarGroup = {
+  text: string;
+  collapsed: boolean;
+  items: SidebarItem[];
+};
+
+describe('debug-sidebar.ts 単体テスト', () => {
+  let consoleLogMock: any;
 
   beforeEach(() => {
     consoleLogMock = mock.method(console, 'log', () => {});
@@ -17,7 +25,7 @@ describe('debug-sidebar.js 単体テスト', () => {
   });
 
   it('ファイルが見つかり、著者マッピングが存在する場合、正しくグループ化されること', () => {
-    const dummyFiles = [
+    const dummyFiles: string[] = [
       'docs/knowledge_base/book_reports/book1.md',
       'docs/knowledge_base/book_reports/book2.md'
     ];
@@ -27,7 +35,7 @@ describe('debug-sidebar.js 単体テスト', () => {
 
     // fs モック
     const mockFs = {
-      readFileSync: mock.fn((filePath) => {
+      readFileSync: mock.fn((filePath: string) => {
         if (filePath.endsWith('book1.md')) {
           return `
 title: "Book One"
@@ -42,7 +50,7 @@ author: "sugimotokouichi"
         }
         return '';
       })
-    };
+    } as any; // Cast entire mock object to any to avoid complex type matching for fs.readFileSync overloaded signatures. Or define custom interface.
 
     const result = getSidebarBooks(mockGlobFn, mockFs);
 
@@ -55,7 +63,10 @@ author: "sugimotokouichi"
 
     const item1 = group.items.find(i => i.text === 'Book One');
     assert.ok(item1);
-    assert.strictEqual(item1.link, '/knowledge_base/book_reports/book1');
+    // TS check for existence before access
+    if (item1) {
+        assert.strictEqual(item1.link, '/knowledge_base/book_reports/book1');
+    }
   });
 
   it('マッピングにない著者の場合、そのままのIDが表示名になること', () => {
@@ -65,7 +76,7 @@ author: "sugimotokouichi"
 title: "Other Book"
 author: "unknown-author"
       `)
-    };
+    } as any;
 
     const result = getSidebarBooks(mockGlobFn, mockFs);
 
@@ -80,7 +91,7 @@ author: "unknown-author"
       readFileSync: mock.fn(() => `
 title: "No Author Book"
       `) // author なし
-    };
+    } as any;
 
     const result = getSidebarBooks(mockGlobFn, mockFs);
 
@@ -95,7 +106,7 @@ title: "No Author Book"
       readFileSync: mock.fn(() => `
 author: "@user"
       `)
-    };
+    } as any;
 
     const result = getSidebarBooks(mockGlobFn, mockFs);
 
@@ -104,8 +115,8 @@ author: "@user"
   });
 
   it('ファイルが見つからない場合、空配列を返すこと', () => {
-    const mockGlobFn = mock.fn(() => []);
-    const mockFs = { readFileSync: mock.fn() };
+    const mockGlobFn = mock.fn(() => [] as string[]);
+    const mockFs = { readFileSync: mock.fn() } as any;
 
     const result = getSidebarBooks(mockGlobFn, mockFs);
 

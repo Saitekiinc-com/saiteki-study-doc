@@ -1,30 +1,29 @@
-
-const { test } = require('node:test');
-const assert = require('node:assert');
-const { renameIssue } = require('./rename-issue.js');
+import { test } from 'node:test';
+import * as assert from 'node:assert';
+import { renameIssue } from './rename-issue.js';
 
 // 正常系: タイトルが正しくフォーマットされ、APIが呼び出されることを確認
 test('renameIssue formats title correctly and calls API (正常系)', async (t) => {
   const mockContext = {
     payload: { issue: { number: 123 } },
     repo: { owner: 'test-owner', repo: 'test-repo' }
-  };
+  } as any;
 
-  let updateParams = {};
+  let updateParams: any = {};
   const mockGithub = {
     rest: {
       issues: {
-        update: async (params) => {
+        update: async (params: any) => {
           updateParams = params;
           return { status: 200 };
         }
       }
     }
-  };
+  } as any;
 
   const mockCore = {
-    setFailed: (msg) => { assert.fail(`Should not fail: ${msg}`); }
-  };
+    setFailed: (msg: string) => { assert.fail(`Should not fail: ${msg}`); }
+  } as any;
 
   await renameIssue({
     github: mockGithub,
@@ -45,7 +44,7 @@ test('renameIssue handles API errors gracefully (異常系)', async (t) => {
   const mockContext = {
     payload: { issue: { number: 123 } },
     repo: { owner: 'test-owner', repo: 'test-repo' }
-  };
+  } as any;
 
   const mockGithub = {
     rest: {
@@ -55,12 +54,12 @@ test('renameIssue handles API errors gracefully (異常系)', async (t) => {
         }
       }
     }
-  };
+  } as any;
 
   let failureMessage = '';
   const mockCore = {
-    setFailed: (msg) => { failureMessage = msg; }
-  };
+    setFailed: (msg: string) => { failureMessage = msg; }
+  } as any;
 
   await renameIssue({
     github: mockGithub,
@@ -70,5 +69,5 @@ test('renameIssue handles API errors gracefully (異常系)', async (t) => {
     objective: 'Obj'
   });
 
-  assert.match(failureMessage, /Failed to rename issue: API Error/);
+  assert.match(failureMessage, /Issue 名の変更に失敗しました: API Error/);
 });

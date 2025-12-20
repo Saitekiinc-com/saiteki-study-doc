@@ -1,8 +1,8 @@
-const { test, describe, it } = require('node:test');
-const assert = require('node:assert');
-const { cosineSimilarity } = require('./recommend-books.js');
+import { describe, it } from 'node:test';
+import * as assert from 'node:assert';
+import { cosineSimilarity } from './recommend-books.js';
 
-describe('recommend-books.js 単体テスト', () => {
+describe('recommend-books.ts 単体テスト', () => {
     describe('cosineSimilarity (コサイン類似度)', () => {
         it('完全に一致するベクトルの場合は1を返すこと', () => {
             const vecA = [1, 2, 3];

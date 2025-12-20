@@ -1,8 +1,9 @@
-const { test, describe } = require('node:test');
-const assert = require('node:assert');
+import { test, describe } from 'node:test';
+import assert from 'node:assert';
 
 // テストのために notify-slack.yml からロジックを抽出
-function extract(body, label) {
+// 本来は共通モジュール化すべきですが、Workflow内ロジックの単体テストとしてここに記述します
+function extract(body: string, label: string): string {
   const regex = new RegExp("### " + label + "[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))");
   const m = body.match(regex);
   return m ? m[1].trim() : 'なし';

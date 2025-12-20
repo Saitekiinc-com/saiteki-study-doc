@@ -1,6 +1,6 @@
-const { test, describe, it, mock } = require('node:test');
-const assert = require('node:assert');
-const { main } = require('../../scripts/書籍の推薦/recommend-books.js');
+import { describe, it, mock } from 'node:test';
+import * as assert from 'node:assert';
+import { main } from '../../scripts/書籍の推薦/recommend-books.js';
 
 describe('統合テスト: AI検索ループ', () => {
 
@@ -46,7 +46,7 @@ describe('統合テスト: AI検索ループ', () => {
 
         try {
             await main(mockGenAI);
-        } catch (e) {
+        } catch (e: any) {
             if (e.message === 'Process exited') {
                 assert.fail('main() が process.exit() を呼び出しました');
             }
@@ -64,7 +64,7 @@ describe('統合テスト: AI検索ループ', () => {
 
     it('APIエラー時に適切にエラーハンドリングして終了すること', async () => {
         // process.exit のモック化
-        const exitMock = mock.method(process, 'exit', (code) => {
+        const exitMock = mock.method(process, 'exit', (code: number | undefined) => {
             throw new Error(`Process exited with code ${code}`);
         });
 
@@ -93,7 +93,7 @@ describe('統合テスト: AI検索ループ', () => {
         try {
             await main(mockGenAI);
             assert.fail('エラー時プロセスが終了しませんでした');
-        } catch (e) {
+        } catch (e: any) {
             // main() は catch ブロックで console.error を吐き、process.exit(1) を呼ぶはず
             assert.strictEqual(e.message, 'Process exited with code 1');
         } finally {
@@ -105,12 +105,12 @@ describe('統合テスト: AI検索ループ', () => {
 
     it('AIがツール実行（Google Books）を要求した場合、ツールが実行されループすること', async () => {
         // process.exit のモック
-        const exitMock = mock.method(process, 'exit', (code) => {
+        const exitMock = mock.method(process, 'exit', (code: number | undefined) => {
             throw new Error(`Process exited with code ${code}`);
         });
 
         // 1. fetch のモック (Google Books API)
-        const mockFetch = mock.method(global, 'fetch', async (url) => {
+        const mockFetch = mock.method(global, 'fetch', async (url: any) => {
             if (url.includes('googleapis.com')) {
                 assert.ok(url.includes('langRestrict=ja'), 'URL must restrict to Japanese books');
                 return {
@@ -178,7 +178,7 @@ describe('統合テスト: AI検索ループ', () => {
         assert.strictEqual(sendMessageMock.mock.callCount(), 2, 'sendMessageはツール結果報告のために2回呼ばれるべきです');
 
         // 3. 2回目の呼び出し引数にツール実行結果が含まれているか確認
-        const secondCallArgs = sendMessageMock.mock.calls[1].arguments;
+        const secondCallArgs: any = sendMessageMock.mock.calls[1].arguments;
         // arguments[0] は functionResponses の配列のはず
         assert.ok(Array.isArray(secondCallArgs[0]), '2回目の送信は配列（ツール結果）であるべき');
         assert.strictEqual(secondCallArgs[0][0].functionResponse.name, 'searchGoogleBooks');
@@ -187,12 +187,12 @@ describe('統合テスト: AI検索ループ', () => {
     });
     it('Google Books APIの結果から日本語以外の書籍をフィルタリングすること', async () => {
         // process.exit のモック
-        const exitMock = mock.method(process, 'exit', (code) => {
+        const exitMock = mock.method(process, 'exit', (code: number | undefined) => {
             throw new Error(`Process exited with code ${code}`);
         });
 
         // 1. fetch のモック (Google Books API) - 混合言語を返す
-        const mockFetch = mock.method(global, 'fetch', async (url) => {
+        const mockFetch = mock.method(global, 'fetch', async (url: any) => {
             if (url.includes('googleapis.com')) {
                 return {
                     json: async () => ({
@@ -251,7 +251,7 @@ describe('統合テスト: AI検索ループ', () => {
         }
 
         // 検証: 2回目のsendMessageの引数（ツール結果）に日本語の本だけが含まれているか
-        const secondCallArgs = sendMessageMock.mock.calls[1].arguments;
+        const secondCallArgs: any = sendMessageMock.mock.calls[1].arguments;
         const books = secondCallArgs[0][0].functionResponse.response.books;
 
         assert.strictEqual(books.length, 1, '日本語の本だけが残るべきです');

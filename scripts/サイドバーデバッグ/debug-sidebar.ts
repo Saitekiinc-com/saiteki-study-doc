@@ -1,46 +1,60 @@
+import { globSync } from 'glob';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const { globSync } = require('glob');
-const fs = require('fs');
-const path = require('path');
+type SidebarItem = {
+  text: string;
+  link: string;
+};
 
-function getSidebarBooks(injectedGlobSync, injectedFs) {
+type SidebarGroup = {
+  text: string;
+  collapsed: boolean;
+  items: SidebarItem[];
+};
+
+type InjectedGlobSync = (pattern: string | string[], options?: any) => string[];
+type InjectedFs = { readFileSync: (path: string, encoding: BufferEncoding) => string };
+
+export function getSidebarBooks(injectedGlobSync?: InjectedGlobSync, injectedFs?: InjectedFs): SidebarGroup[] {
   const globFn = injectedGlobSync || globSync;
   const fsMod = injectedFs || fs;
 
-  const files = globFn('docs/knowledge_base/book_reports/*.md');
+  // TypeScript definition requires glob pattern to be string or string[]
+  const files = globFn('docs/knowledge_base/book_reports/*.md') as string[];
   console.log('Found files:', files);
 
-  const authorMap = {
+  const authorMap: { [key: string]: string } = {
     'koxtuichi': '杉本 光一',
     'sugimotokouichi': '杉本 光一',
     '杉本光一': '杉本 光一',
     '杉本 光一': '杉本 光一'
-  }
+  };
 
-  const booksByAuthor = {};
+  const booksByAuthor: { [key: string]: SidebarItem[] } = {};
 
   files.forEach(file => {
     const content = fsMod.readFileSync(file, 'utf-8');
-    // Extract authorId from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
-    // Fallback to frontmatter extraction for backward compatibility if filename doesn't match pattern
+    // ファイル名からauthorIdを抽出: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+    // ファイル名がパターンに一致しない場合は、後方互換性のためにフロントマター抽出にフォールバック
     const filename = path.basename(file, '.md');
     const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/);
 
     let authorId = 'Other';
-    let title = path.basename(file, '.md'); // Default title
+    let title = path.basename(file, '.md'); // デフォルトタイトル
     if (filenameParts && filenameParts[1]) {
        authorId = filenameParts[1];
-       // Extract title from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+       // ファイル名からタイトルを抽出: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
        const titleParts = filename.match(/^\d{4}-\d{2}-\d{2}-.*?-(.*?)-\d+$/);
        if (titleParts && titleParts[1]) {
          title = titleParts[1];
        }
     } else {
-       // Fallback: use frontmatter for old files
-    // フロントマターからタイトルと著者を抽出するための正規表現（簡易版）
-    const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
+       // フォールバック: 古いファイルにはフロントマターを使用
+       // フロントマターからタイトルと著者を抽出するための正規表現（簡易版）
+       const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
 
-    title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
+       title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
        const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
        authorId = authorMatch ? authorMatch[1].trim() : 'Other';
        authorId = authorId.replace(/^@/, '');
@@ -61,7 +75,7 @@ function getSidebarBooks(injectedGlobSync, injectedFs) {
   });
 
   // グループとアイテムをソート
-  const sidebarGroups = [];
+  const sidebarGroups: SidebarGroup[] = [];
   for (const displayName in booksByAuthor) {
     console.log(`Group: DisplayName='${displayName}'`);
     // リンク（日付を含む）の降順でアイテムをソートし、最新のものを最初に表示する
@@ -81,5 +95,3 @@ if (require.main === module) {
   const result = getSidebarBooks();
   console.log('Final Sidebar Structure:', JSON.stringify(result, null, 2));
 }
-
-module.exports = { getSidebarBooks };

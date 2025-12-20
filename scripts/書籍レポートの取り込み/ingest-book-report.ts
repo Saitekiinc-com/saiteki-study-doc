@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
 const REPORTS_DIR = 'docs/knowledge_base/book_reports';
 
-function sanitizeFilename(title) {
+export function sanitizeFilename(title: string): string {
   // 特殊文字とスペースを削除し、ハイフンに置換
   // 日本語と英数字は保持
   return title
@@ -14,19 +14,19 @@ function sanitizeFilename(title) {
     .slice(0, 50); // 長さを制限
 }
 
-function preserveNewlines(text) {
+export function preserveNewlines(text: string | null | undefined): string | null | undefined {
   if (!text) return text;
   // 改行を「スペース2つ + 改行」に置換して、Markdown の改行を確実にする
   return text.split(/\r\n|\r|\n/).join('  \n');
 }
 
-function extractField(body, label) {
+export function extractField(body: string, label: string): string | null {
   const regex = new RegExp(`### ${label}\\s+([\\s\\S]*?)(?=(?:###|$))`);
   const match = body.match(regex);
-  return match ? preserveNewlines(match[1].trim()) : null;
+  return match ? preserveNewlines(match[1].trim()) as string : null;
 }
 
-function main() {
+export function main(): void {
   const issueTitle = process.env.ISSUE_TITLE;
   const issueBody = process.env.ISSUE_BODY;
   const issueNumber = process.env.ISSUE_NUMBER;
@@ -106,18 +106,8 @@ ${recommend || 'なし'}
 
   fs.writeFileSync(filepath, fileContent);
   console.log(`Successfully created report: ${filepath}`);
-
-
 }
-
-
 
 if (require.main === module) {
   main();
 }
-
-module.exports = {
-  sanitizeFilename,
-  extractField,
-  main
-};

@@ -1,11 +1,11 @@
-const { test } = require('node:test');
-const assert = require('node:assert');
-const { findParentIssue } = require('./find-parent-issue.js');
+import { test } from 'node:test';
+import * as assert from 'node:assert';
+import { findParentIssue } from './find-parent-issue.js';
 
-test('find-parent-issue.js 単体テスト', async (t) => {
+test('find-parent-issue.ts 単体テスト', async (t) => {
 
     await t.test('親Issueが存在する場合、番号を返すこと', async () => {
-        const mockClient = async (query, vars) => {
+        const mockClient = async (query: string, vars: any) => {
             assert.strictEqual(vars.nodeId, 'node_123');
             return {
                 node: {
