@@ -44,10 +44,10 @@ npm run docs:dev
 
 ## 🏗 システムアーキテクチャ & シーケンス
 
-本リポジトリには、GitHub Issuesを活用した「書籍推薦」および「読書感想文ナレッジ化」の自動化フローが組み込まれています。
+本リポジトリには、GitHub Issuesを活用した「書籍推薦」および「書籍レポートナレッジ化」の自動化フローが組み込まれています。
 
-### 1. 読書感想文のナレッジ化フロー
-社員がIssueで読書感想文を投稿すると、自動的にナレッジベース（Markdown）として保存され、さらにベクトル化されて検索可能になります。
+### 1. 書籍レポートのナレッジ化フロー
+社員がIssueで書籍レポートを投稿すると、自動的にナレッジベース（Markdown）として保存され、さらにベクトル化されて検索可能になります。
 
 ```mermaid
 sequenceDiagram
@@ -59,7 +59,7 @@ sequenceDiagram
     participant KB as docs/knowledge_base
     participant JSON as vectors.json
 
-    User->>Issue: 読書感想文を投稿 (Label: book-report)
+    User->>Issue: 書籍レポートを投稿 (Label: book-report)
     Issue->>Action: トリガー (issue_comment / opened)
     Action->>Ingest: スクリプト実行
     Ingest->>KB: Markdownファイル生成 (.md)

@@ -22,7 +22,7 @@ describe('E2E: ワークフローシミュレーション', () => {
         }
     });
 
-    it('ingest-book-report 経由で読書感想文ファイルが生成されること', () => {
+    it('ingest-book-report 経由で書籍レポートファイルが生成されること', () => {
         // GitHub Actions を模倣した環境変数の設定
         const env = Object.assign({}, process.env, {
             ISSUE_TITLE: 'E2E Test Book',
@@ -46,7 +46,7 @@ Verify E2E flow.
 
         try {
             // スクリプト実行
-         const result = execSync('node scripts/読書感想文の取り込み/ingest-book-report.js', { env });
+         const result = execSync('node scripts/書籍レポートの取り込み/ingest-book-report.js', { env });
 
             // ファイル作成確認
             const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-bot-e2e-test-book-9999.md`;

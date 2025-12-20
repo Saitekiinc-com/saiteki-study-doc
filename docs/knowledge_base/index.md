@@ -1,13 +1,13 @@
-# 📚 読書感想文 (Books Review)
+# 📚 書籍レポート (Book Reports)
 
 チームメンバーが読んだ本の感想・学びをまとめています。
-新しく読書感想文を投稿すると、Slackに自動で通知されます。
+新しく書籍レポートを投稿すると、Slackに自動で通知されます。
 
 ---
 
 ## 🚀 はじめる前に：GitHubプロフィールの設定
 
-読書感想文の投稿者名を日本語で表示するには、GitHubプロフィールに名前を設定してください。
+書籍レポートの投稿者名を日本語で表示するには、GitHubプロフィールに名前を設定してください。
 
 ### 手順
 
@@ -27,7 +27,7 @@
 
 ## 📖 書籍購入補助を受ける
 
-読書感想文を投稿するには、GitHubでIssueを作成します。
+書籍レポートを投稿するには、GitHubでIssueを作成します。
 
 会社から書籍購入の補助を受ける場合は、以下のフローに従ってください。
 
@@ -41,7 +41,7 @@
 | 6 | <span style="white-space: nowrap;">**あなた**</span> | Issueに領収書を添付してコメントし、[領収書を添付した (申請者)]にチェックを入れる ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/171#issuecomment-3677031542)) |
 | 7 | <span style="white-space: nowrap;">**上長**</span> | 領収書を確認し、[承認済み (上長)]にチェックを入れる |
 | 8 | <span style="white-space: nowrap;">**あなた**</span> | 書籍を読了 |
-| 9 | <span style="white-space: nowrap;">**あなた**</span> | [📚 読書感想文を作成](#how-to-post-report) |
+| 9 | <span style="white-space: nowrap;">**あなた**</span> | [📚 書籍レポートを作成](#how-to-post-report) |
 | 10 | <span style="white-space: nowrap;">**自動**</span> | PRが自動作成される ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/pull/173)) |
 | 11 | <span style="white-space: nowrap;">**上長**</span> | PRを上長がレビュー・マージ |
 | 12 | <span style="white-space: nowrap;">**自動**</span> | Slackに通知 ＆ ページが公開 |
@@ -57,7 +57,7 @@
 
 | ステップ | 担当者 | アクション |
 |---------|--------|-----------|
-| 1 | **あなた** | [📚 読書感想文をGitHubで作成](#how-to-post-report) |
+| 1 | **あなた** | [📚 書籍レポートをGitHubで作成](#how-to-post-report) |
 | 2 | **自動** | PRが自動作成される |
 | 3 | **あなた** | PRを上長がレビュー・マージ |
 | 4 | **自動** | Slackに通知 ＆ ページが公開 |
@@ -68,7 +68,7 @@
 ## 📖 AIによる書籍選定（購入補助申請）の方法
 
 学びたいスキルや目標を入力すると、AIが適切な書籍を推薦します。
-既存ナレッジベースの読書感想文も参照して、チームに合った本を提案します。
+既存ナレッジベースの書籍レポートも参照して、チームに合った本を提案します。
 
 ### Step 1: Issue作成ページを開く
 
