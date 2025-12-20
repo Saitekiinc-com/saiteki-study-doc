@@ -56,8 +56,8 @@ export function main(): void {
   const negative = extractField(issueBody, '難しかった点・合わなかった点');
   const recommend = extractField(issueBody, '💡 どんな人におすすめ？');
 
-  // GitHub Actions への出力
-  core.setOutput('book_title', bookTitleReal);
+  // GitHub Actions への出力 (PRタイトル用に改行を除去)
+  core.setOutput('book_title', bookTitleReal.replace(/\r\n|\r|\n/g, ' ').trim());
 
   // ファイル名の生成: YYYY-MM-DD-{sanitized_author}-{sanitized_title}-{issueNumber}.md
   const date = new Date().toISOString().split('T')[0];
