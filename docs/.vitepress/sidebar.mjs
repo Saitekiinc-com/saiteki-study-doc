@@ -9,6 +9,8 @@ export function getSidebarBooks({
   path = defaultPath
 } = {}) {
   const files = globSync('docs/knowledge_base/book_reports/*.md')
+    .filter(file => !file.toLowerCase().includes('e2ebot') && !file.includes('E2E-Test'))
+
 
   const authorMap = {
     'koxtuichi': '杉本 光一',
@@ -36,12 +38,12 @@ export function getSidebarBooks({
 
     let authorId = 'Other'
     if (filenameParts && filenameParts[1]) {
-       authorId = filenameParts[1]
+      authorId = filenameParts[1]
     } else {
-       // Fallback: use frontmatter for old files
-       const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
-       authorId = authorMatch ? authorMatch[1].trim() : 'Other'
-       authorId = authorId.replace(/^@/, '')
+      // Fallback: use frontmatter for old files
+      const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
+      authorId = authorMatch ? authorMatch[1].trim() : 'Other'
+      authorId = authorId.replace(/^@/, '')
     }
 
     // Fallback if no mapping exists: use the raw ID
