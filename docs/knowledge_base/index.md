@@ -5,6 +5,13 @@
 
 ---
 
+# 📚 書籍レポート
+
+チームメンバーが読んだ本の感想・学びをまとめています。
+新しく書籍レポートを投稿すると、Slackに自動で通知されます。
+
+---
+
 ## 🚀 はじめる前に：GitHubプロフィールの設定
 
 書籍レポートの投稿者名を日本語で表示するには、GitHubプロフィールに名前を設定してください。
@@ -25,123 +32,11 @@
 
 ---
 
-## 📖 書籍購入補助を受ける
+## 📋 ガイド
 
-書籍レポートを投稿するには、GitHubでIssueを作成します。
+- [**書籍購入補助を受けたい方**](/knowledge_base/purchase_rules)
+  - 決まり事、申請フロー、AIを使った選定方法など
+- [**書籍レポートのみ投稿したい方**](/knowledge_base/report_only)
+  - 自己負担で購入・読了した本のレポート手順など
 
-会社から書籍購入の補助を受ける場合は、以下のフローに従ってください。
-
-| <span style="white-space: nowrap;">ステップ</span> | <span style="white-space: nowrap;">担当者</span> | アクション |
-|:---:|:---:|---|
-| 1 | <span style="white-space: nowrap;">**あなた**</span> | [📖 書籍探索Issueを作成](#how-to-search-book)（学びたい内容を入力） ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/171)) |
-| 2 | <span style="white-space: nowrap;">**自動**</span> | AIが適切な書籍を推薦（**あくまで参考**） ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/171#issuecomment-3677022878)) |
-| 3 | <span style="white-space: nowrap;">**あなた**</span> | 購入する書籍を決定し、**書籍探索Issueにコメント**で報告<br>（書籍を特定できるように商品リンクを添付） ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/171#issuecomment-3677026877)) |
-| 4 | <span style="white-space: nowrap;">**あなた**</span> | [購入したい書籍の商品リンクを添付した（申請者）]にチェックを入れる |
-| 5 | <span style="white-space: nowrap;">**あなた**</span> | 書籍を購入する |
-| 6 | <span style="white-space: nowrap;">**あなた**</span> | Issueに領収書を添付してコメントし、[領収書を添付した (申請者)]にチェックを入れる ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/171#issuecomment-3677031542)) |
-| 7 | <span style="white-space: nowrap;">**上長**</span> | 領収書を確認し、[承認済み (上長)]にチェックを入れる |
-| 8 | <span style="white-space: nowrap;">**あなた**</span> | 書籍を読了 |
-| 9 | <span style="white-space: nowrap;">**あなた**</span> | [📚 書籍レポートを作成](#how-to-post-report) |
-| 10 | <span style="white-space: nowrap;">**自動**</span> | PRが自動作成される ([例](https://github.com/Saitekiinc-com/saiteki-study-doc/pull/173)) |
-| 11 | <span style="white-space: nowrap;">**上長**</span> | PRを上長がレビュー・マージ |
-| 12 | <span style="white-space: nowrap;">**自動**</span> | Slackに通知 ＆ ページが公開 |
-
-> 💡 **補足**: AIの推薦はあくまで参考です。推薦以外の書籍を購入しても問題ありません。
-
-
----
-
-### 自己負担で読む場合
-
-自分で購入した本や、既に読んだ本について感想を投稿する場合。
-
-| ステップ | 担当者 | アクション |
-|---------|--------|-----------|
-| 1 | **あなた** | [📚 書籍レポートをGitHubで作成](#how-to-post-report) |
-| 2 | **自動** | PRが自動作成される |
-| 3 | **あなた** | PRを上長がレビュー・マージ |
-| 4 | **自動** | Slackに通知 ＆ ページが公開 |
-
----
-
-<a id="how-to-search-book"></a>
-## 📖 AIによる書籍選定（購入補助申請）の方法
-
-学びたいスキルや目標を入力すると、AIが適切な書籍を推薦します。
-既存ナレッジベースの書籍レポートも参照して、チームに合った本を提案します。
-
-### Step 1: Issue作成ページを開く
-
-1. [**saiteki-study-doc リポジトリ**](https://github.com/Saitekiinc-com/saiteki-study-doc) にアクセス
-2. 上部の「**Issues**」タブをクリック
-3. 緑色の「**New issue**」ボタンをクリック
-4. 「**AIによる書籍選定（購入補助申請）**」をクリック
-
-### Step 2: フォームに入力
-
-| 項目 | 説明 | 例 |
-|-----|------|-----|
-| **役割** | 現在の職種や役割 | Frontend Engineer |
-| **経験年数** | エンジニア経験 | 3年 |
-| **達成したい目標** | 作りたいもの、成し遂げたいこと | 個人開発でメモアプリを作りたい |
-| **わかっていること** | 現在理解している技術・できること | Reactのコンポーネント作成、Props/Stateの管理 |
-| **わかっていないこと** | 課題・苦手なこと | useEffectの依存配列の挙動が怪しい |
-
-### Step 3: Issueを送信
-
-1. 入力が完了したら、緑色の「**Create**」ボタンをクリック
-2. AIがコメントで書籍を推薦（1-2分お待ちください）
-3. 推薦された書籍を参考に購入を検討
-
-
-
-
----
-
-<a id="how-to-post-report"></a>
-## 📝 書籍レポートの投稿手順
-
-
-### Step 1: Issue作成ページを開く
-
-#### A. 自己負担で読む場合
-1. [**saiteki-study-doc リポジトリ**](https://github.com/Saitekiinc-com/saiteki-study-doc) にアクセス
-2. 上部の「**Issues**」タブをクリック
-3. 緑色の「**New issue**」ボタンをクリック
-4. 「**書籍レポート**」をクリック
-
-#### B. 会社負担（購入補助）の場合
-**重要:** 新規Issue作成ではなく、**「書籍選定Issue」の子Issue (Sub-issue)** として作成してください。
-
-1. 自身が作成した **「AIによる書籍選定（購入補助申請）」Issue** を開く
-2. Issue内のサブタスク（またはCreate sub-issueボタン）から「書籍レポート」を作成する
-   - ※ 親Issueと紐付けることで、購入から読了までのステータスを一元管理するためです。
-
-### Step 2: フォームに入力
-
-以下の項目を入力してください：
-
-| 項目 | 説明 | 例 |
-|-----|------|-----|
-| **書籍名** | 読んだ本のタイトル | リーダブルコード |
-| **著者** | 著者名 | Dustin Boswell |
-| **リンク** | AmazonのURL等 | https://amazon.co.jp/... |
-| **読む前の目的** | なぜこの本を読もうと思ったか | コードの可読性を向上させたい |
-| **得られた知識** | この本で何がわかったか | 命名規則の重要性 |
-| **実務における活用** | 明日から何を変えるか | 関数名に動詞を使う |
-| **良かった点** | なぜ良かったのか | 具体例が豊富 |
-| **難しかった点・合わなかった点** | 読みづらかった点（なければ「なし」） | 特になし |
-| **💡 どんな人におすすめ？** | ターゲット層 | チームリーダー、React初心者 |
-
-### Step 3: Issueを送信
-
-1. 入力が完了したら、緑色の「**Create**」ボタンをクリック
-2. 自動でPRが作成されます（1分ほどお待ちください）
-
-### Step 4: PRをマージ
-
-1. リポジトリの「**Pull requests**」タブを開く
-2. 該当するPR（`feat: add book report '書籍名'`）をクリック
-3. 内容を確認し、緑色の「**Merge pull request**」ボタンをクリック
-4. 「**Confirm merge**」をクリック
 

@@ -34,8 +34,10 @@ export default withMermaid({
         {
           text: '📋 ガイド',
           items: [
-            { text: '投稿の流れ', link: '/knowledge_base/' },
-
+            { text: '書籍レポートトップ', link: '/knowledge_base/' },
+            { text: '書籍購入補助の決まり事', link: '/knowledge_base/purchase_rules' },
+            { text: '書籍購入補助フロー', link: '/knowledge_base/purchase_flow' },
+            { text: '蓄積のみ(購入補助なし)', link: '/knowledge_base/report_only' },
           ]
         },
         ...getSidebarBooks()
