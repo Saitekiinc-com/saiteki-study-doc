@@ -26,7 +26,7 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
    - [GitHub.com](https://github.com/) でアカウントを作成してください。
 2. **アカウントをお持ちの場合**
    - 以下のリンクから、プロフィール名を日本語に設定してください。
-     リンク: [Githubアカウントの名前を変更](https://github.com/settings/profile)
+   - リンク: [Githubアカウントの名前を変更](https://github.com/settings/profile)
 
 > 💡 この設定は一度だけ行えばOKです。
 
