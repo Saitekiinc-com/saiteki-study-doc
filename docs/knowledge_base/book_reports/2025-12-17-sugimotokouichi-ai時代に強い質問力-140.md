@@ -1,6 +1,6 @@
 ---
 title: "AI時代に強い質問力"
-author: koxtuichi
+author: 杉本光一
 issue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/140
 date: 2025-12-17
 ---

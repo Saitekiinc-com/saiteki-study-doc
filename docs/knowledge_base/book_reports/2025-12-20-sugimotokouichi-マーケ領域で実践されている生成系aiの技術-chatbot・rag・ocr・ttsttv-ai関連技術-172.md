@@ -5,7 +5,7 @@ issue_url: https://github.com/Saitekiinc-com/saiteki-study-doc/issues/172
 date: 2025-12-20
 ---
 
-# ーケ領域で実践されている生成系AIの技術　Chatbot・RAG・OCR・TTS/TTV - AI関連技術スタックの構成要素を徹底詳解
+# マーケ領域で実践されている生成系AIの技術　Chatbot・RAG・OCR・TTS/TTV - AI関連技術スタックの構成要素を徹底詳解
 
 *   **Original Issue**: [https://github.com/Saitekiinc-com/saiteki-study-doc/issues/172](https://github.com/Saitekiinc-com/saiteki-study-doc/issues/172)
 *   **投稿者**: 杉本光一
