@@ -36,7 +36,7 @@ export default withMermaid({
           items: [
             { text: '書籍レポートトップ', link: '/knowledge_base/' },
             {
-              text: '書籍購入補助フロー',
+              text: '書籍購入・レポートフロー',
               link: '/knowledge_base/purchase_flow',
               collapsed: false,
               items: [
@@ -44,7 +44,6 @@ export default withMermaid({
                 { text: '書籍レポートIssueの作成', link: '/knowledge_base/issue_book_report' },
               ]
             },
-            { text: '蓄積のみ(購入補助なし)', link: '/knowledge_base/report_only' },
           ]
         },
         ...getSidebarBooks()
