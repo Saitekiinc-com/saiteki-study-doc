@@ -43,17 +43,26 @@ describe('E2E: ワークフローシミュレーション', () => {
             // 2. 出力の検証
             const outputContent = fs.readFileSync(outputParamsFile, 'utf8');
 
-            // 各フィールドが正しく出力されているか
-            assert.match(outputContent, /role=Senior Engineer/);
-            assert.match(outputContent, /experience=10年/);
-            assert.match(outputContent, /objective=Master System Design/);
+            // 各フィールドが正しく出力されているか (EOFデリミタ形式への対応)
+            // format: key<<delimiter\nvalue\ndelimiter\n
+            // 簡易チェック: key<< と value が含まれているか
+            assert.match(outputContent, /role<<ghadelimiter_/);
+            assert.ok(outputContent.includes('Senior Engineer'));
 
-            // user_request が生成されているか (改行を含む可能性があるため、簡易チェック)
-            assert.ok(outputContent.includes('user_request='), 'user_request output missing');
+            assert.match(outputContent, /experience<<ghadelimiter_/);
+            assert.ok(outputContent.includes('10年'));
 
-            // user_request の中身を抽出 (簡易的な抽出)
-            const userRequestMatch = outputContent.match(/user_request=([\s\S]*)/);
-            const userRequest = userRequestMatch ? userRequestMatch[1] : '';
+            assert.match(outputContent, /objective<<ghadelimiter_/);
+            assert.ok(outputContent.includes('Master System Design'));
+
+            // user_request が生成されているか
+            assert.match(outputContent, /user_request<<ghadelimiter_/);
+
+            // user_request の中身を抽出
+            // user_request<<delimiter\n(content)\ndelimiter
+            const userRequestMatch = outputContent.match(/user_request<<([\w_]+)\r?\n([\s\S]*?)\r?\n\1/);
+            const userRequest = userRequestMatch ? userRequestMatch[2] : '';
+
             assert.ok(userRequest.includes('【役割】: Senior Engineer'), 'user_request content mismatch');
 
             // 3. 推薦スクリプトの実行 (Action: Generate Book Recommendations)

@@ -57,15 +57,28 @@ export function formatUserRequest(input: BookSearchInput): string {
 }
 
 // GitHub Actions Output Helper
+// GitHub Actions Output Helper
 function setOutput(name: string, value: string) {
     const filePath = process.env.GITHUB_OUTPUT;
     if (filePath) {
         const fs = require('fs');
         const os = require('os');
-        fs.appendFileSync(filePath, `${name}=${value}${os.EOL}`);
+        const crypto = require('crypto');
+
+        // ランダムなデリミタを生成して衝突を回避
+        const delimiter = `ghadelimiter_${crypto.randomBytes(16).toString('hex')}`;
+
+        // Multiline format:
+        // key<<delimiter
+        // value
+        // delimiter
+        const command = `${name}<<${delimiter}${os.EOL}${value}${os.EOL}${delimiter}${os.EOL}`;
+        fs.appendFileSync(filePath, command);
     } else {
         // Fallback for local testing or old runner (though deprecated)
-        console.log(`::set-output name=${name}::${value}`);
+        // Note: This format implies multiline is NOT supported in fallback mode nicely,
+        // but it's just for logs usually.
+        console.log(`::set-output name=${name}::${value.replace(/\n/g, '%0A')}`);
     }
 }
 
