@@ -56,6 +56,19 @@ export function formatUserRequest(input: BookSearchInput): string {
 【達成したい目標】: ${input.objective}`;
 }
 
+// GitHub Actions Output Helper
+function setOutput(name: string, value: string) {
+    const filePath = process.env.GITHUB_OUTPUT;
+    if (filePath) {
+        const fs = require('fs');
+        const os = require('os');
+        fs.appendFileSync(filePath, `${name}=${value}${os.EOL}`);
+    } else {
+        // Fallback for local testing or old runner (though deprecated)
+        console.log(`::set-output name=${name}::${value}`);
+    }
+}
+
 // CLI 実行用（環境変数から Issue body を読み取る）
 async function main() {
     const body = process.env.ISSUE_BODY;
@@ -68,12 +81,12 @@ async function main() {
     const userRequest = formatUserRequest(parsed);
 
     // GitHub Actions outputs として設定
-    console.log(`::set-output name=role::${parsed.role}`);
-    console.log(`::set-output name=experience::${parsed.experience}`);
-    console.log(`::set-output name=objective::${parsed.objective}`);
-    console.log(`::set-output name=current_understanding::${parsed.currentUnderstanding}`);
-    console.log(`::set-output name=current_unknowns::${parsed.currentUnknowns}`);
-    console.log(`::set-output name=user_request::${userRequest}`);
+    setOutput('role', parsed.role);
+    setOutput('experience', parsed.experience);
+    setOutput('objective', parsed.objective);
+    setOutput('current_understanding', parsed.currentUnderstanding);
+    setOutput('current_unknowns', parsed.currentUnknowns);
+    setOutput('user_request', userRequest);
 
     // デバッグ用出力
     console.log('--- Parsed Values ---');
