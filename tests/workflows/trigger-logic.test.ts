@@ -73,4 +73,18 @@ describe('ワークフロートリガーロジック検証', () => {
         const result = shouldRunWorkflow(event, 'search');
         assert.strictEqual(result, false);
     });
+
+    test('ケース 7: ラベル削除 (unlabeled) イベントでは実行されない', () => {
+        const event = { action: 'unlabeled', label: { name: 'book-report' } };
+        const resultReport = shouldRunWorkflow(event, 'report');
+        const resultSearch = shouldRunWorkflow(event, 'search');
+        assert.strictEqual(resultReport, false);
+        assert.strictEqual(resultSearch, false);
+    });
+
+    test('ケース 8: レポートフローは "book-search-request" ラベルでは実行されない (クロスチェック)', () => {
+        const event = { action: 'labeled', label: { name: 'book-search-request' } };
+        const result = shouldRunWorkflow(event, 'report');
+        assert.strictEqual(result, false);
+    });
 });
