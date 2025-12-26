@@ -20,10 +20,15 @@ export type BookSearchInput = {
  * @returns 抽出された値（見つからない場合は空文字列）
  */
 export function extractValue(body: string, label: string): string {
-    // Match ### Label (anything until newline) \n\n (Value) \n\n (next ### or end)
-    const regex = new RegExp(`###\\s*${label}[^\\n]*\\n+([\\s\\S]*?)(?:###|$)`);
+    // Match ### Label (anything until newline) \s* (Value) (?=next ### or end)
+    // 変更: \n+ を \s* に変更し、(?=) 先読みを使用して境界判定を柔軟に
+    const regex = new RegExp(`###\\s*${label}[^\\n]*\\s*([\\s\\S]*?)(?=\\s*(?:###|$))`);
     const match = body.match(regex);
-    return match ? match[1].trim() : '';
+    if (!match) {
+        console.warn(`[Warn] Failed to extract label: ${label}`);
+        return '';
+    }
+    return match[1].trim();
 }
 
 /**
@@ -89,6 +94,10 @@ async function main() {
         console.error('Error: ISSUE_BODY environment variable is required.');
         process.exit(1);
     }
+
+    console.log('--- Debug: raw ISSUE_BODY (first 200 chars) ---');
+    console.log(JSON.stringify(body.substring(0, 200)));
+    console.log('-----------------------------------------------');
 
     const parsed = parseBookSearchIssue(body);
     const userRequest = formatUserRequest(parsed);
