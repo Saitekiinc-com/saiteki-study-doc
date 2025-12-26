@@ -135,16 +135,17 @@ export const getSystemInstruction = (aiNativeGuide: string) => `
 ## 組織のコンテキスト (Organization Context)
 以下の指針を**深く理解し、遵守**してください。書籍選定や目標設定の際は、これらの指針に合致するものを高く評価してください。
 
-<organization_guide>
-\${aiNativeGuide}
-</organization_guide>
-`;
+  <organization_guide>
+  ${aiNativeGuide}
+  </organization_guide>
+  `;
 
 export const getUserPrompt = (userRequest: string) => `
-以下のユーザーリクエストに基づいて、最適な学習ロードマップと書籍を提案してください。
+  以下のユーザーリクエストに基づいて、最適な学習ロードマップと書籍を提案してください。
+  
+  ## ユーザーリクエスト
+  ${userRequest}
 
-## ユーザーリクエスト
-\${userRequest}
 
 ## 手順
 1. ユーザーのプロファイルを分析し、目標と現状のギャップを特定する。

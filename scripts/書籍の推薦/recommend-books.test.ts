@@ -7,15 +7,14 @@ describe('recommend-books.ts 単体テスト', () => {
         it('組織ガイドのプレースホルダーが含まれること', () => {
             const result = getSystemInstruction('テスト組織のガイドライン');
 
-            // 注: getSystemInstruction ではテンプレート内で \${aiNativeGuide} とエスケープされているため、
-            // 引数は展開されず、テンプレートとして ${aiNativeGuide} がそのまま出力される
-            assert.ok(result.includes('${aiNativeGuide}'), 'aiNativeGuideプレースホルダーがテンプレートに含まれるべき');
+            // 修正: 引数が正しく展開されていることを確認
+            assert.ok(result.includes('テスト組織のガイドライン'), 'aiNativeGuideの内容が展開されていること');
             assert.ok(result.includes('あなたは、企業の成長とメンバーの幸福を最大化'), '役割定義が含まれるべき');
             assert.ok(result.includes('<organization_guide>'), '組織ガイドセクションが存在すべき');
         });
 
         it('必須セクションが含まれること', () => {
-            const result = getSystemInstruction('');
+            const result = getSystemInstruction(''); // 空文字でもその他は出る
 
             assert.ok(result.includes('出力フォーマット'), '出力フォーマットセクションが必須');
             assert.ok(result.includes('📚 推奨書籍'), '推奨書籍セクションが必須');
@@ -36,8 +35,8 @@ describe('recommend-books.ts 単体テスト', () => {
             const userRequest = 'RAGシステムを構築したい';
             const result = getUserPrompt(userRequest);
 
-            // テンプレートリテラルなので ${userRequest} は展開されない
-            // getUserPrompt の戻り値はテンプレート文字列そのもの
+            // 修正: 引数が正しく展開されていることを確認
+            assert.ok(result.includes('RAGシステムを構築したい'), 'ユーザーリクエストの内容が展開されていること');
             assert.ok(result.includes('ユーザーリクエスト'), 'ユーザーリクエストセクションが必須');
         });
 
