@@ -33,9 +33,10 @@ export function main(): void {
   const issueNumber = process.env.ISSUE_NUMBER;
   const issueUrl = process.env.ISSUE_URL;
   const issueAuthor = process.env.ISSUE_AUTHOR;
+  const issueAuthorLogin = process.env.ISSUE_AUTHOR_LOGIN; // GitHub ID
 
-  if (!issueTitle || !issueBody || !issueAuthor) {
-    console.error('Error: ISSUE_TITLE, ISSUE_BODY, and ISSUE_AUTHOR environment variables are required.');
+  if (!issueTitle || !issueBody || !issueAuthor || !issueAuthorLogin) {
+    console.error('Error: ISSUE_TITLE, ISSUE_BODY, ISSUE_AUTHOR, and ISSUE_AUTHOR_LOGIN environment variables are required.');
     process.exit(1);
   }
 
@@ -59,9 +60,10 @@ export function main(): void {
   // GitHub Actions への出力 (PRタイトル用に改行を除去)
   core.setOutput('book_title', bookTitleReal.replace(/\r\n|\r|\n/g, ' ').trim());
 
-  // ファイル名の生成: YYYY-MM-DD-{sanitized_author}-{sanitized_title}-{issueNumber}.md
+  // ファイル名の生成: YYYY-MM-DD-{username}-{sanitized_title}-{issueNumber}.md
+  // 著者名は GitHub ID (ローマ字) を使用する
   const date = new Date().toISOString().split('T')[0];
-  const safeAuthor = sanitizeFilename(issueAuthor);
+  const safeAuthor = sanitizeFilename(issueAuthorLogin);
   const safeTitle = sanitizeFilename(bookTitleReal);
   const filename = `${date}-${safeAuthor}-${safeTitle}-${issueNumber}.md`;
   const filepath = path.join(REPORTS_DIR, filename);

@@ -112,6 +112,7 @@ Verify E2E flow.
             ISSUE_NUMBER: '9999',
             ISSUE_URL: 'http://example.com/issue/9999',
             ISSUE_AUTHOR: 'e2e-bot',
+            ISSUE_AUTHOR_LOGIN: 'test-user-login',
             GITHUB_OUTPUT: 'dummy_output.txt' // モック出力ファイル
         });
 
@@ -123,7 +124,8 @@ Verify E2E flow.
             execSync('npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts', { env });
 
             // 期待されるファイルパス
-            const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-e2e-bot-e2e-test-book-9999.md`;
+            // 期待されるファイルパス (ファイル名はISSUE_AUTHOR_LOGINを使用)
+            const expectedFile = `docs/knowledge_base/book_reports/${new Date().toISOString().split('T')[0]}-test-user-login-e2e-test-book-9999.md`;
 
             // ファイルが作成されたことを確認
             assert.ok(fs.existsSync(expectedFile), 'レポートファイルが作成されるべきです');

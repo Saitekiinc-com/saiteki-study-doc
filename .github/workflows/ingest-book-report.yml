@@ -33,6 +33,7 @@ jobs:
               username: context.payload.issue.user.login
             });
             core.setOutput('name', user.name || context.payload.issue.user.login);
+            core.setOutput('login', context.payload.issue.user.login);
 
       - name: Create Book Report Markdown
         id: generator
@@ -42,6 +43,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
           ISSUE_AUTHOR: ${{ steps.author.outputs.name }}
+          ISSUE_AUTHOR_LOGIN: ${{ steps.author.outputs.login }}
         run: npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts
 
       - name: Extract Parent Issue
