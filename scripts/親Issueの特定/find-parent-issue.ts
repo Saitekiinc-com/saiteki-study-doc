@@ -12,6 +12,11 @@ export async function findParentIssue(graphqlClient: any, nodeId: string): Promi
     query($nodeId: ID!) {
       node(id: $nodeId) {
         ... on Issue {
+          # Sub-issues (Hierarchy)
+          parent {
+            number
+          }
+          # Tasklist (Tracking)
           trackedInIssues(first: 1) {
             nodes {
               number
@@ -25,10 +30,17 @@ export async function findParentIssue(graphqlClient: any, nodeId: string): Promi
   try {
     const result: any = await graphqlClient(query, { nodeId });
 
-    // 深いネストの安全性チェック
+    if (!result || !result.node) {
+      return null;
+    }
+
+    // 1. Check Sub-issue parent
+    if (result.node.parent && result.node.parent.number) {
+      return result.node.parent.number;
+    }
+
+    // 2. Check Tasklist tracking
     if (
-      result &&
-      result.node &&
       result.node.trackedInIssues &&
       result.node.trackedInIssues.nodes &&
       result.node.trackedInIssues.nodes.length > 0

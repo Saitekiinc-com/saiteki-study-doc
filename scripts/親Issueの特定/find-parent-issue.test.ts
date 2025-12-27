@@ -4,11 +4,24 @@ import { findParentIssue } from './find-parent-issue.js';
 
 test('find-parent-issue.ts 単体テスト', async (t) => {
 
-    await t.test('親Issueが存在する場合、番号を返すこと', async () => {
+    await t.test('Sub-issueとして親Issueが存在する場合（parentフィールド）、番号を返すこと', async () => {
         const mockClient = async (query: string, vars: any) => {
-            assert.strictEqual(vars.nodeId, 'node_123');
             return {
                 node: {
+                    parent: { number: 888 },
+                    trackedInIssues: { nodes: [] }
+                }
+            };
+        };
+        const result = await findParentIssue(mockClient, 'node_sub');
+        assert.strictEqual(result, 888);
+    });
+
+    await t.test('Tasklistとして親Issueが存在する場合（trackedInIssues）、番号を返すこと', async () => {
+        const mockClient = async (query: string, vars: any) => {
+            return {
+                node: {
+                    parent: null,
                     trackedInIssues: {
                         nodes: [{ number: 999 }]
                     }
@@ -16,7 +29,7 @@ test('find-parent-issue.ts 単体テスト', async (t) => {
             };
         };
 
-        const result = await findParentIssue(mockClient, 'node_123');
+        const result = await findParentIssue(mockClient, 'node_task');
         assert.strictEqual(result, 999);
     });
 
