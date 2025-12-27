@@ -25,6 +25,7 @@ export default withMermaid({
               items: [
                 { text: '書籍探索Issueの作成', link: '/knowledge_base/issue_book_search' },
                 { text: '書籍レポートIssueの作成', link: '/knowledge_base/issue_book_report' },
+                { text: 'Issueのクローズ・削除について', link: '/knowledge_base/issue_close' },
               ]
             },
           ]
