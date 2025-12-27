@@ -26,14 +26,18 @@ jobs:
 
       - name: Get Author Display Name
         id: author
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: user } = await github.rest.users.getByUsername({
-              username: context.payload.issue.user.login
-            });
-            core.setOutput('name', user.name || context.payload.issue.user.login);
-            core.setOutput('login', context.payload.issue.user.login);
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUTHOR_LOGIN="${{ github.event.issue.user.login }}"
+          AUTHOR_NAME=$(gh api "/users/$AUTHOR_LOGIN" --jq ".name")
+          
+          if [ -z "$AUTHOR_NAME" ] || [ "$AUTHOR_NAME" = "null" ]; then
+            AUTHOR_NAME="$AUTHOR_LOGIN"
+          fi
+          
+          echo "name=$AUTHOR_NAME" >> $GITHUB_OUTPUT
+          echo "login=$AUTHOR_LOGIN" >> $GITHUB_OUTPUT
 
       - name: Create Book Report Markdown
         id: generator
@@ -44,6 +48,7 @@ jobs:
           ISSUE_URL: ${{ github.event.issue.html_url }}
           ISSUE_AUTHOR: ${{ steps.author.outputs.name }}
           ISSUE_AUTHOR_LOGIN: ${{ steps.author.outputs.login }}
+          ISSUE_AUTHOR_NAME: ${{ steps.author.outputs.name }}
         run: npx tsx scripts/書籍レポートの取り込み/ingest-book-report.ts
 
       - name: Extract Parent Issue

@@ -41,23 +41,29 @@ export function getSidebarBooks(injectedGlobSync?: InjectedGlobSync, injectedFs?
     const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/);
 
     let authorId = 'Other';
-    let title = path.basename(file, '.md'); // デフォルトタイトル
-    if (filenameParts && filenameParts[1]) {
-       authorId = filenameParts[1];
-       // ファイル名からタイトルを抽出: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
-       const titleParts = filename.match(/^\d{4}-\d{2}-\d{2}-.*?-(.*?)-\d+$/);
-       if (titleParts && titleParts[1]) {
-         title = titleParts[1];
-       }
+    // フロントマターから著者を抽出 (優先)
+    const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
+    if (authorMatch) {
+      authorId = authorMatch[1].trim().replace(/^@/, '');
     } else {
-       // フォールバック: 古いファイルにはフロントマターを使用
-       // フロントマターからタイトルと著者を抽出するための正規表現（簡易版）
-       const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
+      // フォールバック: ファイル名から抽出
+      if (filenameParts && filenameParts[1]) {
+        authorId = filenameParts[1];
+      }
+    }
 
-       title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
-       const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m);
-       authorId = authorMatch ? authorMatch[1].trim() : 'Other';
-       authorId = authorId.replace(/^@/, '');
+    let title = path.basename(file, '.md'); // デフォルトタイトル
+    // ファイル名からタイトルを抽出: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+    // ... (existing title logic)
+    if (filenameParts && filenameParts[1]) {
+      const titleParts = filename.match(/^\d{4}-\d{2}-\d{2}-.*?-(.*?)-\d+$/);
+      if (titleParts && titleParts[1]) {
+        title = titleParts[1];
+      }
+    } else {
+      // フォールバック: フロントマターからタイトル (既存ロジック)
+      const titleMatch = content.match(/^title:\s*["']?(.*?)["']?$/m);
+      title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
     }
 
     const displayName = authorMap[authorId] || authorId;

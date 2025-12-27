@@ -34,16 +34,20 @@ export function getSidebarBooks({
     // Extract authorId from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
     // Fallback to frontmatter extraction for backward compatibility if filename doesn't match pattern
     const filename = path.basename(file, '.md')
-    const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/)
+    // Put priority on Frontmatter 'author' for the Display Name / Grouping Key
+    const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
+    let authorId = authorMatch ? authorMatch[1].trim() : null
 
-    let authorId = 'Other'
-    if (filenameParts && filenameParts[1]) {
-      authorId = filenameParts[1]
-    } else {
-      // Fallback: use frontmatter for old files
-      const authorMatch = content.match(/^author:\s*["']?(.*?)["']?$/m)
-      authorId = authorMatch ? authorMatch[1].trim() : 'Other'
+    if (authorId) {
       authorId = authorId.replace(/^@/, '')
+    } else {
+      // Fallback: Extract from filename: YYYY-MM-DD-{authorId}-{title}-{issueId}.md
+      const filenameParts = filename.match(/^\d{4}-\d{2}-\d{2}-(.*?)-.*-\d+$/)
+      if (filenameParts && filenameParts[1]) {
+        authorId = filenameParts[1]
+      } else {
+        authorId = 'Other'
+      }
     }
 
     // Fallback if no mapping exists: use the raw ID
