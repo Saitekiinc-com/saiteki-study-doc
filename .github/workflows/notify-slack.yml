@@ -36,13 +36,10 @@ jobs:
               return;
             }
 
-            // Check if this PR was merged in the last 5 minutes (avoid duplicate notifications)
-            const mergedAt = new Date(bookReportPR.merged_at);
-            const now = new Date();
-            const diffMinutes = (now - mergedAt) / 1000 / 60;
-
-            if (diffMinutes > 5) {
-              console.log('PR was merged more than 5 minutes ago. Skipping to avoid duplicate.');
+            // NEW: Verify this deployment is actually FOR this PR
+            const deployedSha = context.payload.workflow_run.head_sha;
+            if (bookReportPR.merge_commit_sha !== deployedSha) {
+              console.log(`Deployed SHA (${deployedSha}) does not match PR Merge SHA (${bookReportPR.merge_commit_sha}). Skipping.`);
               core.setOutput('found', 'false');
               return;
             }
@@ -53,9 +50,19 @@ jobs:
             });
             const authorName = userProfile.name || bookReportPR.user.login;
 
+            // Extract book title from PR title: feat: add book report 'Title'
+            let cleanTitle = bookReportPR.title;
+            const match = bookReportPR.title.match(/'(.*?)'/);
+            if (match) {
+              cleanTitle = match[1];
+            } else {
+               // Fallback: try to strip conventional commit prefix if no quotes
+               cleanTitle = cleanTitle.replace(/^(feat|fix|chore).*?:\s*/, '').trim();
+            }
+
             core.setOutput('found', 'true');
             core.setOutput('pr_number', bookReportPR.number);
-            core.setOutput('pr_title', bookReportPR.title);
+            core.setOutput('pr_title', cleanTitle);
             core.setOutput('pr_author', authorName);
             core.setOutput('pr_url', bookReportPR.html_url);
             core.setOutput('pr_body', bookReportPR.body || '');
@@ -172,7 +179,6 @@ jobs:
           *【どんな人におすすめ？】*
           ${RECOMMEND}
           --------------------------------------------------
-          チームのナレッジとして活用しましょう！
           EOF
           )
 
