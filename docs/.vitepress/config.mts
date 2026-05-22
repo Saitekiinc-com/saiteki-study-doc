@@ -8,7 +8,7 @@ export default withMermaid({
   description: "AI-Native Engineering & Knowledge Base",
   themeConfig: {
     nav: [
-      { text: '書籍レポート', link: '/knowledge_base/' },
+      { text: '書籍購入補助', link: '/knowledge_base/' },
     ],
 
     sidebar: {
@@ -17,15 +17,15 @@ export default withMermaid({
         {
           text: '📋 ガイド',
           items: [
-            { text: '書籍レポートトップ', link: '/knowledge_base/' },
+            { text: '書籍購入補助トップ', link: '/knowledge_base/' },
             {
-              text: '書籍購入・レポートフロー',
+              text: '書籍購入補助の流れ',
               link: '/knowledge_base/purchase_flow',
               collapsed: false,
               items: [
-                { text: '書籍探索Issueの作成', link: '/knowledge_base/issue_book_search' },
-                { text: '書籍レポートIssueの作成', link: '/knowledge_base/issue_book_report' },
-                { text: 'Issueのクローズ・削除について', link: '/knowledge_base/issue_close' },
+                { text: 'AIで本を選んで申請する', link: '/knowledge_base/issue_book_search' },
+                { text: '書籍レポートを提出する', link: '/knowledge_base/issue_book_report' },
+                { text: 'Issueを閉じたい場合', link: '/knowledge_base/issue_close' },
               ]
             },
           ]

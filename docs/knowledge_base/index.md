@@ -18,14 +18,14 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
 
 ## 初めて使う場合
 
-購入補助を受ける場合は、まず [書籍購入・レポート投稿フロー](/knowledge_base/purchase_flow) を確認してください。
+購入補助を受ける場合は、まず [書籍購入補助の流れ](/knowledge_base/purchase_flow) を確認してください。
 申請から領収書添付、上長確認、読了後の書籍レポート作成までの流れをまとめています。
 
 購入補助を受けずに書籍レポートだけ投稿する場合も、同じページから手順を確認できます。
 
 ## GitHubアカウントについて
 
-書籍購入補助の申請には、GitHubアカウントが必要です。
+書籍購入補助を使うには、GitHubアカウントが必要です。
 
 1. **アカウントをお持ちでない場合**
    - [GitHub.com](https://github.com/) でアカウントを作成してください。
@@ -37,11 +37,11 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
 
 ## ガイド
 
-- [**書籍購入・レポートフロー**](/knowledge_base/purchase_flow)
-  - 購入補助申請、領収書添付、承認待ち、書籍レポート投稿の全体手順
-- [**書籍探索Issueの作成方法**](/knowledge_base/issue_book_search)
-  - AIによる書籍選定 Issue の作成方法
-- [**書籍レポートIssueの作成方法**](/knowledge_base/issue_book_report)
+- [**書籍購入補助の流れ**](/knowledge_base/purchase_flow)
+  - 書籍購入補助、領収書添付、承認待ち、書籍レポート投稿の全体手順
+- [**AIで本を選んで申請する**](/knowledge_base/issue_book_search)
+  - AIの推薦を参考にしながら、書籍購入補助の手続きを始める方法
+- [**書籍レポートを提出する**](/knowledge_base/issue_book_report)
   - 読了後の書籍レポート投稿方法
 - [**Issueを閉じたい場合**](/knowledge_base/issue_close)
   - 間違えて作成した Issue や、不要になった Issue の扱い

@@ -1,13 +1,13 @@
-name: AIによる書籍選定（購入補助申請）
-description: AIエージェントに自分に合った書籍を提案してもらい、購入申請を行います。
-title: "📚 書籍の選定相談"
+name: AIで本を選んで書籍購入補助を申請する
+description: AIエージェントに自分に合った書籍を提案してもらい、書籍購入補助の手続きを進めます。
+title: "📚 書籍購入補助を申請する"
 labels: ["book-search-request"]
 body:
   - type: markdown
     attributes:
       value: |
         あなたのバックグラウンドと目標に合わせて、最適な書籍を提案します。
-        以下の項目を入力してIssueを作成してください。数分以内にコメントで回答が届きます。
+        以下の項目を入力して書籍購入補助用のIssueを作成してください。数分以内にコメントで回答が届きます。
 
   - type: input
     id: role
@@ -65,4 +65,3 @@ body:
         - Backend: DBのインデックス設計やN+1問題の解決方法がわからない。
     validations:
       required: true
-
