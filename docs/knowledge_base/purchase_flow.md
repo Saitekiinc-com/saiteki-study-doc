@@ -41,4 +41,3 @@ flowchart TD
 ## 関連ページ
 
 - [Slackで書籍購入補助を申請する](./slack_purchase_flow)
-- [Issueを閉じたい場合](./issue_close)
