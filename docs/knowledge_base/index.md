@@ -27,7 +27,5 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
   - Slack上のボタン、スレッド、フォームだけで申請を進める操作手順
 - [**書籍購入補助の流れ**](/knowledge_base/purchase_flow)
   - 利用者と上長が、それぞれどの順番で何をするか
-- [**書籍レポートを提出する**](/knowledge_base/issue_book_report)
-  - 読了後にSlackの `レポートを書く` から提出する方法
 - [**Issueを閉じたい場合**](/knowledge_base/issue_close)
   - 過去にGitHub Issueで作成した申請やレポートを閉じたい場合の扱い

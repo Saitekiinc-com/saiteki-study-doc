@@ -24,7 +24,6 @@ export default withMermaid({
               collapsed: false,
               items: [
                 { text: 'Slackで申請する', link: '/knowledge_base/slack_purchase_flow' },
-                { text: '書籍レポートを提出する', link: '/knowledge_base/issue_book_report' },
                 { text: 'Issueを閉じたい場合', link: '/knowledge_base/issue_close' },
               ]
             },
