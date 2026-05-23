@@ -23,7 +23,9 @@ export default withMermaid({
               link: '/knowledge_base/purchase_flow',
               collapsed: false,
               items: [
-                { text: 'Slackで申請する', link: '/knowledge_base/slack_purchase_flow' },
+                { text: '利用者向け操作ガイド', link: '/knowledge_base/slack_purchase_flow' },
+                { text: '上長向け操作ガイド', link: '/knowledge_base/slack_purchase_manager' },
+                { text: 'よくある質問', link: '/knowledge_base/slack_purchase_faq' },
               ]
             },
           ]

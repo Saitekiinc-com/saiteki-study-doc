@@ -17,13 +17,17 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
 
 ## 初めて使う場合
 
-まず [Slackで書籍購入補助を申請する](/knowledge_base/slack_purchase_flow) を確認してください。
+まず [書籍購入補助の流れ](/knowledge_base/purchase_flow) を確認してください。
 
 申請、購入承認、領収書提出、レポート提出、完了確認まで、利用者の操作はSlack上で行います。
 
 ## ガイド
 
-- [**Slackで書籍購入補助を申請する**](/knowledge_base/slack_purchase_flow)
-  - Slack上のボタン、スレッド、フォームだけで申請を進める操作手順
 - [**書籍購入補助の流れ**](/knowledge_base/purchase_flow)
-  - 利用者と上長が、それぞれどの順番で何をするか
+  - Slackで完結することと、申請から完了までの全体像
+- [**利用者向け操作ガイド**](/knowledge_base/slack_purchase_flow)
+  - 申請、領収書提出、レポート提出の手順
+- [**上長向け操作ガイド**](/knowledge_base/slack_purchase_manager)
+  - 購入承認、領収書確認、レポート確認の手順
+- [**よくある質問**](/knowledge_base/slack_purchase_faq)
+  - つまづきやすい操作の確認
