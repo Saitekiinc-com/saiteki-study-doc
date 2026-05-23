@@ -39,6 +39,8 @@ Saitekiの社員全員を対象とする書籍の購入補助制度です。
 
 - [**書籍購入補助の流れ**](/knowledge_base/purchase_flow)
   - 書籍購入補助、領収書添付、承認待ち、書籍レポート投稿の全体手順
+- [**Slackで書籍購入補助を申請する（工事中）**](/knowledge_base/slack_purchase_flow)
+  - Slack上のボタン、スレッド、フォームだけで申請を進める操作手順
 - [**AIで本を選んで申請する**](/knowledge_base/issue_book_search)
   - AIの推薦を参考にしながら、書籍購入補助の手続きを始める方法
 - [**書籍レポートを提出する**](/knowledge_base/issue_book_report)

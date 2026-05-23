@@ -23,6 +23,7 @@ export default withMermaid({
               link: '/knowledge_base/purchase_flow',
               collapsed: false,
               items: [
+                { text: 'Slackで申請する（工事中）', link: '/knowledge_base/slack_purchase_flow' },
                 { text: 'AIで本を選んで申請する', link: '/knowledge_base/issue_book_search' },
                 { text: '書籍レポートを提出する', link: '/knowledge_base/issue_book_report' },
                 { text: 'Issueを閉じたい場合', link: '/knowledge_base/issue_close' },
