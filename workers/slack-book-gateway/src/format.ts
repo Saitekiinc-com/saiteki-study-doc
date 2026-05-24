@@ -36,6 +36,7 @@ export type BookReportMetadata = {
   prUrl?: string;
   prBranch?: string;
   reportPath?: string;
+  report?: BookReportInput;
 };
 
 export type RequestStatus =

@@ -97,6 +97,70 @@ export async function mergePullRequest(env: Env, state: BookReportMetadata): Pro
   });
 }
 
+export async function updateBookReportPullRequest(env: Env, report: BookReportInput, state: BookReportMetadata): Promise<void> {
+  if (!state.prNumber || !state.prBranch || !state.reportPath) {
+    throw new Error("更新対象のレポートPRが見つかりませんでした。");
+  }
+
+  const sourceUrl = slackThreadUrl(state);
+  const date = dateInJapan(report.submittedAtIso);
+  const markdown = buildBookReportMarkdown(report, sourceUrl, date);
+  const headRef = await githubRequest<GitHubRef>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/ref/heads/${state.prBranch}`, {
+    method: "GET"
+  });
+  const headCommit = await githubRequest<GitHubCommit>(
+    env,
+    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/commits/${headRef.object.sha}`,
+    {
+      method: "GET"
+    }
+  );
+  const blob = await githubRequest<GitHubBlob>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/blobs`, {
+    method: "POST",
+    body: JSON.stringify({
+      content: markdown,
+      encoding: "utf-8"
+    })
+  });
+  const tree = await githubRequest<GitHubTree>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/trees`, {
+    method: "POST",
+    body: JSON.stringify({
+      base_tree: headCommit.tree.sha,
+      tree: [
+        {
+          path: state.reportPath,
+          mode: "100644",
+          type: "blob",
+          sha: blob.sha
+        }
+      ]
+    })
+  });
+  const newCommit = await githubRequest<GitHubCommit>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/commits`, {
+    method: "POST",
+    body: JSON.stringify({
+      message: `fix: update book report for ${report.bookTitle}`,
+      tree: tree.sha,
+      parents: [headRef.object.sha]
+    })
+  });
+
+  await githubRequest<GitHubRef>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/git/refs/heads/${state.prBranch}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      sha: newCommit.sha,
+      force: false
+    })
+  });
+
+  await githubRequest<GitHubPullRequest>(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/pulls/${state.prNumber}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      title: `feat: add book report for ${report.bookTitle}`
+    })
+  });
+}
+
 async function githubRequest<T>(env: Env, path: string, init: RequestInit): Promise<T> {
   const response = await fetch(`https://api.github.com${path}`, {
     ...init,

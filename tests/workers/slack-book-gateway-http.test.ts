@@ -333,7 +333,7 @@ describe("slack-book-gateway HTTP entrypoints and state transitions", () => {
     assert.strictEqual(nextState.status, "report_review_waiting");
     assert.strictEqual(nextState.prNumber, 231);
     assert.match(historyCall.body.text, /https:\/\/github\.com\/Saitekiinc-com\/saiteki-study-doc\/pull\/231/u);
-    assert.deepStrictEqual(actionLabels(updateCall.body.blocks), ["レポートを確認して完了", "PRを開く", "一つ前に戻す"]);
+    assert.deepStrictEqual(actionLabels(updateCall.body.blocks), ["レポートを編集", "レポートを確認して完了", "PRを開く"]);
     assert.ok(confirmForAction(updateCall.body.blocks, "confirm_report"), "confirm_report should require a confirmation dialog");
   });
 
