@@ -4,7 +4,8 @@
 import { slackCommandFromPayload } from "./state";
 import type { SlackCommand, SlackInteractionPayload } from "./types";
 import { json, parseFormEncoded, verifySlackRequest } from "./utils";
-import { handleInteraction, handleInteractionError, openBookReportModal, openBookRequestModal, postLauncherMessage } from "./workflow";
+import { postLauncherMessage } from "./launcher";
+import { handleInteraction, handleInteractionError, openBookReportModal, openBookRequestModal } from "./workflow";
 
 export { BookPurchaseRequestState } from "./request-state";
 export { normalizeApplicantName, selectSlackDisplayName, selectSlackRealName } from "./slack";

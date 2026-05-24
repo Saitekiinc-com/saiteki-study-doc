@@ -275,6 +275,7 @@ function actionElementsForState(state: BookReportMetadata, version?: number): Sl
   }
 
   if (status === "report_review_waiting") {
+    elements.push(button("レポートを編集", "open_book_report", state, version));
     elements.push(
       button("レポートを確認して完了", "confirm_report", state, version, "primary", {
         title: plainText("完了してよいですか？"),
@@ -291,7 +292,6 @@ function actionElementsForState(state: BookReportMetadata, version?: number): Sl
         url: state.prUrl
       });
     }
-    elements.push(button("一つ前に戻す", "undo_state", state, version));
     return elements;
   }
 

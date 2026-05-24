@@ -19,12 +19,16 @@ Slackで完結する書籍購入補助フローについて、Slackボタンの 
 4. ボタン押下時は Durable Object から最新状態を読み、payloadの `version` と一致する場合だけ状態を更新する。
 5. 古いversionの場合は状態変更せず、スレッドに「古いボタン」であることを投稿する。
 6. 既存投稿との互換のため、旧形式の状態JSONが来た場合は Durable Object に未保存なら初回だけ保存する。
-7. レポート提出は状態が `report_waiting` のときだけ受け付ける。提出中ロックで二重PR作成を抑止する。
-8. `/book setup` は `BOOK_REQUEST_CHANNEL_ID` 以外ではランチャー投稿しない。
+7. レポート提出は状態が `report_waiting` のときだけ初回PRを作る。提出中ロックで二重PR作成を抑止する。
+8. 状態が `report_review_waiting` のときは、レポート編集モーダルから既存PRブランチの同じMarkdownファイルを更新する。
+9. `report_review_waiting` 以降では `一つ前に戻す` を表示しない。
+10. `/book` と `/book setup` は `BOOK_REQUEST_CHANNEL_ID` 以外では申請モーダルやランチャー投稿を作らない。
 
 ## 変更するソースファイル
 
 - `workers/slack-book-gateway/src/index.ts`
+- `workers/slack-book-gateway/src/launcher.ts`
+- `workers/slack-book-gateway/src/report-modal.ts`
 - `workers/slack-book-gateway/src/workflow.ts`
 - `workers/slack-book-gateway/src/workflow-state.ts`
 - `workers/slack-book-gateway/src/state.ts`
