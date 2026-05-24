@@ -275,10 +275,11 @@ function actionElementsForState(state: BookReportMetadata, version?: number): Sl
   }
 
   if (status === "report_review_waiting") {
+    elements.push(button("レポートを編集", "open_book_report", state, version));
     elements.push(
       button("レポートを確認して完了", "confirm_report", state, version, "primary", {
         title: plainText("完了してよいですか？"),
-        text: mrkdwn("PRをマージして補助申請を完了します。完了後はSlackから一つ前に戻せません。"),
+        text: mrkdwn("PRをマージして補助申請を完了します。"),
         confirm: plainText("完了する"),
         deny: plainText("キャンセル")
       })
@@ -291,7 +292,6 @@ function actionElementsForState(state: BookReportMetadata, version?: number): Sl
         url: state.prUrl
       });
     }
-    elements.push(button("一つ前に戻す", "undo_state", state, version));
     return elements;
   }
 

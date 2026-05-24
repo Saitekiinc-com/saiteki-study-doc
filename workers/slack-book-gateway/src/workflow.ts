@@ -2,23 +2,21 @@ import {
   buildBookReportSlackMessage,
   buildReportMetadata,
   normalizeBookUrl,
-  type BookReportInput,
   type BookReportMetadata,
   type BookRequestInput,
   type RequestStatus
 } from "./format";
-import { createBookReportPullRequest, mergePullRequest } from "./github";
+import { createBookReportPullRequest, mergePullRequest, updateBookReportPullRequest } from "./github";
+import { buildBookReportModalView, buildReportInput } from "./report-modal";
 import {
   STATUS_LABELS,
   compactState,
   currentStatus,
   inputBlock,
   modalValue,
-  mrkdwn,
   plainText,
   pushStatusHistory,
   renderStateBlocks,
-  stateReference,
   stateText,
   statusHistory,
   withActor
@@ -33,10 +31,8 @@ import {
 import { loadActionState, loadViewState, stateForError, type LoadedState } from "./workflow-state";
 import {
   addCompletedReaction,
-  lookupSlackDisplayName,
   lookupSlackRealName,
   normalizeApplicantName as cleanApplicantName,
-  pinMessage,
   slackApi
 } from "./slack";
 import type { SlackApiResponse, SlackCommand, SlackInteractionPayload, SlackPostMessageResponse } from "./types";
@@ -118,47 +114,6 @@ export async function openBookRequestModal(env: Env, triggerId: string, command:
   });
 }
 
-export async function postLauncherMessage(
-  env: Env,
-  channelId: string
-): Promise<{ channel: string; ts: string; pinned: boolean; pinError?: string }> {
-  const postResult = await slackApi<SlackPostMessageResponse>(env, "chat.postMessage", {
-    channel: channelId,
-    text: "書籍購入補助の申請はこちらから行えます。",
-    blocks: [
-      {
-        type: "section",
-        text: mrkdwn("*書籍購入補助*\n本の購入申請はこのボタンから行えます。")
-      },
-      {
-        type: "actions",
-        elements: [
-          {
-            type: "button",
-            text: plainText("書籍購入補助を申請する"),
-            action_id: "open_book_request",
-            value: "open_book_request",
-            style: "primary"
-          }
-        ]
-      }
-    ]
-  });
-
-  const postedChannel = postResult.channel || channelId;
-  if (!postResult.ts) {
-    throw new Error("Slack launcher message was posted without a timestamp.");
-  }
-
-  const pinResult = await pinMessage(env, postedChannel, postResult.ts);
-  return {
-    channel: postedChannel,
-    ts: postResult.ts,
-    pinned: pinResult.ok,
-    pinError: pinResult.ok ? undefined : pinResult.error
-  };
-}
-
 export async function openBookReportModal(env: Env, payload: SlackInteractionPayload): Promise<void> {
   const loaded = await loadActionState(env, payload);
   if (loaded.stale) {
@@ -172,26 +127,7 @@ export async function openBookReportModal(env: Env, payload: SlackInteractionPay
 
   await slackApi<SlackApiResponse>(env, "views.open", {
     trigger_id: payload.trigger_id,
-    view: {
-      type: "modal",
-      callback_id: "book_report_submit",
-      private_metadata: JSON.stringify(stateReference(loaded.state, loaded.version)),
-      title: plainText("書籍レポート"),
-      submit: plainText("提出する"),
-      close: plainText("閉じる"),
-      blocks: [
-        inputBlock("book_title", "book_title", "書籍名", "書籍名", loaded.state.bookTitle),
-        inputBlock("reporter_name", "reporter_name", "氏名", "書籍レポートのAuthorに表示する氏名", loaded.state.slackDisplayName),
-        inputBlock("author", "author", "著者", "著者名"),
-        inputBlock("link", "link", "リンク", "書籍URL", loaded.state.bookUrl),
-        inputBlock("objective", "objective", "読む前の目的", "読み始める前に知りたかったこと", loaded.state.purpose, true),
-        inputBlock("takeaways", "takeaways", "得られた知識", "得られた知識や気づき", undefined, true),
-        inputBlock("application", "application", "実務における活用", "業務でどう活用できそうか", undefined, true),
-        inputBlock("positive", "positive", "良かった点", "良かった点、学びになった点", undefined, true),
-        inputBlock("negative", "negative", "難しかった点・合わなかった点", "難しかった点や合わなかった点", undefined, true),
-        inputBlock("recommend", "recommend", "どんな人におすすめ？", "おすすめしたい人", undefined, true)
-      ]
-    }
+    view: buildBookReportModalView(loaded.state, loaded.version)
   });
 }
 
@@ -255,15 +191,14 @@ async function handleBookReportSubmission(env: Env, payload: SlackInteractionPay
   }
 
   const status = currentStatus(loaded.state);
-  if (status !== "report_waiting") {
-    if (status === "report_review_waiting" && loaded.state.prNumber) {
-      await postHistory(env, loaded.state, "レポートはすでに提出済みです。親投稿の最新状態を確認してください。");
-      await updateStateMessage(env, loaded.state, loaded.version);
-      return;
-    }
-
+  if (status !== "report_waiting" && status !== "report_review_waiting") {
     await postHistory(env, loaded.state, `現在の状態は「${STATUS_LABELS[status]}」のため、レポートは提出できません。`);
     await updateStateMessage(env, loaded.state, loaded.version);
+    return;
+  }
+
+  if (status === "report_review_waiting") {
+    await updateSubmittedReport(env, payload, loaded);
     return;
   }
 
@@ -273,32 +208,7 @@ async function handleBookReportSubmission(env: Env, payload: SlackInteractionPay
     return;
   }
 
-  const typedReportDisplayName = modalValue(payload.view, "reporter_name", "reporter_name");
-  const reportDisplayName =
-    typedReportDisplayName ||
-    (await lookupSlackDisplayName(
-      env,
-      payload.user.id,
-      lockResult.record.state.slackDisplayName || payload.user.username || payload.user.name || payload.user.id
-    ));
-
-  const report: BookReportInput = {
-    slackUserId: payload.user.id,
-    slackDisplayName: reportDisplayName,
-    bookTitle: modalValue(payload.view, "book_title", "book_title"),
-    author: modalValue(payload.view, "author", "author"),
-    link: normalizeBookUrl(modalValue(payload.view, "link", "link")),
-    objective: modalValue(payload.view, "objective", "objective"),
-    takeaways: modalValue(payload.view, "takeaways", "takeaways"),
-    application: modalValue(payload.view, "application", "application"),
-    positive: modalValue(payload.view, "positive", "positive"),
-    negative: modalValue(payload.view, "negative", "negative"),
-    recommend: modalValue(payload.view, "recommend", "recommend"),
-    sourceRequestId: lockResult.record.state.requestId,
-    sourceSlackChannelId: lockResult.record.state.channelId,
-    sourceSlackThreadTs: lockResult.record.state.threadTs || "",
-    submittedAtIso: new Date().toISOString()
-  };
+  const report = await buildReportInput(env, payload, lockResult.record.state);
 
   let pullRequest: Awaited<ReturnType<typeof createBookReportPullRequest>>;
   try {
@@ -325,7 +235,8 @@ async function handleBookReportSubmission(env: Env, payload: SlackInteractionPay
     prNumber: pullRequest.number,
     prUrl: pullRequest.html_url,
     prBranch: pullRequest.head.ref,
-    reportPath: pullRequest.reportPath
+    reportPath: pullRequest.reportPath,
+    report
   });
 
   const saved = await saveRequestState(env, nextState, lockResult.record.version);
@@ -341,6 +252,65 @@ async function handleBookReportSubmission(env: Env, payload: SlackInteractionPay
   }
 
   await updateStateMessage(env, saved.record.state, saved.record.version);
+}
+
+async function updateSubmittedReport(env: Env, payload: SlackInteractionPayload, loaded: LoadedState): Promise<void> {
+  const report = await buildReportInput(env, payload, loaded.state);
+  await updateBookReportPullRequest(env, report, loaded.state);
+  await postHistory(env, loaded.state, `${buildBookReportSlackMessage(report)}\n\n*GitHub PRを更新しました*\n${loaded.state.prUrl}\n\n上長は内容を確認し、親投稿のボタンから完了にしてください。`);
+
+  const nextState = compactState({
+    ...loaded.state,
+    slackDisplayName: report.slackDisplayName,
+    bookTitle: report.bookTitle,
+    bookUrl: report.link,
+    report
+  });
+  const saved = await saveRequestState(env, nextState, loaded.version);
+  if (!saved.ok) {
+    const recovered =
+      saved.record?.state.status === "report_review_waiting" && saved.record.state.prNumber === loaded.state.prNumber
+        ? await saveRequestState(env, nextState)
+        : saved;
+    if (!recovered.ok) {
+      await postConflictHistory(env, payload, recovered.record || saved.record || loaded);
+      return;
+    }
+
+    await updateStateMessage(env, recovered.record.state, recovered.record.version);
+    return;
+  }
+
+  await updateStateMessage(env, saved.record.state, saved.record.version);
+}
+
+async function buildReportInput(env: Env, payload: SlackInteractionPayload, state: BookReportMetadata): Promise<BookReportInput> {
+  if (!payload.view) {
+    throw new Error("Slack view payload is missing.");
+  }
+
+  const typedDisplayName = modalValue(payload.view, "reporter_name", "reporter_name");
+  const slackDisplayName =
+    typedDisplayName ||
+    (await lookupSlackDisplayName(env, payload.user.id, state.slackDisplayName || payload.user.username || payload.user.name || payload.user.id));
+
+  return {
+    slackUserId: payload.user.id,
+    slackDisplayName,
+    bookTitle: modalValue(payload.view, "book_title", "book_title"),
+    author: modalValue(payload.view, "author", "author"),
+    link: normalizeBookUrl(modalValue(payload.view, "link", "link")),
+    objective: modalValue(payload.view, "objective", "objective"),
+    takeaways: modalValue(payload.view, "takeaways", "takeaways"),
+    application: modalValue(payload.view, "application", "application"),
+    positive: modalValue(payload.view, "positive", "positive"),
+    negative: modalValue(payload.view, "negative", "negative"),
+    recommend: modalValue(payload.view, "recommend", "recommend"),
+    sourceRequestId: state.requestId,
+    sourceSlackChannelId: state.channelId,
+    sourceSlackThreadTs: state.threadTs || "",
+    submittedAtIso: state.report?.submittedAtIso || new Date().toISOString()
+  };
 }
 
 async function transitionState(

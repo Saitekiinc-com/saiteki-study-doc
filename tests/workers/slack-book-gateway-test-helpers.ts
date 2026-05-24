@@ -92,8 +92,14 @@ export function installFetchMock(options: { failGitHubBlob?: boolean; pinError?:
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/ref/heads/main" && method === "GET") {
         return jsonResponse({ object: { sha: "base-sha" } });
       }
+      if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/ref/heads/book-report/slack-test" && method === "GET") {
+        return jsonResponse({ object: { sha: "head-sha" } });
+      }
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/commits/base-sha" && method === "GET") {
         return jsonResponse({ sha: "base-sha", tree: { sha: "base-tree-sha" } });
+      }
+      if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/commits/head-sha" && method === "GET") {
+        return jsonResponse({ sha: "head-sha", tree: { sha: "head-tree-sha" } });
       }
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/blobs" && method === "POST") {
         return options.failGitHubBlob ? jsonResponse({ message: "blob failed" }, 500) : jsonResponse({ sha: "blob-sha" });
@@ -107,7 +113,17 @@ export function installFetchMock(options: { failGitHubBlob?: boolean; pinError?:
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/refs" && method === "POST") {
         return jsonResponse({ object: { sha: "commit-sha" } });
       }
+      if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/git/refs/heads/book-report/slack-test" && method === "PATCH") {
+        return jsonResponse({ object: { sha: "commit-sha" } });
+      }
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/pulls" && method === "POST") {
+        return jsonResponse({
+          number: 231,
+          html_url: "https://github.com/Saitekiinc-com/saiteki-study-doc/pull/231",
+          head: { ref: "book-report/slack-test" }
+        });
+      }
+      if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/pulls/231" && method === "PATCH") {
         return jsonResponse({
           number: 231,
           html_url: "https://github.com/Saitekiinc-com/saiteki-study-doc/pull/231",
@@ -179,7 +195,7 @@ export function blockActionPayload(actionId: string, state: unknown, userId: str
   };
 }
 
-export function reportSubmissionPayload(state: unknown) {
+export function reportSubmissionPayload(state: unknown, values: Record<string, string> = {}) {
   return {
     type: "view_submission",
     user: { id: "U_REQUESTER", username: "requester" },
@@ -189,16 +205,16 @@ export function reportSubmissionPayload(state: unknown) {
       private_metadata: JSON.stringify(state),
       state: {
         values: {
-          book_title: { book_title: { value: "リーダブルコード" } },
-          reporter_name: { reporter_name: { value: "杉本光一" } },
-          author: { author: { value: "Dustin Boswell" } },
-          link: { link: { value: "https://example.com/book" } },
-          objective: { objective: { value: "レビューの質を上げたい" } },
-          takeaways: { takeaways: { value: "命名が重要" } },
-          application: { application: { value: "レビュー時に名前を見る" } },
-          positive: { positive: { value: "具体例が多い" } },
-          negative: { negative: { value: "なし" } },
-          recommend: { recommend: { value: "コードレビューをする人" } }
+          book_title: { book_title: { value: values.bookTitle || "リーダブルコード" } },
+          reporter_name: { reporter_name: { value: values.reporterName || "杉本光一" } },
+          author: { author: { value: values.author || "Dustin Boswell" } },
+          link: { link: { value: values.link || "https://example.com/book" } },
+          objective: { objective: { value: values.objective || "レビューの質を上げたい" } },
+          takeaways: { takeaways: { value: values.takeaways || "命名が重要" } },
+          application: { application: { value: values.application || "レビュー時に名前を見る" } },
+          positive: { positive: { value: values.positive || "具体例が多い" } },
+          negative: { negative: { value: values.negative || "なし" } },
+          recommend: { recommend: { value: values.recommend || "コードレビューをする人" } }
         }
       }
     }
