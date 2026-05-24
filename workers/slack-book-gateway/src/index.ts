@@ -45,14 +45,18 @@ export default {
 
 async function handleSlackCommand(rawBody: string, env: Env): Promise<Response> {
   const command = parseFormEncoded<SlackCommand>(rawBody);
-  if (command.text?.trim() === "setup") {
-    if (command.channel_id && command.channel_id !== env.BOOK_REQUEST_CHANNEL_ID) {
-      return json({
-        response_type: "ephemeral",
-        text: "申請ボタン付きの案内は書籍購入補助チャンネルでだけ作成できます。対象チャンネルで /book setup を実行してください。"
-      });
-    }
+  if (command.channel_id && command.channel_id !== env.BOOK_REQUEST_CHANNEL_ID) {
+    const commandText = command.text?.trim();
+    return json({
+      response_type: "ephemeral",
+      text:
+        commandText === "setup"
+          ? "申請ボタン付きの案内は書籍購入補助チャンネルでだけ作成できます。対象チャンネルで /book setup を実行してください。"
+          : "書籍購入補助の申請は対象チャンネルでだけ利用できます。対象チャンネルで /book を実行してください。"
+    });
+  }
 
+  if (command.text?.trim() === "setup") {
     const launcherPostResult = await postLauncherMessage(env, command.channel_id || env.BOOK_REQUEST_CHANNEL_ID);
     return json({
       response_type: "ephemeral",

@@ -80,6 +80,23 @@ describe("slack-book-gateway HTTP entrypoints and state transitions", () => {
     assert.strictEqual(metadata.slackDisplayName, "杉本光一");
   });
 
+  test("does not open the book request modal from slash command outside the configured channel", async () => {
+    const calls = installFetchMock();
+    const commandBody = new URLSearchParams({
+      trigger_id: "trigger-123",
+      user_id: "U_REQUESTER",
+      user_name: "requester",
+      channel_id: "C_OTHER"
+    }).toString();
+
+    const response = await worker.fetch(await signedRequest("/slack/commands", commandBody), env as never, createExecutionContext().ctx);
+    const result = (await response.json()) as { text: string };
+
+    assert.strictEqual(response.status, 200);
+    assert.match(result.text, /対象チャンネル/u);
+    assert.strictEqual(calls.slack("views.open").length, 0);
+  });
+
   test("does not post the setup launcher outside the configured book request channel", async () => {
     const calls = installFetchMock();
     const commandBody = new URLSearchParams({
