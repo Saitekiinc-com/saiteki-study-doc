@@ -1,0 +1,30 @@
+{
+  "name": "book-purchase-slack-gateway",
+  "account_id": "f92a794e947dbfa6f132dba9f13e1867",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "BOOK_PURCHASE_REQUESTS",
+        "class_name": "BookPurchaseRequestState"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["BookPurchaseRequestState"]
+    }
+  ],
+  "vars": {
+    "BOOK_REQUEST_CHANNEL_ID": "C0B5FKHTTCK",
+    "GITHUB_OWNER": "Saitekiinc-com",
+    "GITHUB_REPO": "saiteki-study-doc"
+  }
+}
