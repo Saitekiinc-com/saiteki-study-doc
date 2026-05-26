@@ -5,6 +5,11 @@ on:
     workflows: ["Deploy VitePress site to Pages"]
     types: [completed]
 
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -15,49 +20,37 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Find the most recent merged PR with book-report label
-            const { data: prs } = await github.rest.pulls.list({
+            const deployedSha = context.payload.workflow_run.head_sha;
+            const { data: associatedPRs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'closed',
-              sort: 'updated',
-              direction: 'desc',
-              per_page: 10
+              commit_sha: deployedSha,
+              per_page: 100
             });
 
-            const bookReportPR = prs.find(pr =>
+            const bookReportPR = associatedPRs.find(pr =>
               pr.merged_at &&
-              pr.labels.some(l => l.name === 'book-report')
+              pr.merge_commit_sha === deployedSha &&
+              (pr.labels || []).some(l => l.name === 'book-report')
             );
 
             if (!bookReportPR) {
-              console.log('No recent book-report PR found.');
+              console.log(`No merged book-report PR found for deployed SHA ${deployedSha}.`);
               core.setOutput('found', 'false');
               return;
             }
 
-            // NEW: Verify this deployment is actually FOR this PR
-            const deployedSha = context.payload.workflow_run.head_sha;
-            if (bookReportPR.merge_commit_sha !== deployedSha) {
-              console.log(`Deployed SHA (${deployedSha}) does not match PR Merge SHA (${bookReportPR.merge_commit_sha}). Skipping.`);
-              core.setOutput('found', 'false');
-              return;
-            }
-
-            // Get user profile to fetch display name
             const { data: userProfile } = await github.rest.users.getByUsername({
               username: bookReportPR.user.login
             });
             const authorName = userProfile.name || bookReportPR.user.login;
 
-            // Extract book title from PR title: feat: add book report 'Title'
             let cleanTitle = bookReportPR.title;
             const match = bookReportPR.title.match(/'(.*?)'/);
             if (match) {
               cleanTitle = match[1];
             } else {
-               // Fallback: try to strip conventional commit prefix if no quotes
-               cleanTitle = cleanTitle.replace(/^(feat|fix|chore).*?:\s*/, '').trim();
+              cleanTitle = cleanTitle.replace(/^(feat|fix|chore).*?:\s*/, '').trim();
             }
 
             core.setOutput('found', 'true');
@@ -65,84 +58,148 @@ jobs:
             core.setOutput('pr_title', cleanTitle);
             core.setOutput('pr_author', authorName);
             core.setOutput('pr_url', bookReportPR.html_url);
-            core.setOutput('pr_body', bookReportPR.body || '');
             core.setOutput('pr_head_ref', bookReportPR.head.ref);
 
       - name: Parse Book Report Content
         if: steps.find_pr.outputs.found == 'true'
         id: parse
         uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.find_pr.outputs.pr_number }}
+          PR_TITLE: ${{ steps.find_pr.outputs.pr_title }}
+          PR_AUTHOR: ${{ steps.find_pr.outputs.pr_author }}
+          PR_HEAD_REF: ${{ steps.find_pr.outputs.pr_head_ref }}
         with:
           script: |
-            const prBody = `${{ steps.find_pr.outputs.pr_body }}`;
-            const prHeadRef = `${{ steps.find_pr.outputs.pr_head_ref }}`;
-            const prNumber = `${{ steps.find_pr.outputs.pr_number }}`;
+            const prNumber = Number(process.env.PR_NUMBER);
+            const fallbackTitle = process.env.PR_TITLE || '';
+            const fallbackAuthor = process.env.PR_AUTHOR || '';
+            const prHeadRef = process.env.PR_HEAD_REF || '';
 
-            // Extract issue number from branch name "book-report/issue-123"
-            let issueNumber = null;
-            const branchMatch = prHeadRef.match(/issue-(\d+)/);
-            if (branchMatch) issueNumber = branchMatch[1];
-
-            if (!issueNumber) {
-              console.log('No linked issue found from branch.');
-              core.setOutput('page_url', '');
-              core.setOutput('objective', 'なし');
-              core.setOutput('takeaways', 'なし');
-              core.setOutput('application', 'なし');
-              core.setOutput('positive', 'なし');
-              core.setOutput('negative', 'なし');
-              core.setOutput('recommend', 'なし');
-              return;
-            }
-
-            const { data: issue } = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-
-            const body = issue.body;
-
-            function extract(label) {
-              const regex = new RegExp("### " + label + "[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))");
-              const m = body.match(regex);
-              return m ? m[1].trim() : 'なし';
-            }
-
-            // Get files from PR to find the book report path
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber
+              pull_number: prNumber,
+              per_page: 100
             });
+
             const reportFile = files.find(f => f.filename.startsWith('docs/knowledge_base/book_reports/') && f.filename.endsWith('.md'));
             let pageUrl = '';
+            let report = null;
             if (reportFile) {
               const relativePath = reportFile.filename.replace(/^docs\//, '').replace(/\.md$/, '.html');
               pageUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/${relativePath}`;
+
+              const { data: content } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: reportFile.filename,
+                ref: context.payload.workflow_run.head_sha
+              });
+
+              if (!Array.isArray(content) && content.type === 'file' && content.content) {
+                const markdown = Buffer.from(content.content, content.encoding || 'base64').toString('utf8');
+                report = parseReportMarkdown(markdown, fallbackTitle, fallbackAuthor);
+              }
             }
 
-            const objective = extract('読む前の目的');
-            const takeaways = extract('得られた知識');
-            const application = extract('実務における活用');
-            const positive = extract('良かった点');
-            const negative = extract('難しかった点・合わなかった点');
-            const recommend = extract('💡 どんな人におすすめ？');
+            if (!report) {
+              report = await parseIssueFallback(prHeadRef, fallbackTitle, fallbackAuthor);
+            }
 
-            core.setOutput('objective', objective);
-            core.setOutput('takeaways', takeaways);
-            core.setOutput('application', application);
-            core.setOutput('positive', positive);
-            core.setOutput('negative', negative);
-            core.setOutput('recommend', recommend);
+            core.setOutput('report_title', report.title || fallbackTitle);
+            core.setOutput('report_author', report.author || fallbackAuthor);
+            core.setOutput('objective', report.objective || 'なし');
+            core.setOutput('takeaways', report.takeaways || 'なし');
+            core.setOutput('application', report.application || 'なし');
+            core.setOutput('positive', report.positive || 'なし');
+            core.setOutput('negative', report.negative || 'なし');
+            core.setOutput('recommend', report.recommend || 'なし');
             core.setOutput('page_url', pageUrl);
+
+            function parseReportMarkdown(markdown, fallbackTitle, fallbackAuthor) {
+              return {
+                title: frontmatterValue(markdown, 'title') || fallbackTitle,
+                author: frontmatterValue(markdown, 'author') || fallbackAuthor,
+                objective: sectionValue(markdown, '読む前の目的'),
+                takeaways: sectionValue(markdown, '得られた知識'),
+                application: sectionValue(markdown, '実務における活用'),
+                positive: sectionValue(markdown, '良かった点'),
+                negative: sectionValue(markdown, '難しかった点・合わなかった点'),
+                recommend: sectionValue(markdown, 'どんな人におすすめ')
+              };
+            }
+
+            async function parseIssueFallback(prHeadRef, fallbackTitle, fallbackAuthor) {
+              const branchMatch = prHeadRef.match(/issue-(\d+)/);
+              if (!branchMatch) {
+                console.log('No report Markdown or linked issue found.');
+                return { title: fallbackTitle, author: fallbackAuthor };
+              }
+
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: branchMatch[1]
+              });
+              const body = issue.body || '';
+
+              return {
+                title: issueSectionValue(body, '書籍名') || fallbackTitle,
+                author: fallbackAuthor,
+                objective: issueSectionValue(body, '読む前の目的'),
+                takeaways: issueSectionValue(body, '得られた知識'),
+                application: issueSectionValue(body, '実務における活用'),
+                positive: issueSectionValue(body, '良かった点'),
+                negative: issueSectionValue(body, '難しかった点・合わなかった点'),
+                recommend: issueSectionValue(body, '💡 どんな人におすすめ？')
+              };
+            }
+
+            function frontmatterValue(markdown, key) {
+              const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---/);
+              if (!frontmatter) return '';
+              const line = frontmatter[1].match(new RegExp(`^${escapeRegExp(key)}:\\s*(.*)$`, 'm'));
+              if (!line) return '';
+              return line[1].trim().replace(/^['"]|['"]$/g, '');
+            }
+
+            function sectionValue(markdown, label) {
+              const lines = markdown.split(/\r?\n/u);
+              const chunks = [];
+              let capturing = false;
+
+              for (const line of lines) {
+                if (/^##\s+/u.test(line)) {
+                  if (capturing) break;
+                  capturing = line.replace(/^##\s+/u, '').includes(label);
+                  continue;
+                }
+                if (capturing) {
+                  if (/^---\s*$/u.test(line)) break;
+                  chunks.push(line);
+                }
+              }
+
+              return chunks.join('\n').trim() || 'なし';
+            }
+
+            function issueSectionValue(body, label) {
+              const regex = new RegExp(`### ${escapeRegExp(label)}[^\\n]*\\n+([\\s\\S]*?)(?=(?:###|$))`, 'u');
+              const match = body.match(regex);
+              return match ? match[1].trim() : 'なし';
+            }
+
+            function escapeRegExp(value) {
+              return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
 
       - name: Send Slack Notification
         if: steps.find_pr.outputs.found == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          PR_TITLE: ${{ steps.find_pr.outputs.pr_title }}
-          PR_AUTHOR: ${{ steps.find_pr.outputs.pr_author }}
+          PR_TITLE: ${{ steps.parse.outputs.report_title }}
+          PR_AUTHOR: ${{ steps.parse.outputs.report_author }}
           PAGE_URL: ${{ steps.parse.outputs.page_url }}
           OBJECTIVE: ${{ steps.parse.outputs.objective }}
           TAKEAWAYS: ${{ steps.parse.outputs.takeaways }}
@@ -182,10 +239,14 @@ jobs:
           EOF
           )
 
-          jq -n \
+          SLACK_RESPONSE=$(jq -n \
             --arg text "$MESSAGE" \
-            '{channel: "#random", username: "BookRepo Bot", icon_emoji: ":books:", text: $text}' | \
-            curl -X POST "$SLACK_WEBHOOK" \
+            '{text: $text}' | \
+            curl --fail-with-body -sS -X POST "$SLACK_WEBHOOK" \
               -H 'Content-type: application/json' \
-              --data @-
+              --data @-)
 
+          if [ "$SLACK_RESPONSE" != "ok" ]; then
+            echo "Unexpected Slack webhook response."
+            exit 1
+          fi

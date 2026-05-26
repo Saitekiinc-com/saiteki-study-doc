@@ -123,6 +123,9 @@ export function installFetchMock(options: { failGitHubBlob?: boolean; pinError?:
           head: { ref: "book-report/slack-test" }
         });
       }
+      if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/issues/231/labels" && method === "POST") {
+        return jsonResponse([{ name: "book-report" }]);
+      }
       if (githubPath === "/repos/Saitekiinc-com/saiteki-study-doc/pulls/231" && method === "PATCH") {
         return jsonResponse({
           number: 231,

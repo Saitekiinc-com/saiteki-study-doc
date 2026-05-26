@@ -81,6 +81,8 @@ export async function createBookReportPullRequest(
     })
   });
 
+  await addLabelsToPullRequest(env, pullRequest.number, ["book-report"]);
+
   return {
     ...pullRequest,
     reportPath
@@ -158,6 +160,13 @@ export async function updateBookReportPullRequest(env: Env, report: BookReportIn
     body: JSON.stringify({
       title: `feat: add book report for ${report.bookTitle}`
     })
+  });
+}
+
+async function addLabelsToPullRequest(env: Env, pullRequestNumber: number, labels: string[]): Promise<void> {
+  await githubRequest(env, `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/issues/${pullRequestNumber}/labels`, {
+    method: "POST",
+    body: JSON.stringify({ labels })
   });
 }
 
