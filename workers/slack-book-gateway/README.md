@@ -100,12 +100,13 @@ npx wrangler secret put SLACK_BOT_TOKEN --config workers/slack-book-gateway/wran
 npx wrangler secret put GITHUB_TOKEN --config workers/slack-book-gateway/wrangler.jsonc
 ```
 
-`GITHUB_TOKEN` には、書籍レポートMarkdown用ブランチとPRを作成し、確認後にPRをマージできる権限が必要です。
+`GITHUB_TOKEN` には、書籍レポートMarkdown用ブランチとPRを作成し、PRへ `book-report` ラベルを付与し、確認後にPRをマージできる権限が必要です。
 
 Fine-grained tokenの場合の目安:
 
 - Repository contents: Read and write
 - Pull requests: Read and write
+- Issues: Read and write
 
 Classic tokenの場合は対象リポジトリに書き込みできる `repo` 相当の権限が必要です。
 

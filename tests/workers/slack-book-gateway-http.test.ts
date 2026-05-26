@@ -324,12 +324,14 @@ describe("slack-book-gateway HTTP entrypoints and state transitions", () => {
     await ctx.waitForWaitUntil();
 
     const prCall = calls.findGitHub("/repos/Saitekiinc-com/saiteki-study-doc/pulls", "POST");
+    const labelsCall = calls.findGitHub("/repos/Saitekiinc-com/saiteki-study-doc/issues/231/labels", "POST");
     const updateCall = calls.findSlack("chat.update");
     const nextState = firstActionState(updateCall.body.blocks, env.BOOK_PURCHASE_REQUESTS);
     const historyCall = calls.findSlack("chat.postMessage");
 
     assert.strictEqual(response.status, 200);
     assert.strictEqual(prCall.body.title, "feat: add book report for リーダブルコード");
+    assert.deepStrictEqual(labelsCall.body.labels, ["book-report"]);
     assert.strictEqual(nextState.status, "report_review_waiting");
     assert.strictEqual(nextState.prNumber, 231);
     assert.match(historyCall.body.text, /https:\/\/github\.com\/Saitekiinc-com\/saiteki-study-doc\/pull\/231/u);
